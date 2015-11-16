@@ -1,0 +1,17 @@
+*.[oa]
+*~
+*.so
+tmp/
+.svn/
+*.dSYM/
+.depend
+cscope.files
+cscope.out
+bin
+*.class
+gen
+.DS_Store
+*.log
+test/*
+!test/*.c
+!test/Makefile
