@@ -63,16 +63,16 @@ static char m_assert_error[MAX_ERROR_LEN] = {0};
 
 static bool m_test_passed = false;
 
-static void _mtest_color(int color)
+static void _color(int color)
 {
     printf("%s", m_colors[color]);
 }
 
-static void _mtest_signal(int sig)
+static void _signal(int sig)
 {
     m_test_passed = false;
 
-    _mtest_color(RED);
+    _color(RED);
     switch (sig) {
     case SIGFPE:
         printf("Failed! \n\n    Division by Zero\n\n");
@@ -86,14 +86,14 @@ static void _mtest_signal(int sig)
     default:
         break;
     }
-    _mtest_color(DEFAULT);
+    _color(DEFAULT);
 
     puts("    | Stopping Execution.");
     fflush(stdout);
     exit(1);
 }
 
-static void _mtest_put_summary()
+static void _put_summary()
 {
     puts("");
     puts("  +---------------------------------------------------+");
@@ -101,28 +101,28 @@ static void _mtest_put_summary()
     puts("  +---------++------------+-------------+-------------+");
 
     printf("  | Suites  ||");
-    _mtest_color(YELLOW);  printf(" Total %4d ",  m_num_suite);
-    _mtest_color(DEFAULT); putchar('|');
-    _mtest_color(GREEN);   printf(" Passed %4d ", m_num_suite_pass);
-    _mtest_color(DEFAULT); putchar('|');
-    _mtest_color(RED);     printf(" Failed %4d ", m_num_suite_fail);
-    _mtest_color(DEFAULT); puts("|");
+    _color(YELLOW);  printf(" Total %4d ",  m_num_suite);
+    _color(DEFAULT); putchar('|');
+    _color(GREEN);   printf(" Passed %4d ", m_num_suite_pass);
+    _color(DEFAULT); putchar('|');
+    _color(RED);     printf(" Failed %4d ", m_num_suite_fail);
+    _color(DEFAULT); puts("|");
 
     printf("  | Tests   ||");
-    _mtest_color(YELLOW);  printf(" Total %4d ",  m_num_test);
-    _mtest_color(DEFAULT); putchar('|');
-    _mtest_color(GREEN);   printf(" Passed %4d ", m_num_test_pass);
-    _mtest_color(DEFAULT); putchar('|');
-    _mtest_color(RED);     printf(" Failed %4d ", m_num_test_fail);
-    _mtest_color(DEFAULT); puts("|");
+    _color(YELLOW);  printf(" Total %4d ",  m_num_test);
+    _color(DEFAULT); putchar('|');
+    _color(GREEN);   printf(" Passed %4d ", m_num_test_pass);
+    _color(DEFAULT); putchar('|');
+    _color(RED);     printf(" Failed %4d ", m_num_test_fail);
+    _color(DEFAULT); puts("|");
 
     printf("  | Asserts ||");
-    _mtest_color(YELLOW);  printf(" Total %4d ",  m_num_assert);
-    _mtest_color(DEFAULT); putchar('|');
-    _mtest_color(GREEN);   printf(" Passed %4d ", m_num_assert_pass);
-    _mtest_color(DEFAULT); putchar('|');
-    _mtest_color(RED);     printf(" Failed %4d ", m_num_assert_fail);
-    _mtest_color(DEFAULT); puts("|");
+    _color(YELLOW);  printf(" Total %4d ",  m_num_assert);
+    _color(DEFAULT); putchar('|');
+    _color(GREEN);   printf(" Passed %4d ", m_num_assert_pass);
+    _color(DEFAULT); putchar('|');
+    _color(RED);     printf(" Failed %4d ", m_num_assert_fail);
+    _color(DEFAULT); puts("|");
 
     puts("  +---------++------------+-------------+-------------+");
     puts("");
@@ -187,9 +187,9 @@ int mtest_run()
     clock_t start, end;
     double duration;
 
-    signal(SIGFPE,  _mtest_signal);
-    signal(SIGILL,  _mtest_signal);
-    signal(SIGSEGV, _mtest_signal);
+    signal(SIGFPE,  _signal);
+    signal(SIGILL,  _signal);
+    signal(SIGSEGV, _signal);
 
     puts("");
     puts("    +-----------------------------------------+");
@@ -228,15 +228,15 @@ int mtest_run()
         if (m_test_passed) {
             m_num_test_pass++;
 
-            _mtest_color(GREEN);
+            _color(GREEN);
             puts("Passed!");
-            _mtest_color(DEFAULT);
+            _color(DEFAULT);
         } else {
             m_num_test_fail++;
 
-            _mtest_color(RED);
+            _color(RED);
             printf("Failed! \n\n%s\n", m_assert_error);
-            _mtest_color(DEFAULT);
+            _color(DEFAULT);
         }
     }
 
@@ -245,7 +245,7 @@ int mtest_run()
 
     end = clock();
 
-    _mtest_put_summary();
+    _put_summary();
 
     duration = (double)(end - start) / CLOCKS_PER_SEC;
 

@@ -4,7 +4,7 @@
 /*
  * ***attention*** NOT TRHEAD SAFE
  *
- * mtest, test tools for reef
+ * mtest, test tools
  * check test/demo.c for usage
  */
 

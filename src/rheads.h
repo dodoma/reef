@@ -11,6 +11,13 @@
 #endif
 #endif
 
+#if __GNUC__ > 2 || __GNUC__ == 2 && __GNUC_MINOR__ > 6
+#define ATTRIBUTE_PRINTF(a1,a2) __attribute__((__format__ (__printf__, a1, a2)))
+#else
+#define ATTRIBUTE_PRINTF(a1,a2)
+#endif
+
+
 /*
  * system headers
  */
@@ -32,6 +39,10 @@
 /*
  * reef triggerfish headers
  */
+#include "mos.h"
+#include "mstring.h"
 #include "mtest.h"
+#include "merror.h"
+#include "merror_macro.h"
 
 #endif
