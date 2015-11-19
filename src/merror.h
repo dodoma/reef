@@ -14,6 +14,8 @@ __BEGIN_DECLS
 typedef enum {
     MERR_NOMEM = -30999,
     MERR_ASSERT,
+    MERR_EMPTY,
+    MERR_NEXIST,
 
     MERR_PASS = -30888
 } MERR_CODE;
@@ -40,6 +42,7 @@ MERR* merr_pass_raw(const char *func, const char *file, int lineno, MERR *error)
 bool merr_match(MERR *error, MERR_CODE code);
 void merr_traceback(MERR *error, MSTR *str);
 void merr_destroy(MERR **error);
+
 const char* merr_code_2_str(MERR_CODE code);
 
 

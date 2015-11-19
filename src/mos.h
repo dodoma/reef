@@ -17,6 +17,10 @@ __BEGIN_DECLS
 void* mos_calloc(size_t nmemb, size_t size);
 void* mos_realloc(void *ptr, size_t size);
 
+/*
+ * return rand integer between [0, max)
+ */
+int mos_rand(int max);
 
 __END_DECLS
 #endif

@@ -108,3 +108,28 @@ void mstr_clear(MSTR *str)
     mos_free(str->buf);
     mstr_init(str);
 }
+
+void mstr_rand_string(char *s, size_t maxlen)
+{
+    size_t len, x;
+
+    if (!s) return;
+
+    len = (size_t)mos_rand(maxlen);
+    for (x = 0; x < len; x++) {
+        s[x] = (char)('a' + mos_rand(26));
+    }
+    s[x] = '\0';
+}
+
+void mstr_rand_string_fixlen(char *s, size_t len)
+{
+    size_t x;
+
+    if (!s) return;
+
+    for (x = 0; x < len; x++) {
+        s[x] = (char)('a' + mos_rand(26));
+    }
+    s[x] = '\0';
+}

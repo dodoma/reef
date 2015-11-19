@@ -21,3 +21,15 @@ void* mos_realloc(void *ptr, size_t size)
 
     return p;
 }
+
+int mos_rand(int max)
+{
+    static bool inited = false;
+
+    if (!inited) {
+        srand48(time(NULL));
+        inited = true;
+    }
+
+    return drand48() * max;
+}

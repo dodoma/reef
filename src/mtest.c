@@ -249,7 +249,7 @@ int mtest_run()
 
     duration = (double)(end - start) / CLOCKS_PER_SEC;
 
-    printf("    Tootal Running Time: %0.3fs\n\n", duration);
+    printf("    Total Running Time: %0.3fs\n\n", duration);
 
     if (m_num_suite_fail > 0) return 1;
     else return 0;

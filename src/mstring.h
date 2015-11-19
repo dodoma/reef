@@ -22,5 +22,8 @@ void mstr_appendf(MSTR *str, const char *fmt, ...) ATTRIBUTE_PRINTF(2,3);
 void mstr_set(MSTR *str, const char *buf);
 void mstr_clear(MSTR *str);
 
+void mstr_rand_string(char *s, size_t len);
+void mstr_rand_string_fixlen(char *s, size_t maxlen);
+
 __END_DECLS
 #endif
