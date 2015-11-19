@@ -19,6 +19,8 @@
 
 #define	__F(func) (*func)
 
+#define PATH_MAX 256
+
 
 /*
  * system headers
@@ -36,16 +38,25 @@
 #include <strings.h>
 #include <stdbool.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <inttypes.h>
 
 /*
  * reef triggerfish headers
  */
 #include "mos.h"
-#include "mstring.h"
+#include "mcolor.h"
+
+#include "mtype.h"
+
 #include "mtest.h"
 #include "merror.h"
+#include "mtrace.h"
+#include "mtrace_macro.h"
+
+#include "mstring.h"
 #include "merror_macro.h"
+
 #include "mlist.h"
 #include "mlist_macro.h"
 

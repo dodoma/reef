@@ -5,53 +5,13 @@
 #define MAX_NAME  256
 #define MAX_ERROR_LEN 10240
 
+#define _color(c) printf("%s", c)
+
 typedef struct {
     void (*func)(void);
     char funcname[MAX_NAME];
     char suitename[MAX_NAME];
 } mtest_t;
-
-enum {
-    BLACK   = 0,
-    BLUE    = 1,
-    GREEN   = 2,
-    AQUA    = 3,
-    RED     = 4,
-    PURPLE  = 5,
-    YELLOW  = 6,
-    WHITE   = 7,
-    GRAY    = 8,
-
-    LIGHT_BLUE   = 9,
-    LIGHT_GREEN  = 10,
-    LIGHT_AQUA   = 11,
-    LIGHT_RED    = 12,
-    LIGHT_PURPLE = 13,
-    LIGHT_YELLOW = 14,
-    LIGHT_WHITE  = 15,
-
-    DEFAULT      = 16,
-};
-
-static const char* m_colors[] = {
-    "\x1B[0m",
-    "\x1B[34m",
-    "\x1B[32m",
-    "\x1B[36m",
-    "\x1B[31m",
-    "\x1B[35m",
-    "\x1B[33m",
-    "\x1B[37m",
-    "",
-    "\x1B[34m",
-    "\x1B[32m",
-    "\x1B[36m",
-    "\x1B[31m",
-    "\x1B[35m",
-    "\x1B[33m",
-    "\x1B[37m",
-    "\x1B[39m",
-};
 
 static int m_num_suite = 0, m_num_test = 0, m_num_assert = 0;
 static int m_num_suite_pass = 0, m_num_test_pass = 0, m_num_assert_pass = 0;
@@ -63,16 +23,11 @@ static char m_assert_error[MAX_ERROR_LEN] = {0};
 
 static bool m_test_passed = false;
 
-static void _color(int color)
-{
-    printf("%s", m_colors[color]);
-}
-
 static void _signal(int sig)
 {
     m_test_passed = false;
 
-    _color(RED);
+    _color(MCOLOR_RED);
     switch (sig) {
     case SIGFPE:
         printf("Failed! \n\n    Division by Zero\n\n");
@@ -86,7 +41,7 @@ static void _signal(int sig)
     default:
         break;
     }
-    _color(DEFAULT);
+    _color(MCOLOR_RESET);
 
     puts("    | Stopping Execution.");
     fflush(stdout);
@@ -101,28 +56,28 @@ static void _put_summary()
     puts("  +---------++------------+-------------+-------------+");
 
     printf("  | Suites  ||");
-    _color(YELLOW);  printf(" Total %4d ",  m_num_suite);
-    _color(DEFAULT); putchar('|');
-    _color(GREEN);   printf(" Passed %4d ", m_num_suite_pass);
-    _color(DEFAULT); putchar('|');
-    _color(RED);     printf(" Failed %4d ", m_num_suite_fail);
-    _color(DEFAULT); puts("|");
+    _color(MCOLOR_YELLOW);  printf(" Total %4d ",  m_num_suite);
+    _color(MCOLOR_RESET); putchar('|');
+    _color(MCOLOR_GREEN);   printf(" Passed %4d ", m_num_suite_pass);
+    _color(MCOLOR_RESET); putchar('|');
+    _color(MCOLOR_RED);     printf(" Failed %4d ", m_num_suite_fail);
+    _color(MCOLOR_RESET); puts("|");
 
     printf("  | Tests   ||");
-    _color(YELLOW);  printf(" Total %4d ",  m_num_test);
-    _color(DEFAULT); putchar('|');
-    _color(GREEN);   printf(" Passed %4d ", m_num_test_pass);
-    _color(DEFAULT); putchar('|');
-    _color(RED);     printf(" Failed %4d ", m_num_test_fail);
-    _color(DEFAULT); puts("|");
+    _color(MCOLOR_YELLOW);  printf(" Total %4d ",  m_num_test);
+    _color(MCOLOR_RESET); putchar('|');
+    _color(MCOLOR_GREEN);   printf(" Passed %4d ", m_num_test_pass);
+    _color(MCOLOR_RESET); putchar('|');
+    _color(MCOLOR_RED);     printf(" Failed %4d ", m_num_test_fail);
+    _color(MCOLOR_RESET); puts("|");
 
     printf("  | Asserts ||");
-    _color(YELLOW);  printf(" Total %4d ",  m_num_assert);
-    _color(DEFAULT); putchar('|');
-    _color(GREEN);   printf(" Passed %4d ", m_num_assert_pass);
-    _color(DEFAULT); putchar('|');
-    _color(RED);     printf(" Failed %4d ", m_num_assert_fail);
-    _color(DEFAULT); puts("|");
+    _color(MCOLOR_YELLOW);  printf(" Total %4d ",  m_num_assert);
+    _color(MCOLOR_RESET); putchar('|');
+    _color(MCOLOR_GREEN);   printf(" Passed %4d ", m_num_assert_pass);
+    _color(MCOLOR_RESET); putchar('|');
+    _color(MCOLOR_RED);     printf(" Failed %4d ", m_num_assert_fail);
+    _color(MCOLOR_RESET); puts("|");
 
     puts("  +---------++------------+-------------+-------------+");
     puts("");
@@ -228,15 +183,15 @@ int mtest_run()
         if (m_test_passed) {
             m_num_test_pass++;
 
-            _color(GREEN);
+            _color(MCOLOR_GREEN);
             puts("Passed!");
-            _color(DEFAULT);
+            _color(MCOLOR_RESET);
         } else {
             m_num_test_fail++;
 
-            _color(RED);
+            _color(MCOLOR_RED);
             printf("Failed! \n\n%s\n", m_assert_error);
-            _color(DEFAULT);
+            _color(MCOLOR_RESET);
         }
     }
 

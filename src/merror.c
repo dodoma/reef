@@ -111,6 +111,8 @@ const char* merr_code_2_str(MERR_CODE code)
         return "assert error";
     case MERR_EMPTY:
         return "object empty";
+    case MERR_OPENFILE:
+        return "open file failure";
     case MERR_NEXIST:
         return "object not exist";
     case MERR_PASS:

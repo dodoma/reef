@@ -8,12 +8,17 @@
  */
 __BEGIN_DECLS
 
-typedef struct {
+struct _MSTR {
     char *buf;
     size_t len;
     size_t max;
-} MSTR;
+};
 
+/*
+ * ======================
+ * basic string functions
+ * ======================
+ */
 void mstr_init(MSTR *str);
 void mstr_append(MSTR *str, const char *buf);
 void mstr_appendc(MSTR *str, char c);
@@ -22,8 +27,29 @@ void mstr_appendf(MSTR *str, const char *fmt, ...) ATTRIBUTE_PRINTF(2,3);
 void mstr_set(MSTR *str, const char *buf);
 void mstr_clear(MSTR *str);
 
-void mstr_rand_string(char *s, size_t len);
-void mstr_rand_string_fixlen(char *s, size_t maxlen);
+
+/*
+ * ========================
+ * advance string functions
+ * ========================
+ */
+
+/*
+ * 返回最多 len 个随机字母(a ~ z)组成的字符串
+ * 调用者需确保 s 的内存长度 >= maxlen + 1
+ */
+void mstr_rand_string(char *s, size_t maxlen);
+/*
+ * 返回由 len 个随机字母(a ~ z)组成的字符串
+ * 调用者需确保 s 的内存长度 >= len + 1
+ */
+void mstr_rand_string_fixlen(char *s, size_t len);
+
+/*
+ * 以 sep 为分割符，将 str 分割为最多为 max 个元素的列表。
+ * alist 为新申请的列表，调用者请自行释放。
+ */
+MERR* mstr_array_split(MLIST **alist, char *str, const char *sep, int max);
 
 __END_DECLS
 #endif

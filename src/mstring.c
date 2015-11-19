@@ -133,3 +133,44 @@ void mstr_rand_string_fixlen(char *s, size_t len)
     }
     s[x] = '\0';
 }
+
+MERR* mstr_array_split(MLIST **alist, char *str, const char *sep, int max)
+{
+    size_t lenstr, lensep;
+    char *p, *q;
+    MLIST *llist;
+    MERR *err;
+
+    MERR_NOT_NULLC(alist, str, sep);
+
+    if (sep[0] == '\0') return merr_raise(MERR_ASSERT, "seperator empty");
+
+    lenstr = strlen(str);
+    lensep = strlen(sep);
+
+    err = mlist_init(alist, free);
+    if (err) return merr_pass(err);
+
+    llist = *alist;
+
+    p = q = str;
+    q = lensep > 1 ? strstr(p, sep) : strchr(p, sep[0]);
+    while (p && q && mlist_length(llist) < max) {
+        err = mlist_append(llist, strndup(p, q - p));
+        JUMP_NOK(err, error);
+
+        p = q + lenstr;
+        if (p) q = lensep > 1 ? strstr(p, sep) : strchr(p, sep[0]);
+    }
+
+    if (*p) {
+        err = mlist_append(llist, strdup(p));
+        JUMP_NOK(err, error);
+    }
+
+    return MERR_OK;
+
+error:
+    mlist_destroy(alist);
+    return merr_pass(err);
+}

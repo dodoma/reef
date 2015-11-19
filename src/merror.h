@@ -11,16 +11,7 @@ __BEGIN_DECLS
 
 #define MERR_OK ((MERR*)0)
 
-typedef enum {
-    MERR_NOMEM = -30999,
-    MERR_ASSERT,
-    MERR_EMPTY,
-    MERR_NEXIST,
-
-    MERR_PASS = -30888
-} MERR_CODE;
-
-typedef struct _MERR {
+struct _MERR {
     MERR_CODE code;
     const char *func;
     const char *file;
@@ -29,7 +20,7 @@ typedef struct _MERR {
     char desc[1024];
 
     struct _MERR *next;
-} MERR;
+};
 
 #define merr_pass(e) merr_pass_raw(__func__, __FILE__, __LINE__, e)
 #define merr_raise(code, ...) merr_raisef(__func__, __FILE__, __LINE__, code, __VA_ARGS__)
