@@ -17,6 +17,8 @@
 #define ATTRIBUTE_PRINTF(a1,a2)
 #endif
 
+#define	__F(func) (*func)
+
 
 /*
  * system headers
@@ -44,5 +46,7 @@
 #include "mtest.h"
 #include "merror.h"
 #include "merror_macro.h"
+#include "mlist.h"
+#include "mlist_macro.h"
 
 #endif
