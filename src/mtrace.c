@@ -10,7 +10,7 @@ static char *m_levels[MTC_MAX] = {"DIE", "MESSAGE", "ERROR",
                                   "WARNING", "INFO", "DEBUG",
                                   "NOISE"};
 
-static char linebuf[2096];
+static char m_linebuf[2096];
 static FILE *m_fp = NULL;
 
 static void _leave()
@@ -44,6 +44,7 @@ static inline void _shift_file()
     }
 
     m_fp = fopen(m_filename, "a+");
+    setvbuf(m_fp, m_linebuf, _IOLBF, 2096);
 }
 
 int mtc_init(const char *fn, MTC_LEVEL level)
@@ -57,8 +58,7 @@ int mtc_init(const char *fn, MTC_LEVEL level)
     if (m_fp) fclose(m_fp);
     m_fp = fopen(m_filename, "a+");
     if (!m_fp) return MERR_OPENFILE;
-
-    setvbuf(m_fp, linebuf, _IOLBF, 2096);
+    setvbuf(m_fp, m_linebuf, _IOLBF, 2096);
 
     atexit(_leave);
 
