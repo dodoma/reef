@@ -1,7 +1,7 @@
 BASEDIR = ./
 include $(BASEDIR)Make.env
 
-SUBDIR = src test
+SUBDIR = include src test
 
 all: $(SUBDIR)
 	@$(MULTIMAKE) $(SUBDIR)

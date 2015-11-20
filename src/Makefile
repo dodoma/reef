@@ -7,7 +7,10 @@ SOURCES = $(wildcard *.c)
 OBJS	= $(patsubst %.c, %.o, $(SOURCES))
 DEPEND	= .depend
 
-all: libreef.so
+INCS	= $(INCBASE)
+
+#all: libreef.so
+all: libreef.a
 
 $(DEPEND): $(SOURCES)
 	@$(CC) $(CFLAGS) -MM $^ > $@
@@ -16,17 +19,20 @@ libreef.so:$(OBJS) $(DEPEND)
 	@echo "CFLAGS="$(CFLAGS);
 	@$(CC) $(CFLAGS) -o $@ $(OBJS)
 
+libreef.a:$(OBJS) $(DEPEND)
+	@rm -rf $@
+	$(AR) rcs $@ $(OBJS)
+
 include $(DEPEND)
 %.o:%.c
 	@echo "$(CC) -c $<"
-	@$(CC) $(CFLAGS) -c $< -o $@
+	@$(CC) $(CFLAGS) -c $< -o $@ $(INCS)
 
 clean:
 	rm -f $(OBJS) *.so
 
 install:
 	install -m 0644 libreef.so /usr/local/lib
-#TODO headers?
 
 uninstall:
 	rm -f /usr/local/lib/libreef.so

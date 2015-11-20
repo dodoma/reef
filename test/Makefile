@@ -11,7 +11,7 @@ LIBS	= $(LIBBASE)
 all: preload $(BINARY)
 
 preload:
-	@$(MAKE) -C $(SRCBASE)
+	@$(MAKE) -C $(BASEDIR)/src
 
 $(DEPEND): $(SOURCES)
 	@$(CC) $(CFLAGS) -MM $^ $(INCS) > $@
@@ -23,10 +23,10 @@ $(DEPEND): $(SOURCES)
 		echo "=== "$(INCS); \
 		echo "=== "$(LIBS); fi
 	@echo "$(CC) -o $@"
-	$(CC) $(CFLAGS) $^ -o $@ $(INCS) ${LIBS}
+	$(CC) $(CFLAGS) $^ -o $@ $(INCS) $(LIBS)
 
 clean:
-	@rm -rf ${BINARY}
+	@rm -rf $(BINARY)
 
 install:
 

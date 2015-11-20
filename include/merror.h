@@ -1,8 +1,6 @@
 #ifndef __MERROR_H__
 #define __MERROR_H__
 
-#include "rheads.h"
-
 /*
  * merror, error handle
  * moon reserved error code: -30999 ~ -30800

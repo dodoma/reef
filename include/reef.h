@@ -1,5 +1,5 @@
-#ifndef __RHEADS_H__
-#define __RHEADS_H__
+#ifndef __REEF_H__
+#define __REEF_H__
 
 #ifndef __BEGIN_DECLS
 #ifdef __cplusplus
