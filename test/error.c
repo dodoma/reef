@@ -14,12 +14,12 @@ void test_error()
     MTEST_ASSERT(merr_match(oerr, MERR_PASS));
     MTEST_ASSERT(!merr_match(oerr, MERR_NOMEM));
 
-    MSTR str;
-    mstr_init(&str);
-    merr_traceback(oerr, &str);
-    //printf("%s\n", str.buf);
-    MTEST_ASSERT(strstr(str.buf, "i am error") != NULL);
-    mstr_clear(&str);
+    MSTR astr;
+    mstr_init(&astr);
+    merr_traceback(oerr, &astr);
+    //printf("%s\n", astr.buf);
+    MTEST_ASSERT(strstr(astr.buf, "i am error") != NULL);
+    mstr_clear(&astr);
 
     merr_destroy(&oerr);
 }

@@ -1,5 +1,13 @@
 #include "rheads.h"
 
+struct _MLIST {
+    int num;
+    int max;
+    bool sorted;
+    void __F(free)(void *node);
+    void **items;
+};
+
 static inline void _check_length(MLIST *alist, int size)
 {
     if (size > alist->max) {

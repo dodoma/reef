@@ -43,9 +43,9 @@ void test_basic()
 {
     MLIST *alist;
     MERR *err;
-    MSTR str;
+    MSTR astr;
 
-    mstr_init(&str);
+    mstr_init(&astr);
 
     mlist_init(&alist, NULL);
 
@@ -67,8 +67,8 @@ void test_basic()
     /* aaa */
 
     err = mlist_insert(alist, 1, "xxx");
-    //merr_traceback(err, &str);
-    //printf("%s\n", str.buf);
+    //merr_traceback(err, &astr);
+    //printf("%s\n", astr.buf);
     MTEST_ASSERT(err != MERR_OK);
     merr_destroy(&err);
 

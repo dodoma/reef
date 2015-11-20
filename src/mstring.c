@@ -1,112 +1,112 @@
 #include "rheads.h"
 
-static void _check_length(MSTR *str, size_t len)
+static void _check_length(MSTR *astr, size_t len)
 {
-    if (str->buf == NULL) {
-        if (len * 10 > 256) str->max = len * 10;
-        else str->max = 256;
+    if (astr->buf == NULL) {
+        if (len * 10 > 256) astr->max = len * 10;
+        else astr->max = 256;
 
-        str->buf = mos_calloc(1, sizeof(char) * str->max);
-    } else if (str->len + len >= str->max) {
+        astr->buf = mos_calloc(1, sizeof(char) * astr->max);
+    } else if (astr->len + len >= astr->max) {
         char *newbuf;
         size_t newmax;
 
-        newmax = str->max;
+        newmax = astr->max;
         do {
             newmax *= 2;
-        } while (str->len + len >= newmax);
+        } while (astr->len + len >= newmax);
 
-        newbuf = mos_realloc(str->buf, sizeof(char) * newmax);
+        newbuf = mos_realloc(astr->buf, sizeof(char) * newmax);
 
-        str->buf = newbuf;
-        str->max = newmax;
+        astr->buf = newbuf;
+        astr->max = newmax;
     }
 }
 
-void mstr_init(MSTR *str)
+void mstr_init(MSTR *astr)
 {
-    if (!str) return;
+    if (!astr) return;
 
-    str->buf = NULL;
-    str->len = 0;
-    str->max = 0;
+    astr->buf = NULL;
+    astr->len = 0;
+    astr->max = 0;
 }
 
-void mstr_append(MSTR *str, const char *buf)
+void mstr_append(MSTR *astr, const char *buf)
 {
-    if (!str || !buf) return;
+    if (!astr || !buf) return;
 
     size_t len = strlen(buf);
 
-    _check_length(str, len);
+    _check_length(astr, len);
 
-    strcpy(str->buf + str->len, buf);
-    str->len += len;
+    strcpy(astr->buf + astr->len, buf);
+    astr->len += len;
 }
 
-void mstr_appendc(MSTR *str, char c)
+void mstr_appendc(MSTR *astr, char c)
 {
-    if (!str) return;
+    if (!astr) return;
 
-    _check_length(str, 1);
+    _check_length(astr, 1);
 
-    str->buf[str->len] = c;
-    str->buf[str->len + 1] = '\0';
-    str->len += 1;
+    astr->buf[astr->len] = c;
+    astr->buf[astr->len + 1] = '\0';
+    astr->len += 1;
 }
 
-void mstr_appendn(MSTR *str, const char *buf, size_t len)
+void mstr_appendn(MSTR *astr, const char *buf, size_t len)
 {
-    if (!str || !buf || len == 0) return;
+    if (!astr || !buf || len == 0) return;
 
-    _check_length(str, len);
+    _check_length(astr, len);
 
-    memcpy(str->buf + str->len, buf, len);
-    str->len += len;
-    str->buf[str->len] = '\0';
+    memcpy(astr->buf + astr->len, buf, len);
+    astr->len += len;
+    astr->buf[astr->len] = '\0';
 }
 
-void mstr_appendf(MSTR *str, const char *fmt, ...)
+void mstr_appendf(MSTR *astr, const char *fmt, ...)
 {
     char buf[1024];
     int len;
     va_list ap, tmpap;
 
-    if (!str || !fmt) return;
+    if (!astr || !fmt) return;
 
     va_start(ap, fmt);
     va_copy(tmpap, ap);
     len = vsnprintf(buf, 1024, fmt, tmpap);
 
     if (len >= 0 && len < 1024) {
-        mstr_appendn(str, buf, len);
+        mstr_appendn(astr, buf, len);
     } else {
         /* from vsnprintf() manual:
          * a return value of size or more means that the output was truncated.
          */
-        _check_length(str, len + 1);
-        vsprintf(str->buf + str->len, fmt, ap);
-        str->len += len;
-        str->buf[str->len] = '\0';
+        _check_length(astr, len + 1);
+        vsprintf(astr->buf + astr->len, fmt, ap);
+        astr->len += len;
+        astr->buf[astr->len] = '\0';
     }
 
     va_end(ap);
 }
 
-void mstr_set(MSTR *str, const char *buf)
+void mstr_set(MSTR *astr, const char *buf)
 {
-    if (!str) return;
+    if (!astr) return;
 
-    str->len = 0;
-    mstr_append(str, buf);
+    astr->len = 0;
+    mstr_append(astr, buf);
 }
 
-void mstr_clear(MSTR *str)
+void mstr_clear(MSTR *astr)
 {
-    if (!str) return;
+    if (!astr) return;
 
-    mos_free(str->buf);
-    mstr_init(str);
+    mos_free(astr->buf);
+    mstr_init(astr);
 }
 
 void mstr_rand_string(char *s, size_t maxlen)
@@ -134,18 +134,17 @@ void mstr_rand_string_fixlen(char *s, size_t len)
     s[x] = '\0';
 }
 
-MERR* mstr_array_split(MLIST **alist, char *str, const char *sep, int max)
+MERR* mstr_array_split(MLIST **alist, const char *sin, const char *sep, int max)
 {
-    size_t lenstr, lensep;
+    size_t lensep;
     char *p, *q;
     MLIST *llist;
     MERR *err;
 
-    MERR_NOT_NULLC(alist, str, sep);
+    MERR_NOT_NULLC(alist, sin, sep);
 
     if (sep[0] == '\0') return merr_raise(MERR_ASSERT, "seperator empty");
 
-    lenstr = strlen(str);
     lensep = strlen(sep);
 
     err = mlist_init(alist, free);
@@ -153,17 +152,30 @@ MERR* mstr_array_split(MLIST **alist, char *str, const char *sep, int max)
 
     llist = *alist;
 
-    p = q = str;
+    p = q = (char*)sin;
+
     q = lensep > 1 ? strstr(p, sep) : strchr(p, sep[0]);
+    /* 处理冗余标识符 */
+    while (p && p == q) {
+        p += lensep;
+        if (p) q = lensep > 1 ? strstr(p, sep) : strchr(p, sep[0]);
+    }
+
     while (p && q && mlist_length(llist) < max) {
         err = mlist_append(llist, strndup(p, q - p));
         JUMP_NOK(err, error);
 
-        p = q + lenstr;
-        if (p) q = lensep > 1 ? strstr(p, sep) : strchr(p, sep[0]);
+        p = q + lensep;
+        if (p) {
+            q = lensep > 1 ? strstr(p, sep) : strchr(p, sep[0]);
+            while (p && p == q) {
+                p += lensep;
+                if (p) q = lensep > 1 ? strstr(p, sep) : strchr(p, sep[0]);
+            }
+        }
     }
 
-    if (*p) {
+    if (p && *p) {
         err = mlist_append(llist, strdup(p));
         JUMP_NOK(err, error);
     }

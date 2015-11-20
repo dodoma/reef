@@ -46,24 +46,6 @@
  */
 __BEGIN_DECLS
 
-/*
- * 将以下声明移到 mlist.c 可以起到程序自我保护作用（因为其他文件中的代码不能访问 MLIST 的内部成员）
- * 比如 mstr_array_split() 中，不能访问 llist->num 变量，必须使用 mlist_length(llist)
- * 但，移到 mlist.c 后，外部便不能声明 MLIST xlist, 只能声明 MLIST *alist
- *    否则会提示 error: storage size of 'xlist' isn't known
- *      the MLIST structure on the header file is just a forward declaration,
- *      when it's included on rheads.h, it only has knowledge of the
- *      forward declaration but no clue of how it's defined (or in this case,
- *      what the size of the struct is). define your struct on the header file instead.
- */
-struct _MLIST {
-    int num;
-    int max;
-    bool sorted;
-    void __F(free)(void *node);
-    void **items;
-};
-
 MERR* mlist_init(MLIST **alist, void __F(freeitem)(void*));
 
 MERR* mlist_append(MLIST *alist, void *data);

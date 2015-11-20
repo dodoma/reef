@@ -1,5 +1,16 @@
 #include "rheads.h"
 
+struct _MERR {
+    MERR_CODE code;
+    const char *func;
+    const char *file;
+    int lineno;
+
+    char desc[1024];
+
+    struct _MERR *next;
+};
+
 MERR* merr_raisef(const char *func, const char *file, int lineno,
                   MERR_CODE code, const char *fmt, ...)
 {
@@ -54,30 +65,30 @@ bool merr_match(MERR *error, MERR_CODE code)
     return false;
 }
 
-void merr_traceback(MERR *error, MSTR *str)
+void merr_traceback(MERR *error, MSTR *astr)
 {
     int errnum;
     MERR *err;
 
-    if (!error || !str) return;
+    if (!error || !astr) return;
 
     err = error;
 
-    mstr_append(str, "Traceback:\n");
+    mstr_append(astr, "Traceback:\n");
 
     errnum = 0;
     while (err) {
         errnum++;
 
-        for (int i = 0; i < errnum; i++) mstr_append(str, "  ");
+        for (int i = 0; i < errnum; i++) mstr_append(astr, "  ");
 
-        mstr_appendf(str, "%s:%d %s(): %d %s\n",
+        mstr_appendf(astr, "%s:%d %s(): %d %s\n",
                      err->file, err->lineno, err->func,
                      err->code, merr_code_2_str(err->code));
 
         if (err->desc[0]) {
-            for (int i = 0; i < errnum; i++) mstr_append(str, "  ");
-            mstr_appendf(str, "%s\n", err->desc);
+            for (int i = 0; i < errnum; i++) mstr_append(astr, "  ");
+            mstr_appendf(astr, "%s\n", err->desc);
         }
 
         err = err->next;

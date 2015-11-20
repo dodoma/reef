@@ -48,14 +48,15 @@
 #include "mcolor.h"
 
 #include "mtype.h"
-
 #include "mtest.h"
+
 #include "merror.h"
+#include "merror_macro.h"
+
 #include "mtrace.h"
 #include "mtrace_macro.h"
 
 #include "mstring.h"
-#include "merror_macro.h"
 
 #include "mlist.h"
 #include "mlist_macro.h"

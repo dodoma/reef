@@ -48,9 +48,11 @@ static inline void _shift_file()
 
 int mtc_init(const char *fn, MTC_LEVEL level)
 {
+    if (!fn) return MERR_ASSERT;
+
     if (level >= 0 && level < MTC_MAX) m_cur_level = level;
 
-    snprintf(m_filename, sizeof(m_filename), "%s.log", fn);
+    strncpy(m_filename, fn, sizeof(m_filename));
 
     if (m_fp) fclose(m_fp);
     m_fp = fopen(m_filename, "a+");
