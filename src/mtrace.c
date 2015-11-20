@@ -1,8 +1,6 @@
 #include "rheads.h"
 
-#ifdef HAVE_PTHREADS
 static pthread_mutex_t m_lock = PTHREAD_MUTEX_INITIALIZER;
-#endif
 
 static char m_filename[PATH_MAX] = {0};
 static int  m_cur_level = MTC_DEFAULT_LEVEL;
@@ -73,7 +71,7 @@ void mtc_set_level(MTC_LEVEL level)
 bool mtc_msg(const char *func, const char *file, long line, MTC_LEVEL level,
              const char *fmt, ...)
 {
-    if (level > m_cur_level || m_fp) return false;
+    if (level > m_cur_level || !m_fp) return false;
 
     va_list ap;
     struct timeval tv;
@@ -86,9 +84,7 @@ bool mtc_msg(const char *func, const char *file, long line, MTC_LEVEL level,
     strftime(timestr, 25, "%Y-%m-%d %H:%M:%S", tm);
     timestr[24] = '\0';
 
-#ifdef HAVE_PTHREADS
-    mLock(&m_lock);
-#endif
+    pthread_mutex_lock(&m_lock);
 
     fprintf(m_fp, "[%s.%06u]", timestr, (unsigned)tv.tv_usec);
 
@@ -120,9 +116,7 @@ bool mtc_msg(const char *func, const char *file, long line, MTC_LEVEL level,
 
     _shift_file();
 
-#ifdef HAVE_PTHREADS
-    mUnlock(&m_lock);
-#endif
+    pthread_mutex_unlock(&m_lock);
 
     return true;
 }

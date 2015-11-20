@@ -41,6 +41,9 @@
 #include <sys/stat.h>
 #include <inttypes.h>
 
+#include <pthread.h>
+
+
 /*
  * reef triggerfish headers
  */
