@@ -52,6 +52,7 @@
 
 #include "mtype.h"
 #include "mtest.h"
+#include "mtimer.h"
 
 #include "merror.h"
 #include "merror_macro.h"

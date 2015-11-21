@@ -1,5 +1,14 @@
 #include "reef.h"
 
+/* 默认日志级别: debug */
+#define MTC_DEFAULT_LEVEL    5
+
+/* 单个日志文件最大: 500M */
+#define MTC_MAX_FILE_SIZE  524288000
+
+/* 最多保留日志文件: 5个 */
+#define MTC_MAX_FILE_NUM   5
+
 static pthread_mutex_t m_lock = PTHREAD_MUTEX_INITIALIZER;
 
 static char m_filename[PATH_MAX] = {0};

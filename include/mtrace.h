@@ -6,15 +6,6 @@
  */
 __BEGIN_DECLS
 
-/* 默认日志级别: debug */
-#define MTC_DEFAULT_LEVEL    5
-
-/* 单个日志文件最大: 500M */
-#define MTC_MAX_FILE_SIZE  524288000
-
-/* 最多保留日志文件: 5个 */
-#define MTC_MAX_FILE_NUM   5
-
 typedef enum {
     MTC_DIE = 0,                /* 0 */
     MTC_FOO,                    /* 1 */
