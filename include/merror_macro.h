@@ -14,6 +14,16 @@ __BEGIN_DECLS
     if (!(pa) || !(pb) || !(pc)) return merr_raise(MERR_ASSERT, "paramter null");
 
 
+#define TRACE_NOK(err)                          \
+    if (err != MERR_OK) {                       \
+        MSTR _moon_str;                         \
+        mstr_init(&_moon_str);                  \
+        merr_traceback(err, &_moon_str);        \
+        mtc_err("%s", _moon_str.buf);           \
+        mstr_clear(&_moon_str);                 \
+        merr_destroy(&err);                     \
+    }
+
 #define JUMP_NOK(err, label)                    \
     if (err != MERR_OK) {                       \
         MSTR _moon_str;                         \

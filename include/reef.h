@@ -65,4 +65,7 @@
 #include "mlist.h"
 #include "mlist_macro.h"
 
+#include "mhash.h"
+#include "mhash_macro.h"
+
 #endif

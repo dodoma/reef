@@ -37,5 +37,10 @@ typedef struct _MERR MERR;
 
 typedef struct _MLIST MLIST;
 
+typedef uint32_t (*MHASH_HASH_FUNC)(const void*);
+typedef int (*MHASH_COMP_FUNC)(const void*, const void*);
+typedef void (*MHASH_DESTROY_FUNC)(void *node);
+typedef struct _MHASH MHASH;
+
 __END_DECLS
 #endif

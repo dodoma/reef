@@ -13,13 +13,14 @@ INCS	= $(INCBASE)
 all: libreef.a
 
 $(DEPEND): $(SOURCES)
-	@$(CC) $(CFLAGS) -MM $^ > $@
+	@$(CC) $(CFLAGS) $(INCS) -MM $^ > $@
 
 libreef.so:$(OBJS) $(DEPEND)
 	@echo "CFLAGS="$(CFLAGS);
 	@$(CC) $(CFLAGS) -o $@ $(OBJS)
 
 libreef.a:$(OBJS) $(DEPEND)
+	@echo "CFLAGS="$(CFLAGS);
 	@rm -rf $@
 	$(AR) rcs $@ $(OBJS)
 
