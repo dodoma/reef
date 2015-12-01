@@ -48,7 +48,7 @@ MERR* mlist_init(MLIST **alist, void __F(freeitem)(void*))
 
 MERR* mlist_append(MLIST *alist, void *data)
 {
-    MERR_NOT_NULLB(alist, data);
+    MERR_NOT_NULLA(alist);
 
     _check_length(alist, alist->num + 1);
 
