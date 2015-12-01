@@ -6,11 +6,11 @@
  */
 __BEGIN_DECLS
 
-#define MLIST_ITERATE(alist, item)                      \
-    mlist_get(alist, 0, (void**)&(item));               \
-    for (int _moon_i = 0;                               \
-         _moon_i < mlist_length(alist);                 \
-         mlist_get(alist, ++_moon_i, (void**)&(item)))
+#define MLIST_ITERATE(alist, item)                                      \
+    for (int _moon_i = 0;                                               \
+         _moon_i < mlist_length(alist) &&                               \
+             (mlist_get(alist, _moon_i, (void**)&(item)) == MERR_OK);   \
+         _moon_i++)
 
 __END_DECLS
 #endif
