@@ -37,6 +37,8 @@ MERR* merr_pass_raw(const char *func, const char *file, int lineno, MERR *error)
 {
     MERR *err;
 
+    if (error == MERR_OK) return error;
+
     err = mos_calloc(1, sizeof(MERR));
 
     err->code = MERR_PASS;
