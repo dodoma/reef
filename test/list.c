@@ -49,6 +49,21 @@ void test_basic()
 
     mlist_init(&alist, NULL);
 
+    /*
+     * sizeof(int64_t) >= sizeof(void*)
+     */
+    for (int64_t i = 0; i < 10000; i++) {
+        mlist_append(alist, (void*)i);
+    }
+
+    int x;
+    for (int i = 9999; i >= 0; i--) {
+        mlist_pop(alist, (void**)&x);
+
+        //printf("%d %d\n", x, i);
+        MTEST_ASSERT(x == i);
+    }
+
     mlist_append(alist, (void*)"aaa");
     mlist_append(alist, (void*)"bbb");
     mlist_append(alist, (void*)"ccc");

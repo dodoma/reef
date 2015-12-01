@@ -42,5 +42,22 @@ typedef int (*MHASH_COMP_FUNC)(const void*, const void*);
 typedef void (*MHASH_DESTROY_FUNC)(void *node);
 typedef struct _MHASH MHASH;
 
+typedef enum {
+    MDF_TYPE_UNKNOWN = 0,       /* 0 */
+    MDF_TYPE_OBJECT,            /* 1 */
+    MDF_TYPE_ARRAY,             /* 2 */
+    MDF_TYPE_STRING,            /* 3 */
+
+    /* TYPE NUMBER */
+    MDF_TYPE_INT,               /* 4 */
+    MDF_TYPE_FLOAT,             /* 5 */
+
+    MDF_TYPE_BOOL,              /* 6 */
+    MDF_TYPE_NULL               /* 7 */
+} MDF_TYPE;
+typedef struct _MDF MDF;
+
+typedef void (*MDF_PRINTF)(void *rock, const char *fmt, ...);
+
 __END_DECLS
 #endif

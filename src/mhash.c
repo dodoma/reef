@@ -38,13 +38,12 @@ static inline struct node** _lookup_node(MHASH *table, void *key)
 static inline void _hash_resize(MHASH *table)
 {
     struct node **new_nodes, *node, *prev, *next;
-    size_t oldnum, moveto, oldmask, newmask;
+    size_t oldnum, moveto, newmask;
 
     if (table->num < table->rownum) return;
 
     oldnum = table->rownum;
     table->rownum = oldnum << 1;
-    oldmask = oldnum - 1;
     newmask = table->rownum - 1;
 
     new_nodes = mos_realloc(table->nodes, table->rownum * sizeof(struct node*));

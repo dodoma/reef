@@ -40,6 +40,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <inttypes.h>
+#include <ctype.h>
 
 #include <pthread.h>
 
@@ -67,5 +68,7 @@
 
 #include "mhash.h"
 #include "mhash_macro.h"
+
+#include "mdf.h"
 
 #endif

@@ -6,7 +6,7 @@
 void test_basic()
 {
     MHASH *table;
-    char s[KEY_LEN + 1], *ps[NODE_NUM];
+    char s[KEY_LEN + 1], *ps[NODE_NUM], *data;
     MERR *err;
 
     for (int i = 0; i < NODE_NUM; i++) {
@@ -30,7 +30,8 @@ void test_basic()
     }
 
     for (int i = 0; i < NODE_NUM; i++) {
-        MTEST_ASSERT(mhash_lookup(table, ps[i]) != NULL);
+        data = mhash_lookup(table, ps[i]);
+        MTEST_ASSERT(data == ps[i]);
     }
 
     for (int i = 0; i < NODE_NUM; i++) {
