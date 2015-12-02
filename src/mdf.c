@@ -27,6 +27,8 @@ static MDF* _walk_by_name(MDF *node, const char *name, size_t len, bool create)
     }
 
     if (create) {
+        node->type = MDF_TYPE_OBJECT;
+
         mdf_init(&rnode);
         rnode->name = strdup(sname);
 
@@ -68,6 +70,8 @@ static MDF* _walk_by_index(MDF *node, int index, bool create)
 
 create_if_want:
     if (!create) return NULL;
+
+    node->type = MDF_TYPE_ARRAY;
 
     for (int i = childnum; i < index + 1; i++) {
         snprintf(sname, sizeof(sname), "__moon_resolved_index__%d", i);

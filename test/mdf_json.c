@@ -2,27 +2,29 @@
 
 int main()
 {
-    MDF *node;
+    MDF *anode;
     MERR *err;
 
     mtc_init("test.log", MTC_DEBUG);
 
-    mdf_init(&node);
+    mdf_init(&anode);
 
-    //err = mdf_import_json_string(node, "{b: {'c': 'x'},'f': 'z'}");
-    //err = mdf_import_json_string(node, "{'url': 'hb\/\/bs.h', 'duration': 3}");
-    //err = mdf_import_json_string(node, "{'a': 1}");
-    err = mdf_import_json_file(node, "mdf.json");
+    //err = mdf_import_json_string(anode, "{bdofe: {'c': null},'f': 'z'}");
+    //err = mdf_import_json_string(anode, "{'url': 'hb\/\/bs.h', 'duration': 3}");
+    //err = mdf_import_json_string(anode, "{'a': '你'}");
+    err = mdf_import_json_file(anode, "mdf.json");
     TRACE_NOK(err);
 
-    char *s = mdf_export_json_string(node);
+    //mdf_set_float_value(anode, "b[-1]", 100.10);
+
+    char *s = mdf_export_json_string(anode);
     printf("%s\n", s);
 
     mos_free(s);
 
-    mdf_export_json_file(node, "mdf.json.write");
+    mdf_export_json_file(anode, "mdf.json.write");
 
-    mdf_destroy(&node);
+    mdf_destroy(&anode);
 
     return 0;
 }

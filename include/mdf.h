@@ -71,7 +71,11 @@ int   mdf_node_child_count(MDF *node, const char *path);
 char* mdf_node_name(MDF *node);
 char* mdf_node_value(MDF *node);
 
-/* node maybe dirty, if parse json error */
+/*
+ * 解析 json 格式的字符串 str，存储在已准备好的 node 节点中。
+ * 注意：
+ *   1. 在解析失败时，node 中可能已经存了部分数据，故，为避免内存泄漏，失败时请自行释放 node 空间。
+ */
 MERR* mdf_import_json_string(MDF *node, const char *str);
 MERR* mdf_import_json_file(MDF *node, const char *fname);
 

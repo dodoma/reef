@@ -84,9 +84,8 @@ void merr_traceback(MERR *error, MSTR *astr)
 
         for (int i = 0; i < errnum; i++) mstr_append(astr, "  ");
 
-        mstr_appendf(astr, "%s:%d %s(): %d %s\n",
-                     err->file, err->lineno, err->func,
-                     err->code, merr_code_2_str(err->code));
+        mstr_appendf(astr, "%s:%d %s(): %s\n",
+                     err->file, err->lineno, err->func, merr_code_2_str(err->code));
 
         if (err->desc[0]) {
             for (int i = 0; i < errnum; i++) mstr_append(astr, "  ");
