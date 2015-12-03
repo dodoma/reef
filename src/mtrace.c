@@ -34,6 +34,7 @@ static inline void _shift_file()
     char ofn[PATH_MAX], nfn[PATH_MAX];
     int i;
 
+    if (m_filename[0] == '-' && m_filename[1] == '\0') return;
     if (stat(m_filename, &fs) == -1 || fs.st_size < MTC_MAX_FILE_SIZE) return;
 
     if (m_fp) fclose(m_fp);
@@ -63,7 +64,10 @@ int mtc_init(const char *fn, MTC_LEVEL level)
     strncpy(m_filename, fn, sizeof(m_filename));
 
     if (m_fp) fclose(m_fp);
-    m_fp = fopen(m_filename, "a+");
+
+    if (!strcmp(m_filename, "-")) m_fp = stdout;
+    else m_fp = fopen(m_filename, "a+");
+
     if (!m_fp) return MERR_OPENFILE;
     setvbuf(m_fp, m_linebuf, _IOLBF, 2096);
 
