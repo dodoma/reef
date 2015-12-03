@@ -182,6 +182,8 @@ static void _json_machine_init()
     GO_UTF8_CONTINUE_SET(go_utf8_continue);
 }
 
+#define CHAR_IN(c, x, y) (c == x || c == y)
+
 static inline void _add_pair_fixtype(MDF *node, char *name, char *value,
                                      int namelen, int valuelen,
                                      MDF_TYPE nodetype, int nodenum)
@@ -208,30 +210,43 @@ static inline void _add_pair_fixtype(MDF *node, char *name, char *value,
 }
 
 static inline MERR* _add_pair_unknowntype(MDF *node, char *name, char *value,
-                                          int namelen, int valuelen, int nodenum)
+                                          int namelen, int valuelen, int nodenum,
+                                          const char *fname, int lineno, int columnno)
 {
     MDF *xnode;
 
     mdf_init(&xnode);
     xnode->name = strndup(name, namelen);
 
-    if (!strncmp("true", value, valuelen)) {
-        xnode->type = MDF_TYPE_BOOL;
-        xnode->val.n = 1;
-    } else if (!strncmp("false", value, valuelen)) {
-        xnode->type = MDF_TYPE_BOOL;
-        xnode->val.n = 0;
-    } else if (!strncmp("null", value, valuelen)) {
-        xnode->type = MDF_TYPE_NULL;
-        xnode->val.n = 0;
-    } else {
-        mdf_destroy(&xnode);
-        return merr_raise(MERR_ASSERT, "unexpect value %c", *value);
-    }
+    if (valuelen == 4) {
+        if (CHAR_IN(*value, 't', 'T') && CHAR_IN(*(value+1), 'r', 'R') &&
+            CHAR_IN(*(value+2), 'u', 'U') && CHAR_IN(*(value+3), 'e', 'E')) {
+            xnode->type = MDF_TYPE_BOOL;
+            xnode->val.n = 1;
+        } else if (CHAR_IN(*value, 'n', 'N') && CHAR_IN(*(value+1), 'u', 'U') &&
+            CHAR_IN(*(value+2), 'l', 'L') && CHAR_IN(*(value+3), 'l', 'L')) {
+            xnode->type = MDF_TYPE_NULL;
+            xnode->val.n = 0;
+        } else goto error;
+    } else if (valuelen == 5) {
+        if (CHAR_IN(*value, 'f', 'F') && CHAR_IN(*(value+1), 'a', 'A') &&
+            CHAR_IN(*(value+2), 'l', 'L') && CHAR_IN(*(value+3), 's', 'S') &&
+            CHAR_IN(*(value+4), 'e', 'E')) {
+            xnode->type = MDF_TYPE_BOOL;
+            xnode->val.n = 1;
+            xnode->type = MDF_TYPE_BOOL;
+            xnode->val.n = 0;
+        } else goto error;
+    } else goto error;
 
     _mdf_append_child_node(node, xnode, nodenum);
 
     return MERR_OK;
+
+error:
+    mdf_destroy(&xnode);
+    return merr_raise(MERR_ASSERT, "unexpect token '%c' near line %d:%d of %s",
+                      *value, lineno, columnno, fname);
 }
 
 static inline void _add_value_fixtype(MDF *node, char *value, int valuelen,
@@ -262,7 +277,8 @@ static inline void _add_value_fixtype(MDF *node, char *value, int valuelen,
 }
 
 static inline MERR* _add_value_unknowntype(MDF *node, char *value, int valuelen,
-                                           int nodenum)
+                                           int nodenum,
+                                           const char *fname, int lineno, int columnno)
 {
     char arrayindex[64] = {0};
     MDF *xnode;
@@ -272,23 +288,35 @@ static inline MERR* _add_value_unknowntype(MDF *node, char *value, int valuelen,
     mdf_init(&xnode);
     xnode->name = strdup(arrayindex);
 
-    if (!strncmp("true", value, valuelen)) {
-        xnode->type = MDF_TYPE_BOOL;
-        xnode->val.n = 1;
-    } else if (!strncmp("false", value, valuelen)) {
-        xnode->type = MDF_TYPE_BOOL;
-        xnode->val.n = 0;
-    } else if (!strncmp("null", value, valuelen)) {
-        xnode->type = MDF_TYPE_NULL;
-        xnode->val.n = 0;
-    } else {
-        mdf_destroy(&xnode);
-        return merr_raise(MERR_ASSERT, "unexpect value");
-    }
+    if (valuelen == 4) {
+        if (CHAR_IN(*value, 't', 'T') && CHAR_IN(*(value+1), 'r', 'R') &&
+            CHAR_IN(*(value+2), 'u', 'U') && CHAR_IN(*(value+3), 'e', 'E')) {
+            xnode->type = MDF_TYPE_BOOL;
+            xnode->val.n = 1;
+        } else if (CHAR_IN(*value, 'n', 'N') && CHAR_IN(*(value+1), 'u', 'U') &&
+            CHAR_IN(*(value+2), 'l', 'L') && CHAR_IN(*(value+3), 'l', 'L')) {
+            xnode->type = MDF_TYPE_NULL;
+            xnode->val.n = 0;
+        } else goto error;
+    } else if (valuelen == 5) {
+        if (CHAR_IN(*value, 'f', 'F') && CHAR_IN(*(value+1), 'a', 'A') &&
+            CHAR_IN(*(value+2), 'l', 'L') && CHAR_IN(*(value+3), 's', 'S') &&
+            CHAR_IN(*(value+4), 'e', 'E')) {
+            xnode->type = MDF_TYPE_BOOL;
+            xnode->val.n = 1;
+            xnode->type = MDF_TYPE_BOOL;
+            xnode->val.n = 0;
+        } else goto error;
+    } else goto error;
 
     _mdf_append_child_node(node, xnode, nodenum);
 
     return MERR_OK;
+
+error:
+    mdf_destroy(&xnode);
+    return merr_raise(MERR_ASSERT, "unexpect token '%c' near line %d:%d of %s",
+                      *value, lineno, columnno, fname);
 }
 
 static MERR* _import_json(MDF *node, const char *str,
@@ -298,7 +326,7 @@ static MERR* _import_json(MDF *node, const char *str,
     int8_t *go, *go_nearby;
 
     char *name, *value, quotechar, arrayindex[64];
-    int namelen, valuelen, utf8_remain, nodenum;
+    int namelen, valuelen, utf8_remain, nodenum, columnno;
     MDF_TYPE nodetype;
     MDF *xnode;
 
@@ -325,6 +353,7 @@ static MERR* _import_json(MDF *node, const char *str,
     namelen = valuelen = -1;
     utf8_remain = 0;
     nodenum = 0;
+    columnno = 1;
     nodetype = MDF_TYPE_UNKNOWN;
     quotechar = '\0';
 
@@ -334,6 +363,7 @@ static MERR* _import_json(MDF *node, const char *str,
             break;
         case A_NEWLINE:
             *lineno = *lineno + 1;
+            columnno = 0;
             break;
 
             /*
@@ -359,6 +389,7 @@ static MERR* _import_json(MDF *node, const char *str,
 
         case A_UNPAIR_L_RAW_NEWLINE:
             *lineno = *lineno + 1;
+            columnno = 0;
         case A_UNPAIR_L_RAW:
             if (name) namelen = pos - name;
             go = go_unpair_l;
@@ -418,6 +449,7 @@ static MERR* _import_json(MDF *node, const char *str,
             err = _import_json(xnode, pos, &childlen, fname, lineno);
             if (err) return merr_pass(err);
             pos += childlen;
+            columnno += childlen;
 
             _mdf_append_child_node(node, xnode, nodenum);
 
@@ -428,11 +460,13 @@ static MERR* _import_json(MDF *node, const char *str,
 
         case A_UNPAIR_R_RAW_NEWLINE:
             *lineno = *lineno + 1;
+            columnno = 0;
         case A_UNPAIR_R_RAW:
             if (value) valuelen = pos - value;
             else goto bad_char;
 
-            err = _add_pair_unknowntype(node, name, value, namelen, valuelen, nodenum);
+            err = _add_pair_unknowntype(node, name, value, namelen, valuelen, nodenum,
+                                        fname, *lineno, columnno);
             if (err) return merr_pass(err);
 
             AFTER_NODE_APPEND();
@@ -443,7 +477,8 @@ static MERR* _import_json(MDF *node, const char *str,
             if (value) valuelen = pos - value;
             else goto bad_char;
 
-            err = _add_pair_unknowntype(node, name, value, namelen, valuelen, nodenum);
+            err = _add_pair_unknowntype(node, name, value, namelen, valuelen, nodenum,
+                                        fname, *lineno, columnno);
             if (err) return merr_pass(err);
 
             AFTER_NODE_APPEND();
@@ -453,7 +488,8 @@ static MERR* _import_json(MDF *node, const char *str,
             if (value) valuelen = pos - value;
             else goto bad_char;
 
-            err = _add_pair_unknowntype(node, name, value, namelen, valuelen, nodenum);
+            err = _add_pair_unknowntype(node, name, value, namelen, valuelen, nodenum,
+                                        fname, *lineno, columnno);
             if (err) return merr_pass(err);
 
             AFTER_NODE_APPEND();
@@ -474,6 +510,7 @@ static MERR* _import_json(MDF *node, const char *str,
 
         case A_UNPAIR_R_NUMBER_NEWLINE:
             *lineno = *lineno + 1;
+            columnno = 0;
         case A_UNPAIR_R_NUMBER:
             if (value) valuelen = pos - value;
             else goto bad_char;
@@ -563,6 +600,7 @@ static MERR* _import_json(MDF *node, const char *str,
             err = _import_json(xnode, pos, &childlen, fname, lineno);
             if (err) return merr_pass(err);
             pos += childlen;
+            columnno += childlen;
 
             _mdf_append_child_node(node, xnode, nodenum);
 
@@ -573,11 +611,13 @@ static MERR* _import_json(MDF *node, const char *str,
 
         case A_UNVALUE_RAW_NEWLINE:
             *lineno = *lineno + 1;
+            columnno = 0;
         case A_UNVALUE_RAW:
             if (value) valuelen = pos - value;
             else goto bad_char;
 
-            err = _add_value_unknowntype(node, value, valuelen, nodenum);
+            err = _add_value_unknowntype(node, value, valuelen, nodenum,
+                                         fname, *lineno, columnno);
             if (err) return merr_pass(err);
 
             AFTER_NODE_APPEND();
@@ -588,7 +628,8 @@ static MERR* _import_json(MDF *node, const char *str,
             if (value) valuelen = pos - value;
             else goto bad_char;
 
-            err = _add_value_unknowntype(node, value, valuelen, nodenum);
+            err = _add_value_unknowntype(node, value, valuelen, nodenum,
+                                         fname, *lineno, columnno);
             if (err) return merr_pass(err);
 
             AFTER_NODE_APPEND();
@@ -598,7 +639,8 @@ static MERR* _import_json(MDF *node, const char *str,
             if (value) valuelen = pos - value;
             else goto bad_char;
 
-            err = _add_value_unknowntype(node, value, valuelen, nodenum);
+            err = _add_value_unknowntype(node, value, valuelen, nodenum,
+                                         fname, *lineno, columnno);
             if (err) return merr_pass(err);
 
             AFTER_NODE_APPEND();
@@ -618,6 +660,7 @@ static MERR* _import_json(MDF *node, const char *str,
 
         case A_UNVALUE_NUMBER_NEWLINE:
             *lineno = *lineno + 1;
+            columnno =0;
         case A_UNVALUE_NUMBER:
             if (value) valuelen = pos - value;
             else goto bad_char;
@@ -684,11 +727,12 @@ static MERR* _import_json(MDF *node, const char *str,
         bad_char:
         case A_BAD:
         default:
-            return merr_raise(MERR_ASSERT, "unexpect token %c in line %d of %s",
-                              *pos, *lineno, fname);
+            return merr_raise(MERR_ASSERT, "unexpect token '%c' in line %d:%d of %s",
+                              *pos, *lineno, columnno, fname);
         }
 
         pos++;
+        columnno++;
     }
 
     return merr_raise(MERR_ASSERT, "illgal json string");
