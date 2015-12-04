@@ -1,6 +1,10 @@
 #include "reef.h"
 #include "_mdf.h"
 
+/*
+ * don't care MDF_TYPE_BINARY
+ */
+
 static int8_t go_plain[256] = {0};
 
 static int8_t go_object[256] = {0};
@@ -192,10 +196,12 @@ static inline void _add_pair_fixtype(MDF *node, char *name, char *value,
 
     mdf_init(&xnode);
     xnode->name = strndup(name, namelen);
+    xnode->namelen = namelen;
     xnode->type = nodetype;
 
     if (nodetype == MDF_TYPE_STRING) {
         xnode->val.s = strndup(value, valuelen);
+        xnode->valuelen = valuelen;
     } else if (nodetype == MDF_TYPE_INT) {
         char *s = strndup(value, valuelen);
         xnode->val.n = strtoll(s, NULL, 10);
@@ -217,6 +223,7 @@ static inline MERR* _add_pair_unknowntype(MDF *node, char *name, char *value,
 
     mdf_init(&xnode);
     xnode->name = strndup(name, namelen);
+    xnode->namelen = namelen;
 
     if (valuelen == 4) {
         if (CHAR_IN(*value, 't', 'T') && CHAR_IN(*(value+1), 'r', 'R') &&
@@ -259,10 +266,12 @@ static inline void _add_value_fixtype(MDF *node, char *value, int valuelen,
 
     mdf_init(&xnode);
     xnode->name = strdup(arrayindex);
+    xnode->namelen = strlen(arrayindex);
     xnode->type = nodetype;
 
     if (nodetype == MDF_TYPE_STRING) {
         xnode->val.s = strndup(value, valuelen);
+        xnode->valuelen = valuelen;
     } else if (nodetype == MDF_TYPE_INT) {
         char *s = strndup(value, valuelen);
         xnode->val.n = strtoll(s, NULL, 10);
@@ -287,6 +296,7 @@ static inline MERR* _add_value_unknowntype(MDF *node, char *value, int valuelen,
 
     mdf_init(&xnode);
     xnode->name = strdup(arrayindex);
+    xnode->namelen = strlen(arrayindex);
 
     if (valuelen == 4) {
         if (CHAR_IN(*value, 't', 'T') && CHAR_IN(*(value+1), 'r', 'R') &&
@@ -445,6 +455,7 @@ static MERR* _import_json(MDF *node, const char *str,
 
             mdf_init(&xnode);
             xnode->name = strndup(name, namelen);
+            xnode->namelen = namelen;
 
             err = _import_json(xnode, pos, &childlen, fname, lineno);
             if (err) return merr_pass(err);
@@ -596,6 +607,7 @@ static MERR* _import_json(MDF *node, const char *str,
             memset(arrayindex, 0x0, sizeof(arrayindex));
             snprintf(arrayindex, sizeof(arrayindex), "%d", nodenum);
             xnode->name = strdup(arrayindex);
+            xnode->namelen = strlen(arrayindex);
 
             err = _import_json(xnode, pos, &childlen, fname, lineno);
             if (err) return merr_pass(err);
@@ -804,7 +816,7 @@ static void _export_json_string(MDF *node, void *rock, MDF_PRINTF mprintf, int l
     }
 }
 
-MERR* mdf_import_json_string(MDF *node, const char *str)
+MERR* mdf_json_import_string(MDF *node, const char *str)
 {
     int lineno;
     MERR *err;
@@ -821,7 +833,7 @@ MERR* mdf_import_json_string(MDF *node, const char *str)
     return MERR_OK;
 }
 
-MERR* mdf_import_json_file(MDF *node, const char *fname)
+MERR* mdf_json_import_file(MDF *node, const char *fname)
 {
     struct stat fs;
     int lineno;
@@ -862,7 +874,7 @@ MERR* mdf_import_json_file(MDF *node, const char *fname)
     return MERR_OK;
 }
 
-char* mdf_export_json_string(MDF *node)
+char* mdf_json_export_string(MDF *node)
 {
     MSTR astr;
 
@@ -874,7 +886,7 @@ char* mdf_export_json_string(MDF *node)
     return astr.buf;
 }
 
-MERR* mdf_export_json_file(MDF *node, const char *fname)
+MERR* mdf_json_export_file(MDF *node, const char *fname)
 {
     FILE *fp;
 

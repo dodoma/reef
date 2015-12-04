@@ -50,6 +50,7 @@ MERR* mdf_set_int_value(MDF *node, const char *path, int value);
 MERR* mdf_set_int64_value(MDF *node, const char *path, int64_t value);
 MERR* mdf_set_float_value(MDF *node, const char *path, float value);
 MERR* mdf_set_bool_value(MDF *node, const char *path, bool value);
+MERR* mdf_set_binary(MDF *node, const char *path, const unsigned char *buf, size_t len);
 
 char*   mdf_get_value(MDF *node, const char *path, char *dftvalue);
 char*   mdf_get_value_copy(MDF *node, const char *path, char *dftvalue);
@@ -57,6 +58,7 @@ int     mdf_get_int_value(MDF *node, const char *path, int dftvalue);
 int64_t mdf_get_int64_value(MDF *node, const char *path, int64_t dftvalue);
 float   mdf_get_float_value(MDF *node, const char *path, float dftvalue);
 bool    mdf_get_bool_value(MDF *node, const char *path, bool dftvalue);
+unsigned char* mdf_get_binary(MDF *node, const char *path, size_t *len);
 
 MERR* mdf_copy(MDF *dst, const char *path, MDF *src);
 MERR* mdf_remove(MDF *node, const char *path);
@@ -76,11 +78,23 @@ char* mdf_node_value(MDF *node);
  * 注意：
  *   1. 在解析失败时，node 中可能已经存了部分数据，故，为避免内存泄漏，失败时请自行释放 node 空间。
  */
-MERR* mdf_import_json_string(MDF *node, const char *str);
-MERR* mdf_import_json_file(MDF *node, const char *fname);
+MERR* mdf_json_import_string(MDF *node, const char *str);
+MERR* mdf_json_import_file(MDF *node, const char *fname);
 
-char* mdf_export_json_string(MDF *node);
-MERR* mdf_export_json_file(MDF *node, const char *fname);
+char* mdf_json_export_string(MDF *node);
+MERR* mdf_json_export_file(MDF *node, const char *fname);
+
+/*
+ * 打包 mdf 节点（用 message pack 格式）， 放在已经准备好了的长度为 len 字节的 buf 内存中
+ * 返回此次打包已使用的内存字节数
+ */
+size_t mdf_mpack_serialize(MDF *node, unsigned char *buf, size_t len);
+
+/*
+ * 解包 长度为 len 字节的 message pack 格式包，存储在已准备好的 node 节点中
+ * 返回此次解包了的字节数
+ */
+size_t mdf_mpack_deserialize(MDF *node, const unsigned char *buf, size_t len);
 
 __END_DECLS
 #endif

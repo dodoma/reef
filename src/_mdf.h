@@ -1,4 +1,6 @@
 struct _MDF {
+    uint32_t namelen;
+    uint32_t valuelen;
     char *name;
     MDF_TYPE type;
 
@@ -49,6 +51,46 @@ typedef enum {
 
     A_UTF8_2, A_UTF8_3, A_UTF8_4, A_UTF_CONTINUE
 } JSON_ACTION;
+
+typedef enum {
+    F_POSITIVE_FIX_INT = 0,
+    F_NEGATIVE_FIX_INT,
+    F_INT_8,
+    F_INT_16,
+    F_INT_32,
+    F_INT_64,
+    F_UINT_8,
+    F_UINT_16,
+    F_UINT_32,
+    F_UINT_64,
+    F_NIL,
+    F_FALSE,
+    F_TRUE,
+    F_FLOAT32,
+    F_FLOAT64,
+    F_FIX_STR,
+    F_STR_8,
+    F_STR_16,
+    F_STR_32,
+    F_BIN_8,
+    F_BIN_16,
+    F_BIN_32,
+    F_FIX_ARRAY,
+    F_ARRAY_16,
+    F_ARRAY_32,
+    F_FIX_MAP,
+    F_MAP_16,
+    F_MAP_32,
+    F_FIX_EXT_1,
+    F_FIX_EXT_2,
+    F_FIX_EXT_4,
+    F_FIX_EXT_8,
+    F_FIX_EXT_16,
+    F_EXT_8,
+    F_EXT_16,
+    F_EXT_32,
+    F_UNKNOWN
+} MPACK_FORMAT;
 
 void _mdf_drop_child_node(MDF *pnode, MDF *cnode);
 void _mdf_append_child_node(MDF *pnode, MDF *newnode, int current_childnum);

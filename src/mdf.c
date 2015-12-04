@@ -31,6 +31,7 @@ static MDF* _walk_by_name(MDF *node, const char *name, size_t len, bool create)
 
         mdf_init(&rnode);
         rnode->name = strdup(sname);
+        rnode->namelen = strlen(sname);
 
         _mdf_append_child_node(node, rnode, childnum);
 
@@ -78,6 +79,7 @@ create_if_want:
 
         mdf_init(&rnode);
         rnode->name = strdup(sname);
+        rnode->namelen = strlen(sname);
 
         _mdf_append_child_node(node, rnode, childnum);
 
@@ -197,11 +199,18 @@ static MERR* _copy_mdf(MDF *dst, MDF *src)
     while (cnode) {
         mdf_init(&newnode);
         newnode->name = strdup(cnode->name);
+        newnode->namelen = strlen(cnode->name);
         newnode->type = cnode->type;
         newnode->val.n = cnode->val.n;
         newnode->val.f = cnode->val.f;
-        if (cnode->type == MDF_TYPE_STRING && cnode->val.s)
+        if (cnode->type == MDF_TYPE_STRING && cnode->val.s) {
             newnode->val.s = strdup(cnode->val.s);
+            newnode->valuelen = cnode->valuelen;
+        } else if (cnode->type == MDF_TYPE_BINARY && cnode->val.s) {
+            newnode->val.s = mos_calloc(1, cnode->valuelen);
+            memcpy(newnode->val.s, cnode->val.s, cnode->valuelen);
+            newnode->valuelen = cnode->valuelen;
+        }
 
         _mdf_append_child_node(dst, newnode, childnum);
 
@@ -221,6 +230,7 @@ MERR* mdf_init(MDF **node)
     MERR_NOT_NULLA(node);
 
     lnode = mos_calloc(1, sizeof(MDF));
+    lnode->namelen = lnode->valuelen = 0;
     lnode->name = NULL;
     lnode->type = MDF_TYPE_UNKNOWN;
     lnode->val.s = NULL;
@@ -263,7 +273,10 @@ void mdf_destroy(MDF **node)
 
     if (lnode->table) mhash_destroy(&lnode->table);
 
-    if (lnode->type == MDF_TYPE_STRING) mos_free(lnode->val.s);
+    if (lnode->type == MDF_TYPE_STRING ||
+        lnode->type == MDF_TYPE_BINARY)
+        mos_free(lnode->val.s);
+
     mos_free(lnode->name);
     mos_free(lnode);
 
@@ -283,6 +296,7 @@ MERR* mdf_set_value(MDF *node, const char *path, const char *value)
 
     anode->type = MDF_TYPE_STRING;
     anode->val.s = strdup(value);
+    anode->valuelen = strlen(value);
 
     return MERR_OK;
 }
@@ -351,6 +365,24 @@ MERR* mdf_set_bool_value(MDF *node, const char *path, bool value)
     return MERR_OK;
 }
 
+MERR* mdf_set_binary(MDF *node, const char *path, const unsigned char *buf, size_t len)
+{
+    MDF *anode;
+    MERR *err;
+
+    MERR_NOT_NULLA(node);
+
+    err = _walk_mdf(node, path, true, &anode);
+    if (err) return merr_pass(err);
+
+    anode->type = MDF_TYPE_BINARY;
+    anode->val.s = mos_calloc(1, len);
+    memcpy(anode->val.s, buf, len);
+    anode->valuelen = len;
+
+    return MERR_OK;
+}
+
 
 char* mdf_get_value(MDF *node, const char *path, char *dftvalue)
 {
@@ -360,7 +392,7 @@ char* mdf_get_value(MDF *node, const char *path, char *dftvalue)
     if (!node) return dftvalue;
 
     err = _walk_mdf(node, path, false, &anode);
-    TRACE_NOK(err)
+    TRACE_NOK(err);
 
     if (anode) return anode->val.s;
     else return dftvalue;
@@ -434,6 +466,25 @@ bool mdf_get_bool_value(MDF *node, const char *path, bool dftvalue)
 
     if (anode) return (bool)anode->val.n;
     else return dftvalue;
+}
+
+unsigned char* mdf_get_binary(MDF *node, const char *path, size_t *len)
+{
+    MDF *anode;
+    MERR *err;
+
+    if (!node) return NULL;
+
+    err = _walk_mdf(node, path, false, &anode);
+    TRACE_NOK(err);
+
+    if (anode) {
+        *len = anode->valuelen;
+        return (unsigned char*)anode->val.s;
+    } else {
+        *len = 0;
+        return NULL;
+    }
 }
 
 

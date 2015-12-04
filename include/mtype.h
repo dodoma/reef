@@ -53,7 +53,9 @@ typedef enum {
     MDF_TYPE_FLOAT,             /* 5 */
 
     MDF_TYPE_BOOL,              /* 6 */
-    MDF_TYPE_NULL               /* 7 */
+    MDF_TYPE_BINARY,            /* 7 */
+
+    MDF_TYPE_NULL               /* 8 */
 } MDF_TYPE;
 typedef struct _MDF MDF;
 
