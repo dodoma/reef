@@ -186,3 +186,66 @@ error:
     mlist_destroy(alist);
     return merr_pass(err);
 }
+
+/*
+ * use < 10 judgement, or, you can use array ['0', '1', ..., 'e', 'f']
+ */
+void mstr_bin2hexstr(const uint8_t *hexin, unsigned int inlen, unsigned char *charout)
+{
+    /* 48 '0' */
+    /* 97 'a'  122 'z'  65 'A' */
+#define HEX2STR(in, out)                        \
+    do {                                        \
+        if (((in) & 0xf) < 10) {                \
+            (out) = ((in)&0xf) + 48;            \
+        } else {                                \
+            (out) = ((in)&0xf) - 10 + 97;       \
+        }                                       \
+    } while (0)
+
+    if (hexin == NULL || charout == NULL)
+        return;
+
+    unsigned int i, j;
+    memset(charout, 0x0, inlen*2+1);
+
+    for (i = 0, j = 0; i < inlen; i++, j += 2) {
+        HEX2STR(hexin[i]>>4, charout[j]);
+        HEX2STR(hexin[i], charout[j+1]);
+    }
+
+    charout[j+1] = '\0';
+}
+
+void mstr_hexstr2bin(const unsigned char *charin, unsigned int inlen, uint8_t *hexout)
+{
+#define STR2HEX(in1, in2, out)                          \
+    do {                                                \
+        if (in1 < ':')                                  \
+            (out) = ((in1 - 48) & 0xf) << 4;            \
+        else                                            \
+            (out) = ((in1 - 97 + 10) & 0xf) << 4;       \
+        if (in2 < ':')                                  \
+            (out) = (out) | ((in2 - 48) & 0xf);         \
+        else                                            \
+            (out) = (out) | ((in2 - 97 + 10) & 0xf);    \
+    } while (0)
+
+    unsigned int i, j;
+    unsigned char *s;
+
+    /*
+     * tolower
+     */
+    s = (unsigned char*)charin;
+    i = 0;
+    while(*s != 0 && i < inlen) {
+        *s = tolower(*s);
+        s++;
+        i++;
+    }
+
+    for (i = 0, j = 0; i < inlen; i += 2, j++) {
+        STR2HEX(charin[i], charin[i+1], hexout[j]);
+    }
+}

@@ -45,5 +45,24 @@ void mstr_rand_string_fixlen(char *s, size_t len);
  */
 MERR* mstr_array_split(MLIST **alist, const char *sin, const char *sep, int max);
 
+/*
+ * 将一片二进制数组，转换成16进制字符串（一般用于网络包调试）
+ * 例如：uint8_t hexin[4] = {12,5,6,15}
+ *      将会转换成 "0c05060f"，串后会补 '\0'
+ * charout 的内存长度必须 >= inlen * 2 + 1
+ *
+ * what a fuck: after hours work, we can do it use sprintf(charout[i], "%x", hexin[j])
+ *
+ */
+void mstr_bin2hexstr(const uint8_t *hexin, unsigned int inlen, unsigned char *charout);
+
+/*
+ * 将一个16进制字符串转换成二进制数组（通常 uint8_t 数组）, hexout 的长度必须为 inlen/2
+ * charin: '0123456789abcdef'
+ * hexout: usually uint8_t*
+ */
+void mstr_hexstr2bin(const unsigned char *charin, unsigned int inlen, uint8_t *hexout);
+
+
 __END_DECLS
 #endif
