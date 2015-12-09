@@ -7,8 +7,13 @@ void _mdf_drop_child_node(MDF *pnode, MDF *cnode)
 {
     if (cnode->parent != pnode) return;
 
-    if (cnode->prev == NULL) pnode->child = cnode->next;
-    else cnode->prev->next = cnode->next;
+    if (cnode->prev == NULL) {
+        pnode->child = cnode->next;
+        if (pnode->child) pnode->child->prev = NULL;
+    } else {
+        cnode->prev->next = cnode->next;
+        if (cnode->next) cnode->next->prev = cnode->prev;
+    }
 
     if (cnode->next == NULL) {
         pnode->last_child = NULL;

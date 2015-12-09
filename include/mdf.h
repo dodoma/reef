@@ -16,21 +16,16 @@
  *     5. iterate child
  *     6. assemble new mdf according data, and config mdf (asmb)
  *   格式转换：
- *     1. 由 mdf 导出 json 字符串 (emit)
- *     2. 由 json 字符串生成 mdf  (import from string)
- *     3. 由 mdf 导出 message pack 二进制内存 (pack)
- *     4. 由 message pack 内存生成  mdf (import from message pack)
+ *     1. 由 mdf 导出 json 字符串 (export string)
+ *     2. 由 json 字符串生成 mdf  (import string)
+ *     3. 由 mdf 导出 message pack 二进制内存 (serialize)
+ *     4. 由 message pack 内存生成  mdf (deserialize)
  *   快速拷贝：
  *     1. prepare mdf for copy input (spped serialize)
  *     2. quick mdf
  *
  * 注意：
- *   1. path BNF 定义
- *      "", NULL
- *      aa, aa.bb.cc
- *      [0], [0][3], [0].aa[3]
- *      aa[0], aa[0][2].bb
- *
+ *   1. path 参数的 BNF 定义
  *      PATH := (MDFNAME | NILL)
  *      MDFNAME := (MDF_SUBNAME | MDF_SUBNAME\.MDF_NAME)
  *      MDF_SUBNAME := (RAW_NAME | INDEX_NAME | RAW_NAMEINDEX_NAME)
@@ -39,6 +34,22 @@
  *
  *      WS := [\t ]*
  *      NILL := (\"\" | NULL)
+ *
+ *      例如：
+ *      "", NULL
+ *      aa, aa.bb.cc
+ *      [0], [0][3], [0].aa[3]
+ *      aa[0], aa[0][2].bb
+ *
+ *   2. 除非必须，请不要使用 mdf_set_int/int64/float/bool_value()
+ *      因为在我们操作数据时，大都不必关心数据类型，默认使用字符串类型即可。
+ *      使用类型带来的坏处是 set 和 get 的操作方法必须一致。
+ *      例如，mdf_set_int_value(node, "key", 100);
+ *      则必须使用 mdf_get_int_value(node, "key", 0) 才能返回100,
+ *      mdf_get_value(), mdf_get_float/bool等都不行，非常麻烦。
+ *
+ *      在与诸如database, web server等外部程序进行数据交互时，需要明确数据类型时使用上述函数
+ *      另外，可以使用 mdf_set_type() 进行字符串类型节点的强制类型转换。
  */
 __BEGIN_DECLS
 
@@ -51,6 +62,8 @@ MERR* mdf_set_int64_value(MDF *node, const char *path, int64_t value);
 MERR* mdf_set_float_value(MDF *node, const char *path, float value);
 MERR* mdf_set_bool_value(MDF *node, const char *path, bool value);
 MERR* mdf_set_binary(MDF *node, const char *path, const unsigned char *buf, size_t len);
+/* 将字符串类型节点 转换成 其他类型 */
+MERR* mdf_set_type(MDF *node, const char *path, MDF_TYPE type);
 
 char*   mdf_get_value(MDF *node, const char *path, char *dftvalue);
 char*   mdf_get_value_copy(MDF *node, const char *path, char *dftvalue);
@@ -59,6 +72,8 @@ int64_t mdf_get_int64_value(MDF *node, const char *path, int64_t dftvalue);
 float   mdf_get_float_value(MDF *node, const char *path, float dftvalue);
 bool    mdf_get_bool_value(MDF *node, const char *path, bool dftvalue);
 unsigned char* mdf_get_binary(MDF *node, const char *path, size_t *len);
+/* 返回节点的值（以字符串的方式），返回内容为新申请内存，需要释放。*/
+char* mdf_get_value_stringfy(MDF *node, const char *path, char *dftvalue);
 
 MERR* mdf_copy(MDF *dst, const char *path, MDF *src);
 MERR* mdf_remove(MDF *node, const char *path);
@@ -66,6 +81,8 @@ MERR* mdf_remove(MDF *node, const char *path);
 MDF* mdf_get_node(MDF *node, const char *path);
 MDF* mdf_get_or_create_node(MDF *node, const char *path);
 MDF* mdf_node_next(MDF *node);
+MDF* mdf_node_parent(MDF *node);
+MDF* mdf_node_child(MDF *node);
 MDF* mdf_sort_node(MDF *node, int __F(compare)(const void*, const void*));
 
 bool  mdf_path_exist(MDF *node, const char *path);

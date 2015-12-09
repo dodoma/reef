@@ -42,6 +42,12 @@ typedef int (*MHASH_COMP_FUNC)(const void*, const void*);
 typedef void (*MHASH_DESTROY_FUNC)(void *node);
 typedef struct _MHASH MHASH;
 
+/*
+ * 一个节点只能有一个类型，故此，如下操作：
+ *   mdf_set_value(node, "a", "value a");
+ *   mdf_set_value(node, "a.x", "value b");
+ * 后一个赋值会将 a 节点转换成对象类型(value a 会被释放)。
+ */
 typedef enum {
     MDF_TYPE_UNKNOWN = 0,       /* 0 */
     MDF_TYPE_OBJECT,            /* 1 */
