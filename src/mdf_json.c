@@ -714,27 +714,27 @@ static MERR* _import_json(MDF *node, const char *str,
              * array end
              */
 
-		case A_UTF8_2:
+        case A_UTF8_2:
             go_nearby = go;
-			go = go_utf8_continue;
-			utf8_remain = 1;
-			break;
+            go = go_utf8_continue;
+            utf8_remain = 1;
+            break;
 
-		case A_UTF8_3:
+        case A_UTF8_3:
             go_nearby = go;
-			go = go_utf8_continue;
-			utf8_remain = 2;
-			break;
+            go = go_utf8_continue;
+            utf8_remain = 2;
+            break;
 
-		case A_UTF8_4:
+        case A_UTF8_4:
             go_nearby = go;
-			go = go_utf8_continue;
-			utf8_remain = 3;
-			break;
+            go = go_utf8_continue;
+            utf8_remain = 3;
+            break;
 
-		case A_UTF_CONTINUE:
-			if (!--utf8_remain) go = go_nearby;
-			break;
+        case A_UTF_CONTINUE:
+            if (!--utf8_remain) go = go_nearby;
+            break;
 
         bad_char:
         case A_BAD:

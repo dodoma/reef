@@ -142,7 +142,7 @@ void test_other_type()
     mdf_destroy(&node);
 }
 
-#define NODE_NUM 10000000
+#define NODE_NUM 1000000
 
 void test_huge_nodes()
 {
@@ -231,6 +231,7 @@ void test_change()
     mdf_set_int_value(node, "a", 100);
     err = mdf_set_type(node, "a", MDF_TYPE_STRING);
     MTEST_ASSERT(err != MERR_OK);
+    merr_destroy(&err);
     //TRACE_NOK(err);
 
     mdf_set_value(node, "a", "100");

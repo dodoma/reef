@@ -20,12 +20,12 @@
  *     2. 由 json 字符串生成 mdf  (import string)
  *     3. 由 mdf 导出 message pack 二进制内存 (serialize)
  *     4. 由 message pack 内存生成  mdf (deserialize)
- *   快速拷贝：
+ *   快速拷贝（TODO）：
  *     1. prepare mdf for copy input (spped serialize)
  *     2. quick mdf
  *
  * 注意：
- *   1. path 参数的 BNF 定义
+ *   1. mdf 操作 path 参数的 BNF 定义
  *      PATH := (MDFNAME | NILL)
  *      MDFNAME := (MDF_SUBNAME | MDF_SUBNAME\.MDF_NAME)
  *      MDF_SUBNAME := (RAW_NAME | INDEX_NAME | RAW_NAMEINDEX_NAME)
@@ -72,7 +72,7 @@ int64_t mdf_get_int64_value(MDF *node, const char *path, int64_t dftvalue);
 float   mdf_get_float_value(MDF *node, const char *path, float dftvalue);
 bool    mdf_get_bool_value(MDF *node, const char *path, bool dftvalue);
 unsigned char* mdf_get_binary(MDF *node, const char *path, size_t *len);
-/* 返回节点的值（以字符串的方式），返回内容为新申请内存，需要释放。*/
+/* 返回节点的值（以字符串的方式），返回内容为新申请内存，使用后请自行释放。*/
 char* mdf_get_value_stringfy(MDF *node, const char *path, char *dftvalue);
 
 MERR* mdf_copy(MDF *dst, const char *path, MDF *src);
@@ -98,6 +98,7 @@ char* mdf_node_value(MDF *node);
 MERR* mdf_json_import_string(MDF *node, const char *str);
 MERR* mdf_json_import_file(MDF *node, const char *fname);
 
+/* 返回字符串为新申请内存，使用后请自行释放 */
 char* mdf_json_export_string(MDF *node);
 MERR* mdf_json_export_file(MDF *node, const char *fname);
 

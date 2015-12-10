@@ -1,0 +1,40 @@
+{
+  'err_code': 200,
+  'err_msg': '',
+  'data': {
+    'type': 2,
+    'url': 'http://bs.da.hunantv.com\/s.htm',
+    'duration': 3,
+    'postdata': {
+      'bn': 'HIMEDIA',
+      'mn': 'Q5IIemmc',
+      'os': 4.2,
+      'rs': '1280*720',
+      'mac': '00-66-CE-02-E7-EC',
+      'idfa': '你个搓人！！!,,',
+      '搓人2': '',
+      'anid': 'HMD - 1.0.9',
+      'ctmid': '29acf4020708ec4d515cc838a369bf7c93addace',
+      'ip': '222.247.56.11',
+      'lct': '',
+      'aaid': '',
+      'openudid': '',
+      'udid': '',
+      'odin': '',
+      'duid': ['aa', 'bb', {'aa': 'bb'}, 'dd'],
+      'fmt': 'vast3',
+      'aid': 0,
+      'init': 1,
+      'mml': 15,
+      'dpi': 0,
+      'mmc': 0,
+      'aw': 0,
+      'ah': 0,
+      'lt': 2,
+      'ts': 2147483647,
+      'ver': 1,
+      'ct': 'client:ott'
+    }
+  },
+  'success': '1'
+}
