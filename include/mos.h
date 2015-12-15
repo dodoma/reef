@@ -22,5 +22,7 @@ void* mos_realloc(void *ptr, size_t size);
  */
 int mos_rand(int max);
 
+double mos_timef();
+
 __END_DECLS
 #endif
