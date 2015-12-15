@@ -35,6 +35,17 @@ __BEGIN_DECLS
         goto label;                             \
     }
 
+#define DIE_NOK(err)                            \
+    if (err != MERR_OK) {                       \
+        MSTR _moon_str;                         \
+        mstr_init(&_moon_str);                  \
+        merr_traceback(err, &_moon_str);        \
+        fprintf(stderr, "%s\n", _moon_str.buf); \
+        mstr_clear(&_moon_str);                 \
+        merr_destroy(&err);                     \
+        exit(1);                                \
+    }
+
 
 __END_DECLS
 #endif

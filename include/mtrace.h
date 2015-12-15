@@ -17,7 +17,7 @@ typedef enum {
     MTC_MAX                     /* 7 */
 } MTC_LEVEL;
 
-int  mtc_init(const char *fn, MTC_LEVEL level);
+MERR* mtc_init(const char *fn, MTC_LEVEL level);
 void mtc_set_level(MTC_LEVEL level);
 bool mtc_msg(const char *func, const char *file, long line, MTC_LEVEL level,
              const char *fmt, ...) ATTRIBUTE_PRINTF(5, 6);

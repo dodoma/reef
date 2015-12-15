@@ -10,12 +10,18 @@ static void* _write_log(void *arg)
 
 void test_basic()
 {
-    MTEST_ASSERT(mtc_init("/unexist/x.log", MTC_NOISE) == MERR_OPENFILE);
-    MTEST_ASSERT(mtc_init("/usr/x.log", MTC_NOISE) == MERR_OPENFILE);
+    MERR *err;
+    err = mtc_init("/unexist/x.log", MTC_NOISE);
+    MTEST_ASSERT(merr_match(err, MERR_OPENFILE));
+    merr_destroy(&err);
+
+    err = mtc_init("/usr/x.log", MTC_NOISE);
+    MTEST_ASSERT(merr_match(err, MERR_OPENFILE));
+    merr_destroy(&err);
 
     MTEST_ASSERT(mtc_dbg("hello %s", "trace") == false);
 
-    MTEST_ASSERT(mtc_init("x.log", MTC_NOISE) == 0);
+    MTEST_ASSERT(mtc_init("x.log", MTC_NOISE) == MERR_OK);
 
     MTEST_ASSERT(mtc_dbg("") == true);
     MTEST_ASSERT(mtc_dbg("hello") == true);

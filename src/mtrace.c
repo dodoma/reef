@@ -55,9 +55,9 @@ static inline void _shift_file()
     setvbuf(m_fp, m_linebuf, _IOLBF, 2096);
 }
 
-int mtc_init(const char *fn, MTC_LEVEL level)
+MERR* mtc_init(const char *fn, MTC_LEVEL level)
 {
-    if (!fn) return MERR_ASSERT;
+    if (!fn) return merr_raise(MERR_ASSERT, "paramter null");
 
     if (level >= 0 && level < MTC_MAX) m_cur_level = level;
 
@@ -68,12 +68,12 @@ int mtc_init(const char *fn, MTC_LEVEL level)
     if (!strcmp(m_filename, "-")) m_fp = stdout;
     else m_fp = fopen(m_filename, "a+");
 
-    if (!m_fp) return MERR_OPENFILE;
+    if (!m_fp) return merr_raise(MERR_OPENFILE, "open trace file %s failure", m_filename);
     setvbuf(m_fp, m_linebuf, _IOLBF, 2096);
 
     atexit(_leave);
 
-    return 0;
+    return MERR_OK;
 }
 
 void mtc_set_level(MTC_LEVEL level)
