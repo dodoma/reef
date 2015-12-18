@@ -31,7 +31,7 @@ typedef enum {
     MERR_OPENFILE,
     MERR_NEXIST,
 
-    MERR_PASS = -30888
+    MERR_PASS = -30800
 } MERR_CODE;
 typedef struct _MERR MERR;
 

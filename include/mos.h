@@ -14,6 +14,7 @@ __BEGIN_DECLS
         }                                       \
     } while (0)
 
+void* mos_malloc(size_t size);
 void* mos_calloc(size_t nmemb, size_t size);
 void* mos_realloc(void *ptr, size_t size);
 

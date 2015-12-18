@@ -30,7 +30,7 @@ include $(DEPEND)
 	@$(CC) $(CFLAGS) -c $< -o $@ $(INCS)
 
 clean:
-	rm -f $(OBJS) *.so
+	rm -f $(OBJS) *.so *.a
 
 install:
 	install -m 0644 libreef.so /usr/local/lib
