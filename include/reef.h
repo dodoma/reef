@@ -72,5 +72,6 @@
 #include "mhash_macro.h"
 
 #include "mdf.h"
+#include "mdf_macro.h"
 
 #endif

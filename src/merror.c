@@ -51,6 +51,22 @@ MERR* merr_pass_raw(const char *func, const char *file, int lineno, MERR *error)
     return err;
 }
 
+uint32_t merr_meanful_code(MERR *error)
+{
+    MERR *err;
+
+    if (!error) return 0;
+
+    err = error;
+    while (err) {
+        if (err->code != MERR_PASS) return err->code;
+
+        err = err->next;
+    }
+
+    return 0;
+}
+
 bool merr_match(MERR *error, MERR_CODE code)
 {
     MERR *err;

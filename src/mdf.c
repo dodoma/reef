@@ -480,6 +480,69 @@ MERR* mdf_set_type(MDF *node, const char *path, MDF_TYPE type)
     return MERR_OK;
 }
 
+MERR* mdf_object_2_array(MDF *node, const char *path)
+{
+    MDF *anode;
+    MERR *err;
+
+    MERR_NOT_NULLA(node);
+
+    err = _walk_mdf(node, path, false, &anode);
+    if (err) return merr_pass(err);
+
+    if (!anode || anode->type != MDF_TYPE_OBJECT)
+        return merr_raise(MERR_ASSERT, "node type not object");
+
+    anode->type = MDF_TYPE_ARRAY;
+
+    return MERR_OK;
+}
+
+MERR* mdf_array_2_object(MDF *node, const char *path)
+{
+    MDF *anode;
+    MERR *err;
+
+    MERR_NOT_NULLA(node);
+
+    err = _walk_mdf(node, path, false, &anode);
+    if (err) return merr_pass(err);
+
+    if (!anode || anode->type != MDF_TYPE_ARRAY)
+        return merr_raise(MERR_ASSERT, "node type not array");
+
+    anode->type = MDF_TYPE_OBJECT;
+
+    return MERR_OK;
+}
+
+MDF_TYPE mdf_get_type(MDF *node, const char *path)
+{
+    MDF *anode;
+    MERR *err;
+
+    if (!node) return MDF_TYPE_UNKNOWN;
+
+    err = _walk_mdf(node, path, false, &anode);
+    TRACE_NOK(err);
+
+    if (anode) return anode->type;
+    else return MDF_TYPE_UNKNOWN;
+}
+
+char* mdf_get_name(MDF *node, const char *path)
+{
+    MDF *anode;
+    MERR *err;
+
+    if (!node) return NULL;
+
+    err = _walk_mdf(node, path, false, &anode);
+    TRACE_NOK(err);
+
+    if (anode) return anode->name;
+    else return NULL;
+}
 
 char* mdf_get_value(MDF *node, const char *path, char *dftvalue)
 {
@@ -729,7 +792,21 @@ bool mdf_path_exist(MDF *node, const char *path)
     else return false;
 }
 
-int mdf_node_child_count(MDF *node, const char *path)
+bool mdf_leaf_node(MDF *node, const char *path)
+{
+    MDF *anode;
+    MERR *err;
+
+    if (!node) return true;
+
+    err = _walk_mdf(node, path, false, &anode);
+    TRACE_NOK(err);
+
+    if (!node || !node->child) return true;
+    else return false;
+}
+
+int mdf_child_count(MDF *node, const char *path)
 {
     MDF *anode;
     MERR *err;
@@ -752,19 +829,4 @@ int mdf_node_child_count(MDF *node, const char *path)
             return 0;
         }
     } else return 0;
-}
-
-char* mdf_node_name(MDF *node)
-{
-    if (!node) return NULL;
-
-    return node->name;
-}
-
-char* mdf_node_value(MDF *node)
-{
-    if (!node) return NULL;
-
-    if (node->type == MDF_TYPE_STRING) return node->val.s;
-    else return NULL;
 }

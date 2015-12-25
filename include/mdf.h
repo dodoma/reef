@@ -64,7 +64,11 @@ MERR* mdf_set_bool_value(MDF *node, const char *path, bool value);
 MERR* mdf_set_binary(MDF *node, const char *path, const unsigned char *buf, size_t len);
 /* 将字符串类型节点 转换成 其他类型 */
 MERR* mdf_set_type(MDF *node, const char *path, MDF_TYPE type);
+MERR* mdf_object_2_array(MDF *node, const char *path);
+MERR* mdf_array_2_object(MDF *node, const char *path);
 
+MDF_TYPE mdf_get_type(MDF *node, const char *path);
+char*   mdf_get_name(MDF *node, const char *path);
 char*   mdf_get_value(MDF *node, const char *path, char *dftvalue);
 char*   mdf_get_value_copy(MDF *node, const char *path, char *dftvalue);
 int     mdf_get_int_value(MDF *node, const char *path, int dftvalue);
@@ -80,15 +84,16 @@ MERR* mdf_remove(MDF *node, const char *path);
 
 MDF* mdf_get_node(MDF *node, const char *path);
 MDF* mdf_get_or_create_node(MDF *node, const char *path);
+
 MDF* mdf_node_next(MDF *node);
 MDF* mdf_node_parent(MDF *node);
 MDF* mdf_node_child(MDF *node);
 MDF* mdf_sort_node(MDF *node, int __F(compare)(const void*, const void*));
 
 bool  mdf_path_exist(MDF *node, const char *path);
-int   mdf_node_child_count(MDF *node, const char *path);
-char* mdf_node_name(MDF *node);
-char* mdf_node_value(MDF *node);
+bool  mdf_leaf_node(MDF *node, const char *path);
+int   mdf_child_count(MDF *node, const char *path);
+
 
 /*
  * 解析 json 格式的字符串 str，存储在已准备好的 node 节点中。
@@ -107,6 +112,11 @@ MERR* mdf_json_export_file(MDF *node, const char *fname);
  * 返回此次打包已使用的内存字节数
  */
 size_t mdf_mpack_serialize(MDF *node, unsigned char *buf, size_t len);
+
+/*
+ * 计算 mdf 节点在转换成 message pack 格式时，需要占用的字节数
+ */
+size_t mdf_mpack_len(MDF *node);
 
 /*
  * 解包 长度为 len 字节的 message pack 格式包，存储在已准备好的 node 节点中

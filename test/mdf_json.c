@@ -27,6 +27,13 @@ void test_string_short()
     mdf_destroy(&node);
     mdf_init(&node);
 
+    err = mdf_json_import_string(node, "[[1, 2], [2]]");
+    MTEST_ASSERT(err == MERR_OK);
+    MTEST_ASSERT(mdf_get_int_value(node, "[0][1]", 0) == 2);
+
+    mdf_destroy(&node);
+    mdf_init(&node);
+
     err = mdf_json_import_string(node, "{'a': 100, 'b': 100.2, c: 'value \"c\"'}");
     MTEST_ASSERT(err == MERR_OK);
     MTEST_ASSERT(mdf_get_int_value(node, "a", 0) == 100);
@@ -79,7 +86,7 @@ void test_string_long()
     MTEST_ASSERT(err == MERR_OK);
     mos_free(s);
 
-    MTEST_ASSERT(mdf_node_child_count(node, NULL) == mdf_node_child_count(nodeb, NULL));
+    MTEST_ASSERT(mdf_child_count(node, NULL) == mdf_child_count(nodeb, NULL));
     for (int i = 0; i < NODE_NUM; i++) {
         MTEST_ASSERT_STR_EQ(mdf_get_value(node, pstr[i], NULL),
                             mdf_get_value(nodeb, pstr[i], NULL));
@@ -115,7 +122,7 @@ void test_file()
     err = mdf_json_import_file(nodeb, "mdf.json.export");
     MTEST_ASSERT(err == MERR_OK);
 
-    MTEST_ASSERT(mdf_node_child_count(node, NULL) == mdf_node_child_count(nodeb, NULL));
+    MTEST_ASSERT(mdf_child_count(node, NULL) == mdf_child_count(nodeb, NULL));
 
     stra = mdf_json_export_string(node);
     strb = mdf_json_export_string(nodeb);

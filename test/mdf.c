@@ -132,12 +132,12 @@ void test_other_type()
 
     MTEST_ASSERT(mdf_get_or_create_node(node, "unexist") != NULL);
 
-    MTEST_ASSERT(mdf_node_child_count(node, NULL) == 6);
+    MTEST_ASSERT(mdf_child_count(node, NULL) == 6);
 
     MDF *bnode = mdf_get_node(node, "namea");
 
-    MTEST_ASSERT_STR_EQ("namea", mdf_node_name(bnode));
-    MTEST_ASSERT(mdf_node_value(bnode) == NULL);
+    MTEST_ASSERT_STR_EQ("namea", mdf_get_name(bnode, NULL));
+    MTEST_ASSERT(mdf_get_value(bnode, NULL, NULL) == NULL);
 
     mdf_destroy(&node);
 }
@@ -170,7 +170,7 @@ void test_huge_nodes()
     /* 横向拷贝及删除 */
     mdf_init(&nodeb);
     mdf_copy(nodeb, NULL, node);
-    MTEST_ASSERT(mdf_node_child_count(nodeb, NULL) == mdf_node_child_count(node, NULL));
+    MTEST_ASSERT(mdf_child_count(nodeb, NULL) == mdf_child_count(node, NULL));
 
     for (int i = 0; i < NODE_NUM; i++) {
         MTEST_ASSERT_STR_EQ(mdf_get_value(node, pstr[i], ""),
@@ -205,7 +205,8 @@ void test_huge_nodes()
         cnodeb = mdf_node_child(cnodeb);
     }
 
-    MTEST_ASSERT_STR_EQ(mdf_node_value(cnode), mdf_node_value(cnodeb));
+    MTEST_ASSERT_STR_EQ(mdf_get_value(cnode, NULL, NULL),
+                        mdf_get_value(cnodeb, NULL, NULL));
 
     for (int i = 0; i < NODE_NUM; i++) mos_free(pstr[i]);
     mos_free(pstr);
