@@ -890,12 +890,15 @@ MERR* mdf_json_export_file(MDF *node, const char *fname)
 {
     FILE *fp;
 
-    fp = fopen(fname, "w");
+    if (!node) return MERR_OK;
+
+    if (!fname || !strcmp(fname, "-")) fp = stdout;
+    else fp = fopen(fname, "w");
     if (!fp) return merr_raise(MERR_OPENFILE, "open %s for write failure", fname);
 
     _export_json_string(node, fp, (MDF_PRINTF)fprintf, 0);
 
-    fclose(fp);
+    if (fname && strcmp(fname, "-")) fclose(fp);
 
     return MERR_OK;
 }

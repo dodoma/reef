@@ -148,7 +148,7 @@ static MERR* _walk_mdf(MDF *node, const char *path, bool create, MDF **rnode)
                 mlist_append(indexname_list, (void*)index);
             } else {
                 /* process RAW_NAME */
-                if (*pos == '_' || isalnum(*pos)) {
+                if (*pos == '_' || *pos == '$' || isalnum(*pos)) {
                     if (mlist_length(indexname_list) > 0) goto format_error;
 
                     if (!start) start = pos;
@@ -746,6 +746,19 @@ MDF* mdf_get_or_create_node(MDF *node, const char *path)
     TRACE_NOK(err);
 
     return anode;
+}
+
+MDF* mdf_get_child(MDF *node, const char *path)
+{
+    MDF *anode;
+    MERR *err;
+
+    if (!node) return NULL;
+
+    err = _walk_mdf(node, path, false, &anode);
+    TRACE_NOK(err);
+
+    return anode->child;
 }
 
 MDF* mdf_node_next(MDF *node)

@@ -84,6 +84,7 @@ MERR* mdf_remove(MDF *node, const char *path);
 
 MDF* mdf_get_node(MDF *node, const char *path);
 MDF* mdf_get_or_create_node(MDF *node, const char *path);
+MDF* mdf_get_child(MDF *node, const char *path);
 
 MDF* mdf_node_next(MDF *node);
 MDF* mdf_node_parent(MDF *node);
