@@ -90,7 +90,7 @@ static inline MPACK_FORMAT _mpack_format(unsigned char *buf)
 
 static inline int _mpack_get_fix_int(unsigned char *buf)
 {
-    return (int)(*buf);
+    return (int8_t)(*buf);
 }
 
 static inline int64_t _mpack_get_int(unsigned char *buf, size_t *step)
@@ -324,9 +324,8 @@ size_t mdf_mpack_serialize(MDF *node, unsigned char *buf, size_t len)
             break;
         case MDF_TYPE_INT:
             if (node->val.n < 0) {
-                if (node->val.n >= -0x1F) {
-                    /* TODO BUG ? */
-                    *pos = 0xE0 + node->val.n;
+                if (node->val.n >= -0x20) {
+                    *pos = (int8_t)node->val.n;
                     step = 1;
                 } else if (node->val.n >= -0xFF) {
                     *pos = 0xd0;
@@ -486,8 +485,7 @@ size_t mdf_mpack_len(MDF *node)
             break;
         case MDF_TYPE_INT:
             if (node->val.n < 0) {
-                if (node->val.n >= -0x1F) {
-                    /* TODO BUG ? */
+                if (node->val.n >= -0x20) {
                     step = 1;
                 } else if (node->val.n >= -0xFF) {
                     step = 2;
