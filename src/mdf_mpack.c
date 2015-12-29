@@ -403,7 +403,9 @@ size_t mdf_mpack_serialize(MDF *node, unsigned char *buf, size_t len)
             step = 1;
             break;
         default:
-            return 0;
+            /* EXT_1 for MDF_TYPE_UNKNOWN */
+            *pos = 0xD4;
+            step = 3;
         }
 
         pos += step;
@@ -529,7 +531,9 @@ size_t mdf_mpack_len(MDF *node)
             step = 1;
             break;
         default:
-            return 0;
+            /* MDF_TYPE_UNKNOWN */
+            step = 3;
+            break;
         }
 
         mylen += step;
@@ -722,8 +726,13 @@ size_t mdf_mpack_deserialize(MDF *node, const unsigned char *buf, size_t len)
             }
             break;
 
-        bad_format:
         case F_FIX_EXT_1:
+            nodetype = MDF_TYPE_UNKNOWN;
+            valued_time = 2;
+            step = 3;
+            break;
+
+        bad_format:
         case F_FIX_EXT_2:
         case F_FIX_EXT_4:
         case F_FIX_EXT_8:
@@ -733,9 +742,8 @@ size_t mdf_mpack_deserialize(MDF *node, const unsigned char *buf, size_t len)
         case F_EXT_32:
         default:
             /* TODO error message? */
-            printf("fuck error %d\n", *(int8_t*)pos);
+            printf("fuck error %d\n", *(uint8_t*)pos);
             return mylen;
-            break;
         }
 
         if (whoami == MDF_TYPE_OBJECT) {

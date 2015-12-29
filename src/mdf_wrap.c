@@ -47,3 +47,15 @@ MERR* mdf_copyf(MDF *dst, MDF *src, const char *fmt, ...)
 
     return merr_pass(mdf_copy(dst, key, src));
 }
+
+bool mdf_path_existf(MDF *node, const char *fmt, ...)
+{
+    char key[1024];
+    va_list ap;
+
+    va_start(ap, fmt);
+    vsnprintf(key, sizeof(key), fmt, ap);
+    va_end(ap);
+
+    return mdf_path_exist(node, key);
+}

@@ -805,6 +805,8 @@ static void _export_json_string(MDF *node, void *rock, MDF_PRINTF mprintf, int l
             mprintf(rock, "null");
             break;
         default:
+            /* null for MDF_TYPE_UNKNOWN */
+            mprintf(rock, "null");
             break;
         }
 

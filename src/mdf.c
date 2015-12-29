@@ -758,7 +758,8 @@ MDF* mdf_get_child(MDF *node, const char *path)
     err = _walk_mdf(node, path, false, &anode);
     TRACE_NOK(err);
 
-    return anode->child;
+    if (anode) return anode->child;
+    else return NULL;
 }
 
 MDF* mdf_node_next(MDF *node)
