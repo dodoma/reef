@@ -4,7 +4,7 @@ void* mos_malloc(size_t size)
 {
     void *p = malloc(size);
     if (!p) {
-        fprintf(stderr, "malloc %ld out of memory, exit!!!\n", size);
+        fprintf(stderr, "malloc %zd out of memory, exit!!!\n", size);
         exit(MERR_NOMEM);
     }
 
@@ -15,7 +15,7 @@ void* mos_calloc(size_t nmemb, size_t size)
 {
     void *p = calloc(nmemb, size);
     if (!p) {
-        fprintf(stderr, "calloc %ld %ld out of memory, exit!!!\n", nmemb, size);
+        fprintf(stderr, "calloc %zd %zd out of memory, exit!!!\n", nmemb, size);
         exit(MERR_NOMEM);
     }
 
@@ -26,7 +26,7 @@ void* mos_realloc(void *ptr, size_t size)
 {
     void *p = realloc(ptr, size);
     if (!p) {
-        fprintf(stderr, "realloc %ld out of memory, exit!!!\n", size);
+        fprintf(stderr, "realloc %zd out of memory, exit!!!\n", size);
         exit(MERR_NOMEM);
     }
 

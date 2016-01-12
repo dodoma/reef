@@ -88,26 +88,54 @@ static inline MPACK_FORMAT _mpack_format(unsigned char *buf)
     }
 }
 
+static inline uint8_t _mpack_load_u8(unsigned char *p)
+{
+    return (uint8_t)p[0];
+}
+
+static inline uint16_t _mpack_load_u16(unsigned char *p)
+{
+    uint16_t val;
+    memcpy(&val, p, sizeof(val));
+    return val;
+}
+
+static inline uint32_t _mpack_load_u32(unsigned char *p)
+{
+    uint32_t val;
+    memcpy(&val, p, sizeof(val));
+    return val;
+}
+
+static inline uint64_t _mpack_load_u64(unsigned char *p)
+{
+    uint64_t val;
+    memcpy(&val, p, sizeof(val));
+    return val;
+}
+
 static inline int _mpack_get_fix_int(unsigned char *buf)
 {
-    return (int8_t)(*buf);
+    return (int8_t)_mpack_load_u8(buf);
 }
 
 static inline int64_t _mpack_get_int(unsigned char *buf, size_t *step)
 {
-    switch (*buf) {
+    uint8_t type = _mpack_load_u8(buf);
+
+    switch (type) {
     case 0xD0:
         *step = 2;
-        return (int64_t)*((int8_t*)(buf+1));
+        return (int8_t)_mpack_load_u8(buf+1);
     case 0xD1:
         *step = 3;
-        return (int64_t)*((int16_t*)(buf+1));
+        return (int16_t)_mpack_load_u16(buf+1);
     case 0xD2:
         *step = 5;
-        return (int64_t)*((int32_t*)(buf+1));
+        return (int32_t)_mpack_load_u32(buf+1);
     case 0xD3:
         *step = 9;
-        return (int64_t)*((int64_t*)(buf+1));
+        return (int64_t)_mpack_load_u64(buf+1);
     }
 
     return 0;
@@ -115,19 +143,21 @@ static inline int64_t _mpack_get_int(unsigned char *buf, size_t *step)
 
 static inline uint _mpack_get_uint(unsigned char *buf, size_t *step)
 {
-    switch (*buf) {
+    uint8_t type = _mpack_load_u8(buf);
+
+    switch (type) {
     case 0xCC:
         *step = 2;
-        return (uint64_t)*((uint8_t*)(buf+1));
+        return (uint8_t)_mpack_load_u8(buf+1);
     case 0xCD:
         *step = 3;
-        return (uint64_t)*((uint16_t*)(buf+1));
+        return (uint16_t)_mpack_load_u16(buf+1);
     case 0xCE:
         *step = 5;
-        return (uint64_t)*((uint32_t*)(buf+1));
+        return (uint32_t)_mpack_load_u32(buf+1);
     case 0xCF:
         *step = 9;
-        return (uint64_t)*((uint64_t*)(buf+1));
+        return (uint64_t)_mpack_load_u64(buf+1);
     }
 
     return 0;
@@ -135,14 +165,34 @@ static inline uint _mpack_get_uint(unsigned char *buf, size_t *step)
 
 static inline float _mpack_get_float(unsigned char *buf, size_t *step)
 {
-    switch (*buf) {
+    uint8_t type = _mpack_load_u8(buf);
+
+    switch (type) {
     case 0xCA:
+    {
+        union {
+            float f;
+            uint32_t u;
+        } v;
+        memcpy(&v, buf + 1, sizeof(uint32_t));
+
         *step = 5;
-        return (float)*((float*)(buf+1));
+        return v.f;
+    }
     case 0xCB:
-        /* TODO need MDF_TYPE_DOUBLE ? */
+    {
+        union {
+            double d;
+            uint64_t u;
+        } v;
+        memcpy(&v, buf + 1, sizeof(uint64_t));
+
         *step = 9;
-        return (float)*((double*)(buf+1));
+        /* TODO need MDF_TYPE_DOUBLE ? */
+        return (float) v.d;
+    }
+    default:
+        break;
     }
 
     return 0;
@@ -150,21 +200,24 @@ static inline float _mpack_get_float(unsigned char *buf, size_t *step)
 
 static inline unsigned char* _mpack_get_str(unsigned char *buf, size_t *step, int *slen)
 {
-    switch (*buf) {
+    uint8_t type = _mpack_load_u8(buf);
+
+    switch (type) {
     case 0xD9:
-        *slen = *(uint8_t*)(buf+1);
+        *slen = _mpack_load_u8(buf+1);
         *step = 2 + *slen;
         return buf + 2;
     case 0xDA:
-        *slen = *(uint16_t*)(buf+1);
+        *slen = _mpack_load_u16(buf+1);
         *step = 3 + *slen;
         return buf + 3;
     case 0xDB:
-        *slen = *(uint32_t*)(buf+1);
+        *slen = _mpack_load_u32(buf+1);
         *step = 5 + *slen;
         return buf + 5;
     default:
-        *slen = *buf & 0x1F;
+        *slen = _mpack_load_u8(buf);
+        *slen = *slen & 0x1F;
         *step = 1 + *slen;
         return buf + 1;
     }
@@ -172,17 +225,19 @@ static inline unsigned char* _mpack_get_str(unsigned char *buf, size_t *step, in
 
 static inline unsigned char* _mpack_get_binary(unsigned char *buf, size_t *step, int *blen)
 {
-    switch (*buf) {
+    uint8_t type = _mpack_load_u8(buf);
+
+    switch (type) {
     case 0xC4:
-        *blen = *(uint8_t*)(buf+1);
+        *blen = _mpack_load_u8(buf+1);
         *step = 2 + *blen;
         return buf + 2;
     case 0xC5:
-        *blen = *(uint16_t*)(buf+1);
+        *blen = _mpack_load_u16(buf+1);
         *step = 3 + *blen;
         return buf + 3;
     case 0xC6:
-        *blen = *(uint32_t*)(buf+1);
+        *blen = _mpack_load_u32(buf+1);
         *step = 5 + *blen;
         return buf + 5;
     }
@@ -191,31 +246,35 @@ static inline unsigned char* _mpack_get_binary(unsigned char *buf, size_t *step,
 
 static inline int _mpack_get_array_count(unsigned char *buf, size_t *step)
 {
-    switch (*buf) {
+    uint8_t type = _mpack_load_u8(buf);
+
+    switch (type) {
     case 0xDC:
         *step = 3;
-        return *(uint16_t*)(buf+1);
+        return _mpack_load_u16(buf+1);
     case 0xDD:
         *step = 5;
-        return *(uint32_t*)(buf+1);
+        return _mpack_load_u32(buf+1);
     default:
         *step = 1;
-        return *buf & 0xF;
+        return type & 0xF;
     }
 }
 
 static inline int _mpack_get_map_count(unsigned char *buf, size_t *step)
 {
-    switch (*buf) {
+    uint8_t type = _mpack_load_u8(buf);
+
+    switch (type) {
     case 0xDE:
         *step = 3;
-        return *(uint16_t*)(buf+1);
+        return _mpack_load_u16(buf+1);
     case 0xDF:
         *step = 5;
-        return *(uint32_t*)(buf+1);
+        return _mpack_load_u32(buf+1);
     default:
         *step = 1;
-        return *buf & 0xF;
+        return type & 0xF;
     }
 }
 

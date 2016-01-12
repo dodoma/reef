@@ -96,7 +96,11 @@ static MERR* _walk_mdf(MDF *node, const char *path, bool create, MDF **rnode)
 {
     char *pos, *oldpos, *start, *end;
     MDF *xnode;
+#if __x86_64__
     int64_t index;
+#else
+    int32_t index;
+#endif
     MLIST *indexname_list;
     bool descend;
 
@@ -665,13 +669,13 @@ char* mdf_get_value_stringfy(MDF *node, const char *path, char *dftvalue)
             if (anode->val.s) return strdup(anode->val.s);
             else goto dup_default;
         case MDF_TYPE_INT:
-            snprintf(tok, sizeof(tok), "%ld", anode->val.n);
+            snprintf(tok, sizeof(tok), "%lld", (long long)anode->val.n);
             return strdup(tok);
         case MDF_TYPE_FLOAT:
             snprintf(tok, sizeof(tok), "%f", anode->val.f);
             return strdup(tok);
         case MDF_TYPE_BOOL:
-            snprintf(tok, sizeof(tok), "%ld", anode->val.n);
+            snprintf(tok, sizeof(tok), "%lld", (long long)anode->val.n);
             return strdup(tok);
         case MDF_TYPE_NULL:
             tok[0] = '0';

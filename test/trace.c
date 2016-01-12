@@ -4,8 +4,10 @@ static void* _write_log(void *arg)
 {
     int cnum = *(int*)arg;
 
-    for (int i = 0; i < 1000000; i++)
+    for (int i = 0; i < 10000; i++)
         mtc_dbg("i am log from thread %d", cnum);
+
+    return NULL;
 }
 
 void test_basic()
@@ -23,7 +25,7 @@ void test_basic()
 
     MTEST_ASSERT(mtc_init("x.log", MTC_NOISE) == MERR_OK);
 
-    MTEST_ASSERT(mtc_dbg("") == true);
+    MTEST_ASSERT(mtc_dbg(" ") == true);
     MTEST_ASSERT(mtc_dbg("hello") == true);
     MTEST_ASSERT(mtc_dbg("hello %s", "trace") == true);
     MTEST_ASSERT(mtc_err("hello %s error", "trace") == true);
