@@ -23,6 +23,8 @@ static int8_t go_value_quote[256] = {0};
 static int8_t go_value_number[256] = {0};
 static int8_t go_unvalue[256] = {0};
 
+static int8_t go_comment_a[256] = {0};
+static int8_t go_comment_b[256] = {0};
 static int8_t go_utf8_continue[256] = {0};
 
 static void _json_machine_init()
@@ -82,6 +84,13 @@ static void _json_machine_init()
         }                                       \
     } while (0)
 
+#define GO_256_SET(go, action)                  \
+    do {                                        \
+        for (int i = 0; i < 256; i++) {         \
+            go[i] = action;                     \
+        }                                       \
+    } while (0)
+
     if (inited) return;
     inited = true;
 
@@ -91,11 +100,13 @@ static void _json_machine_init()
     GO_WHITESPACE_LOOP(go_plain);
     go_plain['{'] = A_OBJECT;
     go_plain['['] = A_ARRAY;
+    go_plain['/'] = A_COMMENT_A;
 
     GO_WHITESPACE_LOOP(go_object);
     GO_ALPHA_SET(go_object, A_PAIR_L_RAW);
     go_object['"'] = A_PAIR_L_QUOTE;
     go_object['\''] = A_PAIR_L_QUOTE;
+    go_object['/'] = A_COMMENT_A;
 
     GO_ALPHA_SET(go_pair_l_raw, A_LOOP);
     go_pair_l_raw[' '] = A_UNPAIR_L_RAW;
@@ -154,6 +165,7 @@ static void _json_machine_init()
     GO_DIGIT_SET(go_array, A_VALUE_NUMBER);
     go_array['{'] = A_VALUE_OBJECT;
     go_array['['] = A_VALUE_ARRAY;
+    go_array['/'] = A_COMMENT_A;
 
     GO_ALPHA_SET(go_value_raw, A_LOOP);
     go_value_raw['.'] = A_UNVALUE_RAW;
@@ -183,6 +195,11 @@ static void _json_machine_init()
     /*
      * misc
      */
+    go_comment_a['/'] = A_COMMENT_B;
+
+    GO_256_SET(go_comment_b, A_LOOP);
+    go_comment_b['\n'] = A_UNCOMMENT_B;
+
     GO_UTF8_CONTINUE_SET(go_utf8_continue);
 }
 
@@ -713,6 +730,19 @@ static MERR* _import_json(MDF *node, const char *str,
             /*
              * array end
              */
+
+        case A_COMMENT_A:
+            go_nearby = go;
+            go = go_comment_a;
+            break;
+
+        case A_COMMENT_B:
+            go = go_comment_b;
+            break;
+
+        case A_UNCOMMENT_B:
+            go = go_nearby;
+            break;
 
         case A_UTF8_2:
             go_nearby = go;

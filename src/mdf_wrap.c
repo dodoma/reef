@@ -1,6 +1,18 @@
 #include "reef.h"
 #include "_mdf.h"
 
+char* mdf_get_valuef(MDF *node, char *dftvalue, const char *fmt, ...)
+{
+    char key[1024];
+    va_list ap;
+
+    va_start(ap, fmt);
+    vsnprintf(key, sizeof(key), fmt, ap);
+    va_end(ap);
+
+    return mdf_get_value(node, key, dftvalue);
+}
+
 MERR* mdf_set_valuef(MDF *node, const char *fmt, ...)
 {
     char buf[1024], *key, *val;
