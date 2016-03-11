@@ -43,8 +43,11 @@
 #include <sys/stat.h>
 #include <inttypes.h>
 #include <ctype.h>
+#include <limits.h>
 
 #include <pthread.h>
+
+#include <math.h>
 
 
 /*
@@ -73,5 +76,8 @@
 
 #include "mdf.h"
 #include "mdf_macro.h"
+
+#include "mcv.h"
+#include "mcv_macro.h"
 
 #endif

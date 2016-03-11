@@ -67,5 +67,60 @@ typedef struct _MDF MDF;
 
 typedef void (*MDF_PRINTF)(void *rock, const char *fmt, ...);
 
+/*
+ * MCV moon computer vision
+ */
+/* channel(or color) per pixel */
+typedef enum {
+    MCV_CPP_1 = 0x001,
+    MCV_CPP_2 = 0x002,
+    MCV_CPP_3 = 0x003,
+    MCV_CPP_4 = 0x004,
+} MCV_CPP;
+
+/* bit per channel(or color) */
+typedef enum {
+    MCV_BPC_8U =  0x01000,
+    MCV_BPC_32S = 0x02000,
+    MCV_BPC_32F = 0x04000,
+    MCV_BPC_64S = 0x08000,
+    MCV_BPC_64F = 0x10000,
+} MCV_BPC;
+
+/* matrix data type */
+typedef enum {
+    MCV_DATA_GRAY = 0x01001,
+    MCV_DATA_RGB = 0x01003
+} MCV_DATA;
+
+
+typedef enum {
+    MCV_FLAG_NONE = 0,
+    MCV_FLAG_TINY_SIGNED,       /* 按有符号整数处理矩阵内容（此类型处理速度比正常计算更快），
+                                 * 比如求和操作，可处理小于 1675x1675 的三通道256色图像求和
+                                 */
+    MCV_FLAG_TINY_UNSIGNED,     /* 按无符号整数处理矩阵内容
+                                 * 比如求和操作，可处理小于 2369x2369 的三通道256色图像求和
+                                 */
+    MCV_FLAG_SIGNED,            /* compute normarlly */
+    MCV_FLAG_UNSIGNED           /* compute fabs(x) of elements */
+} MCV_FLAG;
+
+typedef union {
+    unsigned char *u8;
+    int     *i32;
+    float   *f32;
+    int64_t *i64;
+    double  *f64;
+} MCV_MAT_CELL;
+
+typedef struct {
+    int type;
+    int rows;
+    int cols;
+    int step;
+    MCV_MAT_CELL data;
+} MCV_MAT;
+
 __END_DECLS
 #endif
