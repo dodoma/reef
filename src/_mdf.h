@@ -1,3 +1,6 @@
+#ifndef ___MDF_H__
+#define ___MDF_H__
+
 struct _MDF {
     uint32_t namelen;
     uint32_t valuelen;
@@ -95,3 +98,5 @@ typedef enum {
 
 void _mdf_drop_child_node(MDF *pnode, MDF *cnode);
 void _mdf_append_child_node(MDF *pnode, MDF *newnode, int current_childnum);
+
+#endif
