@@ -881,7 +881,7 @@ MERR* mdf_json_import_file(MDF *node, const char *fname)
         return merr_raise(MERR_OPENFILE, "stat %s failure", fname);
 
     if (fs.st_size < 0 || fs.st_size > INT32_MAX)
-        return merr_raise(MERR_ASSERT, "file size error %ld", fs.st_size);
+        return merr_raise(MERR_ASSERT, "file size error %ld", (long int)fs.st_size);
 
     buf = mos_calloc(1, fs.st_size + 1);
 
@@ -890,7 +890,7 @@ MERR* mdf_json_import_file(MDF *node, const char *fname)
 
     if (fread(buf, 1, fs.st_size, fp) != fs.st_size) {
         fclose(fp);
-        return merr_raise(MERR_ASSERT, "read file failure %ld", fs.st_size);
+        return merr_raise(MERR_ASSERT, "read file failure %ld", (long int)fs.st_size);
     }
     buf[fs.st_size] = '\0';
     fclose(fp);
