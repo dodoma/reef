@@ -24,5 +24,10 @@ void     mhash_str_free(void *a);
 uint32_t mhash_int_hash(const void *a);
 int      mhash_int_comp(const void *a, const void *b);
 
+/* 098f6bcd4621d373cade4e832627b4f6 */
+void mhash_md5_buf(unsigned char *in, size_t len, unsigned char out[16]);
+/* 7d726587934dc8f29e2e42b88a0756be1c47fa64 */
+void mhash_sha1_buf(unsigned char *in, size_t len, unsigned char out[20]);
+
 __END_DECLS
 #endif

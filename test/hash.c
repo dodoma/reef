@@ -15,7 +15,7 @@ void test_basic()
         ps[i] = strdup(s);
     }
 
-    err = mhash_init(&table, mhash_str_hash, mhash_str_comp, mhash_str_free);
+    err = mhash_init(&table, mhash_str_hash, mhash_str_comp, NULL);
     MTEST_ASSERT(err == MERR_OK);
 
     for (int i = 0; i < NODE_NUM; i++) {
@@ -59,7 +59,7 @@ void test_iterate()
     MTEST_ASSERT(err == MERR_OK);
 
     for (int i = 0; i < 100; i++) {
-        err = mhash_insert(table, ps[i], ps[i]);
+        err = mhash_insert(table, ps[i], strdup(ps[i]));
         MTEST_ASSERT(err == MERR_OK);
     }
 
@@ -74,10 +74,26 @@ void test_iterate()
     mhash_destroy(&table);
 }
 
+void test_hash()
+{
+    unsigned char outa[16], outb[20];
+    char sa[33], sb[41];
+
+    mhash_md5_buf((unsigned char*)"reef", 4, outa);
+    mhash_sha1_buf((unsigned char*)"reef", 4, outb);
+
+    mstr_bin2hexstr(outa, 16, sa);
+    mstr_bin2hexstr(outb, 20, sb);
+
+    MTEST_ASSERT_STR_EQ(sa, "94981b447947c1e6af5d8be1e262dd7e");
+    MTEST_ASSERT_STR_EQ(sb, "cfb5e25be6c3bd8074b0b1c6efedc131b107f903");
+}
+
 void suite_basic()
 {
     mtest_add_test(test_basic, "basic");
     mtest_add_test(test_iterate, "hash iterate");
+    mtest_add_test(test_hash, "other hash function");
 }
 
 int main()

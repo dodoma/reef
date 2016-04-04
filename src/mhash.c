@@ -1,4 +1,6 @@
 #include "reef.h"
+#include "_md5.h"
+#include "_sha1.h"
 
 struct node {
     uint32_t hashv;
@@ -15,7 +17,7 @@ struct _MHASH {
 
     uint32_t __F(hash_func)(const void*);
     int __F(comp_func)(const void *, const void *);
-    void __F(destroy_func)(void *node);
+    void __F(destroy_func)(void *value);
 };
 
 /*
@@ -138,7 +140,7 @@ void mhash_destroy(MHASH **table)
             next = node->next;
             //mtc_dbg("destroy %s", (char*)node->key);
 
-            if (tbl->destroy_func) tbl->destroy_func(node);
+            if (tbl->destroy_func) tbl->destroy_func(node->value);
             mos_free(node);
 
             node = next;
@@ -210,7 +212,7 @@ bool mhash_remove(MHASH *table, void *key)
         struct node *lnode = *node;
         *node = lnode->next;
 
-        if (table->destroy_func) table->destroy_func(lnode);
+        if (table->destroy_func) table->destroy_func(lnode->value);
         mos_free(lnode);
 
         table->num--;
@@ -290,9 +292,9 @@ int mhash_str_comp(const void *a, const void *b)
 
 void mhash_str_free(void *a)
 {
-    struct node *node = (struct node*)a;
+    char *value = (char*)a;
 
-    if(node) mos_free(node->key);
+    mos_free(value);
 }
 
 uint32_t mhash_int_hash(const void *a)
@@ -303,4 +305,32 @@ uint32_t mhash_int_hash(const void *a)
 int mhash_int_comp(const void *a, const void *b)
 {
     return a - b;
+}
+
+
+void mhash_md5_buf(unsigned char *in, size_t len, unsigned char out[16])
+{
+    if (!in) return;
+
+    md5_ctx contex;
+
+    memset(out, 0x0, 16);
+
+    MD5Init(&contex);
+    MD5Update(&contex, in, (unsigned long)len);
+    MD5Final(out, &contex);
+}
+
+void mhash_sha1_buf(unsigned char *in, size_t len, unsigned char out[20])
+{
+    SHA1_CTX contex;
+    unsigned int ii;
+
+    memset(out, 0x0, 20);
+
+    SHA1Init(&contex);
+    for (ii = 0; ii < len; ii++) {
+        SHA1Update(&contex, in + ii, 1);
+    }
+    SHA1Final(out, &contex);
 }

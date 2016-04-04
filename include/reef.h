@@ -46,8 +46,15 @@
 #include <limits.h>
 
 #include <pthread.h>
-
 #include <math.h>
+
+#ifdef __MACH__
+#include <mach/clock.h>
+#include <mach/mach.h>
+#include <crt_externs.h>
+#define environ (*_NSGetEnviron())
+#define MSG_NOSIGNAL SO_NOSIGPIPE
+#endif
 
 
 /*
@@ -55,6 +62,8 @@
  */
 #include "mos.h"
 #include "mcolor.h"
+
+#include "mbase64.h"
 
 #include "mtype.h"
 #include "mtest.h"
