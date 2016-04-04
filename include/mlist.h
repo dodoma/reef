@@ -74,6 +74,7 @@ void  mlist_destroy(MLIST **alist);
 
 /*
  * quick search, this will sort the list(change item's position).
+ * 返回列表中内存元素的地址，而非内存元素
  */
 void* mlist_search(MLIST *alist, const void *key,
                    int __F(compare)(const void*, const void*));

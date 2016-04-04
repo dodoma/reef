@@ -1,7 +1,8 @@
 BASEDIR = ../
 include $(BASEDIR)Make.env
 
-CFLAGS += -fPIC -shared
+CFLAGS += -fPIC
+LDFLAGS += -shared
 
 SOURCES = $(wildcard *.c)
 OBJS	= $(patsubst %.c, %.o, $(SOURCES))
@@ -17,7 +18,7 @@ $(DEPEND): $(SOURCES)
 
 libreef.so:$(OBJS) $(DEPEND)
 	@echo "CFLAGS="$(CFLAGS);
-	@$(CC) $(CFLAGS) -o $@ $(OBJS)
+	@$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(OBJS)
 
 libreef.a:$(OBJS) $(DEPEND)
 	@echo "CFLAGS="$(CFLAGS);

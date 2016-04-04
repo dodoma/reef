@@ -61,7 +61,7 @@ double mcv_summary(MCV_MAT *mat, int flag)
     case MCV_FLAG_TINY_UNSIGNED:                        \
         for (int i = 0; i < mat->rows; i++) {           \
             for (int j = 0; j < cpr; j++) {             \
-                sum_u += abs(getter(pos, j));           \
+                sum_u += abs((int)getter(pos, j));      \
             }                                           \
             pos += mat->step;                           \
         }                                               \

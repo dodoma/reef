@@ -59,7 +59,7 @@ MERR* mtc_init(const char *fn, MTC_LEVEL level)
 {
     if (!fn) return merr_raise(MERR_ASSERT, "paramter null");
 
-    if (level >= 0 && level < MTC_MAX) m_cur_level = level;
+    if (level < MTC_MAX) m_cur_level = level;
 
     strncpy(m_filename, fn, sizeof(m_filename));
 
@@ -78,7 +78,7 @@ MERR* mtc_init(const char *fn, MTC_LEVEL level)
 
 void mtc_set_level(MTC_LEVEL level)
 {
-    if (level >= 0 && level < MTC_MAX) m_cur_level = level;
+    if (level < MTC_MAX) m_cur_level = level;
 }
 
 bool mtc_msg(const char *func, const char *file, long line, MTC_LEVEL level,

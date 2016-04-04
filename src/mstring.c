@@ -23,6 +23,20 @@ static void _check_length(MSTR *astr, size_t len)
     }
 }
 
+char* mstr_strip(char *s, char n)
+{
+    int x;
+
+    if (!s) return NULL;
+
+    x = strlen(s) - 1;
+    while (x>=0 && s[x]==n) s[x--] = '\0';
+
+    while (*s && *s==n) s++;
+
+    return s;
+}
+
 void mstr_init(MSTR *astr)
 {
     if (!astr) return;
@@ -187,7 +201,7 @@ error:
     return merr_pass(err);
 }
 
-void mstr_bin2str(uint8_t *hexin, unsigned int inlen, unsigned char *charout)
+void mstr_bin2str(uint8_t *hexin, unsigned int inlen, char *charout)
 {
     /* 48 '0' */
     /* 97 'a'  122 'z'  65 'A' */
@@ -228,7 +242,7 @@ void mstr_bin2str(uint8_t *hexin, unsigned int inlen, unsigned char *charout)
 /*
  * use < 10 judgement, or, you can use array ['0', '1', ..., 'e', 'f']
  */
-void mstr_bin2hexstr(const uint8_t *hexin, unsigned int inlen, unsigned char *charout)
+void mstr_bin2hexstr(uint8_t *hexin, unsigned int inlen, char *charout)
 {
     /* 48 '0' */
     /* 97 'a'  122 'z'  65 'A' */
