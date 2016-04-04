@@ -105,8 +105,10 @@ MERR* mdf_json_import_string(MDF *node, const char *str);
 MERR* mdf_json_import_file(MDF *node, const char *fname);
 
 /* 返回字符串为新申请内存，使用后请自行释放 */
-char* mdf_json_export_string(MDF *node);
-MERR* mdf_json_export_file(MDF *node, const char *fname);
+char*  mdf_json_export_string(MDF *node);
+MERR*  mdf_json_export_file(MDF *node, const char *fname);
+/* 往已有内存中写，速度更快 */
+size_t mdf_json_export_buffer(MDF *node, char *buf, size_t len);
 
 /*
  * 打包 mdf 节点（用 message pack 格式）， 放在已经准备好了的长度为 len 字节的 buf 内存中

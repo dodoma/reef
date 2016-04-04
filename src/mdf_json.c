@@ -154,6 +154,7 @@ static void _json_machine_init()
     GO_WHITESPACE_LOOP(go_unpair_r);
     go_unpair_r[','] = A_PAIR_NEXT;
     go_unpair_r['}'] = A_UNOBJECT;
+    go_unpair_r['/'] = A_COMMENT_A;
 
     /*
      * array
@@ -191,6 +192,7 @@ static void _json_machine_init()
     GO_WHITESPACE_LOOP(go_unvalue);
     go_unvalue[','] = A_VALUE_NEXT;
     go_unvalue[']'] = A_UNARRAY;
+    go_unvalue['/'] = A_COMMENT_A;
 
     /*
      * misc
@@ -780,6 +782,31 @@ static MERR* _import_json(MDF *node, const char *str,
     return merr_raise(MERR_ASSERT, "illgal json string");
 }
 
+struct json_outbuf {
+    char *buf;
+    size_t len;
+    size_t max;
+};
+
+static void _json_outbuf_appendf(void *rock, const char *fmt, ...)
+{
+    va_list ap;
+    int len, remain;
+
+    struct json_outbuf *jbuf = rock;
+
+    if (!rock || !fmt) return;
+
+    remain = jbuf->max - jbuf->len;
+    if (remain <= 0) return;
+
+    va_start(ap, fmt);
+    len = vsnprintf(jbuf->buf + jbuf->len, remain, fmt, ap);
+    va_end(ap);
+
+    if (len >= remain) jbuf->len = jbuf->max + 1;
+    else jbuf->len += len;
+}
 
 /*
  * level 参数用来控制输出格式，-1为单行输出，否则会以换行和缩进控制输出
@@ -916,6 +943,23 @@ char* mdf_json_export_string(MDF *node)
     _export_json_string(node, &astr, (MDF_PRINTF)mstr_appendf, -1);
 
     return astr.buf;
+}
+
+size_t mdf_json_export_buffer(MDF *node, char *buf, size_t len)
+{
+    struct json_outbuf jbuf;
+
+    if (!node) return 0;
+
+    jbuf.buf = buf;
+    jbuf.max = len;
+    jbuf.len = 0;
+
+    _export_json_string(node, &jbuf, (MDF_PRINTF)_json_outbuf_appendf, -1);
+
+    if (jbuf.len > jbuf.max) return 0;
+
+    return jbuf.len;
 }
 
 MERR* mdf_json_export_file(MDF *node, const char *fname)

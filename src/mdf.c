@@ -74,7 +74,9 @@ static MDF* _walk_by_index(MDF *node, int index, bool create)
 create_if_want:
     if (!create) return NULL;
 
-    if (node->type == MDF_TYPE_STRING || MDF_TYPE_BINARY) mos_free(node->val.s);
+    if (node->type == MDF_TYPE_STRING || node->type == MDF_TYPE_BINARY)
+        mos_free(node->val.s);
+
     node->type = MDF_TYPE_ARRAY;
 
     for (int i = childnum; i < index + 1; i++) {
@@ -229,6 +231,16 @@ static MERR* _copy_mdf(MDF *dst, MDF *src)
     }
 
     dst->type = src->type;
+    dst->val.n = src->val.n;
+    dst->val.f = src->val.f;
+    if (src->type == MDF_TYPE_STRING && src->val.s) {
+        dst->val.s = strdup(src->val.s);
+        dst->valuelen = src->valuelen;
+    } else if (src->type == MDF_TYPE_BINARY && src->val.s) {
+        dst->val.s = mos_calloc(1, src->valuelen);
+        memcpy(dst->val.s, src->val.s, src->valuelen);
+        dst->valuelen = src->valuelen;
+    }
 
     return MERR_OK;
 }
