@@ -122,5 +122,23 @@ typedef struct {
     MCV_MAT_CELL data;
 } MCV_MAT;
 
+
+typedef struct {
+    int x, y;
+} MCV_POINT;
+
+typedef struct {
+    float x, y;
+} MCV_DECIMAL_POINT;
+
+typedef struct {
+    int w, h;
+} MCV_SIZE;
+
+typedef struct {
+    int x, y;
+    int w, h;
+} MCV_RECT;
+
 __END_DECLS
 #endif

@@ -3,6 +3,11 @@
 
 __BEGIN_DECLS
 
+#define MCV_PI (3.141592653589793)
+#define MCV_DEG_PER_RAD (57.295779513082323)
+#define MCV_DEGREE_2_RADIAN(x) ((x)/MCV_DEG_PER_RAD)
+#define MCV_RADIAN_2_DEGREE(x) ((x)*MCV_DEG_PER_RAD)
+
 static const int m_channel_size[] = {
     -1, 1, 4, -1, 4, -1, -1, -1, 8, -1, -1, -1, -1, -1, -1, -1, 8
 };
@@ -23,6 +28,7 @@ static const int m_channel_size[] = {
 #define MCV_CLAMP(x, a, b) ( ((x) < (a)) ? (a) : ((x) > (b)) ? (b) : (x))
 #define MCV_MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MCV_MAX(a, b) ((a) > (b) ? (a) : (b))
+
 
 
 /*

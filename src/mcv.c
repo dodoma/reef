@@ -99,3 +99,94 @@ double mcv_summary(MCV_MAT *mat, int flag)
 
     return sum_d;
 }
+
+MERR* mcv_vline_angle(MCV_MAT *mat, int targetv, float *r)
+{
+    MCV_POINT pstart, pend;
+    unsigned char *pos;
+    bool reached;
+    int section;
+    float accuracy;
+
+    MERR_NOT_NULLB(mat, r);
+
+    accuracy = 0.01;
+    section = 10;
+
+    /*
+     * just accpet gray bitmap currently
+     */
+    if (mat->type != MCV_DATA_GRAY) return merr_raise(MERR_ASSERT, "expect gray matrix");
+
+    if (mat->rows < section * 2)
+        return merr_raise(MERR_ASSERT, "expect %d+ rows matrix", section * 2);
+
+    *r = 0.0;
+
+#define FOR_BLOCK(rowstart, point)                                      \
+    reached = false;                                                    \
+    pos = mat->data.u8 + (rowstart)*mat->step;                          \
+    for (int i = rowstart; i < mat->rows; i++) {                        \
+        for (int j = 0; j < mat->cols; j++) {                           \
+            if (pos[j] == targetv) {                                    \
+                point.x = j;                                            \
+                point.y = i;                                            \
+                reached = true;                                         \
+                break;                                                  \
+            }                                                           \
+        }                                                               \
+        if (reached) break;                                             \
+        pos += mat->step;                                               \
+    }                                                                   \
+    if (!reached) return merr_raise(MERR_ASSERT, "target not found from %d row", rowstart);
+
+    FOR_BLOCK(0, pstart);
+    FOR_BLOCK(mat->rows - section, pend);
+#undef FOR_BLOCK
+
+    int width, height;
+    float tanv;
+
+    width = pend.x - pstart.x;
+    height = pend.y - pstart.y;
+    tanv = (float)width / height;
+
+    if (fabs(tanv) < accuracy) *r = 0.0;
+    else *r = atan(tanv);
+
+    return MERR_OK;
+}
+
+MERR* mcv_hline_left_point(MCV_MAT *mat, int targetv, int step, MCV_POINT *point)
+{
+    unsigned char *pos;
+    int counter, end;
+
+    MERR_NOT_NULLB(mat, point);
+
+    if (mat->type != MCV_DATA_GRAY) return merr_raise(MERR_ASSERT, "expect gray matrix");
+
+    if (mat->cols < step)
+        return merr_raise(MERR_ASSERT, "matrix width %d < %d", mat->cols, step);
+
+    point->x = point->y = -1;
+    end = mat->cols - step;
+
+    pos = mat->data.u8;
+    for (int i = 0; i < mat->rows; i++) {
+        for (int j = 0; j < end; j++) {
+            if (pos[j] == targetv) {
+                counter = 0;
+                while (counter < step && pos[j+counter] == targetv) counter++;
+                if (counter == step) {
+                    point->x = j;
+                    point->y = i;
+                    return MERR_OK;
+                } else break;
+            }
+        }
+        pos += mat->step;
+    }
+
+    return MERR_OK;
+}

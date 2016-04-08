@@ -22,5 +22,17 @@ void mcv_matrix_destroy(MCV_MAT **mat);
  */
 double mcv_summary(MCV_MAT *mat, int flag);
 
+/*
+ * 计算矩阵内从左至右 第一条竖线的倾斜角度（常用于矩形物体旋转度计算）
+ * 返回弧度值
+ */
+MERR* mcv_vline_angle(MCV_MAT *mat, int targetv, float *r);
+
+/*
+ * 找到矩阵内从上自下 第一条水平直线的左边起点（常用于物体顶点定位）
+ * 输入矩阵必须是已经旋转至平放的
+ */
+MERR* mcv_hline_left_point(MCV_MAT *mat, int targetv, int step, MCV_POINT *point);
+
 __END_DECLS
 #endif
