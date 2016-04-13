@@ -89,5 +89,6 @@
 #include "mcv.h"
 #include "mcv_macro.h"
 #include "mcv_forspeed.h"
+#include "mcv_deprecate.h"
 
 #endif

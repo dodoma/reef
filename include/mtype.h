@@ -122,6 +122,11 @@ typedef struct {
     MCV_MAT_CELL data;
 } MCV_MAT;
 
+typedef struct {
+    int type;
+    MCV_MAT_CELL data;
+} MCV_PIXEL;
+
 
 typedef struct {
     int x, y;

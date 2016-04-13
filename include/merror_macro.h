@@ -12,6 +12,8 @@ __BEGIN_DECLS
     if (!(pa) || !(pb)) return merr_raise(MERR_ASSERT, "paramter null");
 #define MERR_NOT_NULLC(pa, pb, pc) \
     if (!(pa) || !(pb) || !(pc)) return merr_raise(MERR_ASSERT, "paramter null");
+#define MERR_NOT_NULLD(pa, pb, pc, pd)                                  \
+    if (!(pa) || !(pb) || !(pc) || (!pd)) return merr_raise(MERR_ASSERT, "paramter null");
 
 
 #define TRACE_NOK(err)                          \

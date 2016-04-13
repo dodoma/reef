@@ -6,7 +6,7 @@
  *
  * 恩，又一个机器视觉的库。
  * 类似 ccv, 但 ccv 更偏向模式识别、人工神经网络之类，mcv 更偏向单一的机器视觉、工业检测。
- * mcv 的目标是实现一套易用、高效的类 opencv core, imageproc 工具函数
+ * mcv 的目标是实现一套易用、高效的类 opencv core, imageproc, feature 2d 工具函数
  *
  * Many Thanks To [ccv](http://libccv.org/) by liuliu
  */
@@ -18,9 +18,46 @@ MCV_MAT  mcv_matrix(int rows, int cols, int type, void *data);
 void mcv_matrix_destroy(MCV_MAT **mat);
 
 /*
+ * 取矩阵的子矩阵，使用原矩阵内存
+ * 注意：该函数速度虽然很快，但尽量只对其进行读操作（除非你已经了解，该矩阵实际值在内存中是不连续的）
+ */
+MCV_MAT mcv_matrix_attach(MCV_MAT *mat, MCV_RECT rect);
+/*
+ * 取矩阵的子矩阵，新申请内存
+ * 类似 numpy 中的 new_image = image[y:y+rows, x:x+cols]
+ */
+MCV_MAT* mcv_matrix_detach(MCV_MAT *mat, MCV_RECT rect);
+
+/*
+ * 判断2矩阵是否相等
+ */
+bool mcv_matrix_eq(MCV_MAT *mata, MCV_MAT *matb);
+
+/*
+ * 将矩阵，指定矩形内元素赋值为 pixel， rect 为 NULL 时，操作全部矩阵
+ */
+MERR* mcv_matrix_set_pixel(MCV_MAT *mat, MCV_RECT rect, MCV_PIXEL pixel);
+MERR* mcv_matrix_set_gray(MCV_MAT *mat, MCV_RECT rect, unsigned char v);
+
+
+/*
  * 计算矩阵内所有元素之和
  */
 double mcv_summary(MCV_MAT *mat, int flag);
+
+/*
+ * 计算矩阵内所有指定像素个数
+ */
+unsigned int mcv_pixel_number(MCV_MAT *mat, MCV_PIXEL pixel);
+
+/*
+ * 查找位置
+ * TODO direction flag
+ */
+MERR* mcv_pixel_position(MCV_MAT *mat, MCV_PIXEL pixel, MCV_POINT *point);
+MERR* mcv_matrix_submat_position(MCV_MAT *mata, MCV_MAT *matb, MCV_POINT *point);
+MERR* mcv_matrix_subwin_position(MCV_MAT *mat, MCV_RECT rect, MCV_PIXEL pixel,
+                                 MCV_POINT *point);
 
 /*
  * 计算矩阵内从左至右 第一条竖线的倾斜角度（常用于矩形物体旋转度计算）
@@ -28,11 +65,6 @@ double mcv_summary(MCV_MAT *mat, int flag);
  */
 MERR* mcv_vline_angle(MCV_MAT *mat, int targetv, float *r);
 
-/*
- * 找到矩阵内从上自下 第一条水平直线的左边起点（常用于物体顶点定位）
- * 输入矩阵必须是已经旋转至平放的
- */
-MERR* mcv_hline_left_point(MCV_MAT *mat, int targetv, int step, MCV_POINT *point);
 
 __END_DECLS
 #endif

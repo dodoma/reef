@@ -3,6 +3,22 @@
 
 __BEGIN_DECLS
 
+static inline MCV_PIXEL mcv_pixel(int type, void *data)
+{
+    MCV_PIXEL pixel;
+    pixel.type = type;
+    pixel.data.u8 = (unsigned char*)data;
+    return pixel;
+}
+
+static inline MCV_PIXEL mcv_pixel_gray(unsigned char *v)
+{
+    MCV_PIXEL pixel;
+    pixel.type = MCV_DATA_GRAY;
+    pixel.data.u8 = v;
+    return pixel;
+}
+
 static inline MCV_POINT mcv_point(int x, int y)
 {
     MCV_POINT point;
@@ -41,7 +57,6 @@ static inline MCV_RECT mcv_rect(int x, int y, int width, int height)
     rect.h = height;
     return rect;
 }
-
 
 __END_DECLS
 #endif

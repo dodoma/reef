@@ -22,6 +22,11 @@ static const int m_channel_size[] = {
                                               MCV_GET_CHANNEL_SIZE(type) + 3) & \
                                              -4) * rows )
 
+#define MCV_MATRIX_DATA_SIZE(rows, cols, type) ( (((cols) *             \
+                                                   MCV_GET_CPP(type) *  \
+                                                   MCV_GET_CHANNEL_SIZE(type) + 3) & \
+                                                  -4) * rows )
+
 /*
  * basic utils
  */
@@ -33,6 +38,7 @@ static const int m_channel_size[] = {
 
 /*
  * access utils
+ * row, col, ch start from 0
  */
 #define MCV_GET_GEO_MEM(mat, row, col, ch)                              \
     ( ((mat)->type & MCV_BPC_8U) ?                                      \
