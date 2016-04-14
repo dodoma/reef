@@ -19,14 +19,22 @@ void mcv_matrix_destroy(MCV_MAT **mat);
 
 /*
  * 取矩阵的子矩阵，使用原矩阵内存
- * 注意：该函数速度虽然很快，但尽量只对其进行读操作（除非你已经了解，该矩阵实际值在内存中是不连续的）
+ * 类似 numpy 中的 new_image = image[y:y+rows, x:x+cols]
+ * 注意：该函数速度虽然很快，但对其进行操作需要注意，该矩阵实际值在内存中可能是不连续的。
  */
 MCV_MAT mcv_matrix_attach(MCV_MAT *mat, MCV_RECT rect);
 /*
  * 取矩阵的子矩阵，新申请内存
- * 类似 numpy 中的 new_image = image[y:y+rows, x:x+cols]
  */
 MCV_MAT* mcv_matrix_detach(MCV_MAT *mat, MCV_RECT rect);
+
+/*
+ * 矩阵克隆，新申请内存，
+ *   等价于 mcv_matrix_detach(mat, mcv_rect(0, 0, mat->cols, mat->rows))
+ *   等价于 numpy.copy()
+ * 但速度更快，特别是对于 rows 很大的 matrix
+ */
+MCV_MAT* mcv_matrix_clone(MCV_MAT *mat);
 
 /*
  * 判断2矩阵是否相等

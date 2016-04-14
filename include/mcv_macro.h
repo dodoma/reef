@@ -27,6 +27,11 @@ static const int m_channel_size[] = {
                                                    MCV_GET_CHANNEL_SIZE(type) + 3) & \
                                                   -4) * rows )
 
+#define MCV_MAT_DATA_SIZE(mat) ( ((((mat)->cols) *                      \
+                                   MCV_GET_CPP((mat)->type) *           \
+                                   MCV_GET_CHANNEL_SIZE((mat)->type) + 3) & \
+                                  -4) * (mat)->rows )
+
 /*
  * basic utils
  */

@@ -88,6 +88,19 @@ MCV_MAT* mcv_matrix_detach(MCV_MAT *mat, MCV_RECT rect)
     return rmat;
 }
 
+MCV_MAT* mcv_matrix_clone(MCV_MAT *mat)
+{
+    MCV_MAT *rmat;
+
+    if (!mat) return NULL;
+
+    rmat = mcv_matrix_new(mat->rows, mat->cols, mat->type);
+
+    memcpy(rmat->data.u8, mat->data.u8, MCV_MAT_DATA_SIZE(mat));
+
+    return rmat;
+}
+
 bool mcv_matrix_eq(MCV_MAT *mata, MCV_MAT *matb)
 {
     if (!mata || !matb) return false;
