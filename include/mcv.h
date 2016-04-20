@@ -63,15 +63,30 @@ unsigned int mcv_pixel_number(MCV_MAT *mat, MCV_PIXEL pixel);
  * TODO direction flag
  */
 MERR* mcv_pixel_position(MCV_MAT *mat, MCV_PIXEL pixel, MCV_POINT *point);
-MERR* mcv_matrix_submat_position(MCV_MAT *mata, MCV_MAT *matb, MCV_POINT *point);
-MERR* mcv_matrix_subwin_position(MCV_MAT *mat, MCV_RECT rect, MCV_PIXEL pixel,
-                                 MCV_POINT *point);
+MERR* mcv_matrix_submat_position(MCV_MAT *mata, MCV_MAT *matb,
+                                 int direction, MCV_POINT *point);
+MERR* mcv_matrix_subwin_position(MCV_MAT *mat, MCV_SIZE msize, MCV_PIXEL pixel,
+                                 int direction, MCV_POINT *point);
 
 /*
  * 计算矩阵内从左至右 第一条竖线的倾斜角度（常用于矩形物体旋转度计算）
  * 返回弧度值
  */
 MERR* mcv_vline_angle(MCV_MAT *mat, int targetv, float *r);
+
+/*
+ * 计算矩阵内从上至下 第一条横线的倾斜角度（常用于矩形物体旋转度计算）
+ * 返回弧度值
+ */
+MERR* mcv_hline_angle(MCV_MAT *mat, int targetv, float *r);
+
+
+/*
+ * 将矩阵绕Y轴（旋转）角度r
+ * 旋转：Y轴不变，逐行、绕该行第一个像素进行旋转，故离Y轴越近，旋转距离越小，反之越大
+ * 内部实现为，目标图中的每个像素，绕该行的第一个像素，从源图中找对应坐标，取值、赋值
+ */
+MERR* mcv_vertical_rotate(MCV_MAT *mata, MCV_MAT *matb, MCV_PIXEL padpix, float r);
 
 
 __END_DECLS

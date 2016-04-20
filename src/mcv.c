@@ -297,7 +297,8 @@ MERR* mcv_pixel_position(MCV_MAT *mat, MCV_PIXEL pixel, MCV_POINT *point)
     return MERR_OK;
 }
 
-MERR* mcv_matrix_submat_position(MCV_MAT *mata, MCV_MAT *matb, MCV_POINT *point)
+MERR* mcv_matrix_submat_position(MCV_MAT *mata, MCV_MAT *matb,
+                                 int direction, MCV_POINT *point)
 {
     MERR_NOT_NULLC(mata, matb, point);
 
@@ -312,20 +313,54 @@ MERR* mcv_matrix_submat_position(MCV_MAT *mata, MCV_MAT *matb, MCV_POINT *point)
     if (matb->rows <= 0 || matb->cols <= 0) return MERR_OK;
 
     int cpp = MCV_GET_CPP(mata->type);
-    int endr = mata->rows - matb->rows;
-    int endc = mata->cols - matb->cols;
-    unsigned char *posa = mata->data.u8;
+    int rows = mata->rows - matb->rows;
+    int cols = mata->cols - matb->cols;
     unsigned char *posb = matb->data.u8;
     float epsilon = (MCV_GET_BPC(mata->type) == MCV_BPC_8U ||
                      MCV_GET_BPC(mata->type) == MCV_BPC_32S ||
                      MCV_GET_BPC(mata->type) == MCV_BPC_64S) ? 1 : 1e-4;
 
+    unsigned char *posa;
+    int istart, jstart, istep, jstep;
+
+    switch (direction) {
+    case MCV_DIR_NW:
+    default:
+        posa = mata->data.u8;
+        istart = 0;
+        jstart = 0;
+        istep = 1;
+        jstep = 1;
+        break;
+    case MCV_DIR_NE:
+        posa = mata->data.u8;
+        istart = 0;
+        jstart = mata->cols - matb->cols;
+        istep = 1;
+        jstep = -1;
+        break;
+    case MCV_DIR_SW:
+        posa = mata->data.u8 + (mata->rows - matb->rows) * mata->step;
+        istart = mata->rows - matb->rows;
+        jstart = 0;
+        istep = -1;
+        jstep = 1;
+        break;
+    case MCV_DIR_SE:
+        posa = mata->data.u8 + (mata->rows - matb->rows) * mata->step;
+        istart = mata->rows - matb->rows;
+        jstart = mata->cols - matb->cols;
+        istep = -1;
+        jstep = -1;
+        break;
+    }
+
     int k, counter;
 
 #define FOR_BLOCK(_, getter)                                            \
-    for (int i = 0; i < endr; i++) {                                    \
+    for (int i = istart, icounter = 0; icounter < rows; i += istep, icounter++) { \
         /* 比较该行是否满足要求 */                                      \
-        for (int j = 0; j < endc; j++) {                                \
+        for (int j = jstart, jcounter = 0; jcounter < cols; j += jstep, jcounter++) { \
             counter = 0;                                                \
             while (counter < matb->cols) {                              \
                 k = 0;                                                  \
@@ -343,21 +378,40 @@ MERR* mcv_matrix_submat_position(MCV_MAT *mata, MCV_MAT *matb, MCV_POINT *point)
                 if (mcv_matrix_eq(&matx, matb)) {                       \
                     point->x = j;                                       \
                     point->y = i;                                       \
-                    return MERR_OK;                                     \
+                    goto found;                                         \
                 }                                                       \
             }                                                           \
         }                                                               \
-        posa += mata->step;                                             \
+        posa += mata->step * istep;                                     \
     }
 
     _MCV_MAT_GETTER(mata->type, FOR_BLOCK);
 #undef FOR_BLOCK
 
     return MERR_OK;
+
+found:
+    switch (direction) {
+    case MCV_DIR_NW:
+    default:
+        break;
+    case MCV_DIR_NE:
+        point->x += matb->cols;
+        break;
+    case MCV_DIR_SW:
+        point->y += matb->rows;
+        break;
+    case MCV_DIR_SE:
+        point->x += matb->cols;
+        point->y += matb->rows;
+        break;
+    }
+
+    return MERR_OK;
 }
 
-MERR* mcv_matrix_subwin_position(MCV_MAT *mat, MCV_RECT rect, MCV_PIXEL pixel,
-                                 MCV_POINT *point)
+MERR* mcv_matrix_subwin_position(MCV_MAT *mat, MCV_SIZE msize, MCV_PIXEL pixel,
+                                 int direction, MCV_POINT *point)
 {
     MERR *err;
 
@@ -365,15 +419,59 @@ MERR* mcv_matrix_subwin_position(MCV_MAT *mat, MCV_RECT rect, MCV_PIXEL pixel,
 
     if (mat->type != pixel.type) return merr_raise(MERR_ASSERT, "type mismatch");
 
-    MCV_MAT *matx = mcv_matrix_new(rect.h, rect.w, pixel.type);
+    MCV_MAT *matx = mcv_matrix_new(msize.h, msize.w, pixel.type);
 
     err = mcv_matrix_set_pixel(matx, mcv_rect(0, 0, matx->cols, matx->rows), pixel);
     if (err) return merr_pass(err);
 
-    err = mcv_matrix_submat_position(mat, matx, point);
+    err = mcv_matrix_submat_position(mat, matx, direction, point);
     if (err) return merr_pass(err);
 
     mcv_matrix_destroy(&matx);
+
+    return MERR_OK;
+}
+
+MERR* mcv_vertical_rotate(MCV_MAT *mata, MCV_MAT *matb, MCV_PIXEL padpix, float r)
+{
+    MERR_NOT_NULLB(mata, matb);
+
+    if (mata->type != matb->type ||
+        mata->type != padpix.type ||
+        mata->rows != matb->rows ||
+        mata->cols != matb->cols) return merr_raise(MERR_ASSERT, "mat mismatch");
+
+    int cpp = MCV_GET_CPP(mata->type);
+    unsigned char *posa = mata->data.u8;
+    unsigned char *posb = matb->data.u8;
+    unsigned char *posp = padpix.data.u8;
+
+    r = 2 * MCV_PI - r;
+    float sn = sin(r), cs = cos(r);
+
+#define FOR_BLOCK(setter, getter)                                       \
+    for (int i = 0; i < matb->rows; i++) {                              \
+        for (int j = 0; j < matb->cols; j++) {                          \
+            /* m = cos(a) * x - sin(a) * y, n = sin(a) * x + cos(a) * y */ \
+            int sx = cs * j;                                            \
+            int sy = sn * j;                                            \
+            sy += i;                                                    \
+            if (sx >= 0 && sx <= mata->cols && sy >= 0 && sy <= mata->rows) { \
+                for (int k = 0; k < cpp; k++) {                         \
+                    setter(posb, j * cpp + k,                           \
+                           getter(posa, (sy * mata->step) + sx * cpp + k)); \
+                }                                                       \
+            } else {                                                    \
+                for (int k = 0; k < cpp; k++) {                         \
+                    setter(posb, j * cpp + k, getter(posp, k));         \
+                }                                                       \
+            }                                                           \
+        }                                                               \
+        posb += matb->step;                                             \
+    }
+
+    _MCV_MAT_SETTER(matb->type, _MCV_MAT_GETTER, mata->type, FOR_BLOCK);
+#undef FOR_BLOCK
 
     return MERR_OK;
 }

@@ -125,8 +125,8 @@ void test_sub_matrix_gray()
     unsigned char white = 255;
     MCV_POINT point;
 
-    for (int i = 0; i < rows / 2; i++) {
-        for (int j = 0; j < cols / 2; j++) {
+    for (int i = 1; i < rows / 2; i++) {
+        for (int j = 1; j < cols / 2; j++) {
             mcv_matrix_set_gray(mata, mcv_rect(j, i, j, i), 255);
 
             mcv_pixel_position(mata, mcv_pixel_gray(&white), &point);
@@ -139,13 +139,14 @@ void test_sub_matrix_gray()
                 MTEST_ASSERT(point.y == i);
             }
 
-            mcv_matrix_subwin_position(mata, mcv_rect(j, i, j, i),
-                                       mcv_pixel_gray(&white), &point);
+            mcv_matrix_subwin_position(mata, mcv_size(j, i), mcv_pixel_gray(&white),
+                                       MCV_DIR_NW, &point);
             if (i == 0 || j == 0) {
                 /* rect 非法 */
                 MTEST_ASSERT(point.x == -1);
                 MTEST_ASSERT(point.y == -1);
             } else {
+                //printf("%d %d : (%d, %d)\n", j, i, point.x, point.y);
                 MTEST_ASSERT(point.x == j);
                 MTEST_ASSERT(point.y == i);
             }
@@ -189,8 +190,9 @@ void test_sub_matrix_color()
                 MTEST_ASSERT(point.y == i);
             }
 
-            mcv_matrix_subwin_position(mata, mcv_rect(j, i, j, i),
-                                       mcv_pixel(type, &white2), &point);
+            MERR *err = mcv_matrix_subwin_position(mata, mcv_size(j, i), mcv_pixel(type, &white2),
+                                             MCV_DIR_NW, &point);
+            PRINT_NOK(err);
             if (i == 0 || j == 0) {
                 /* rect 非法 */
                 MTEST_ASSERT(point.x == -1);

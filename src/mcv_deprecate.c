@@ -96,3 +96,58 @@ MERR* xmcv_matrix_set_pixel(MCV_MAT *mat, MCV_PIXEL *pixel, MCV_RECT *rect)
 
     return MERR_OK;
 }
+
+MERR* mcv_vertical_align(MCV_MAT *mat, int maxstep,
+                         MCV_PIXEL val_pixel, MCV_PIXEL pad_pixel)
+{
+    MERR_NOT_NULLA(mat);
+
+    if (mat->type != val_pixel.type ||
+        mat->type != pad_pixel.type) return merr_raise(MERR_ASSERT, "type mismatch");
+
+    int cpp = MCV_GET_CPP(mat->type);
+    int pixellen = MCV_GET_CPP(pad_pixel.type) * MCV_GET_CHANNEL_SIZE(pad_pixel.type);
+    unsigned char *posa = mat->data.u8;
+    unsigned char *posb = val_pixel.data.u8;
+    float epsilon = (MCV_GET_BPC(mat->type) == MCV_BPC_8U ||
+                     MCV_GET_BPC(mat->type) == MCV_BPC_32S ||
+                     MCV_GET_BPC(mat->type) == MCV_BPC_64S) ? 1 : 1e-4;
+
+    int k, delta, memlen, x = -1;
+    unsigned char *pos_pad;
+
+#define FOR_BLOCK(_, getter)                                            \
+    for (int i = 0; i < mat->rows; i++) {                               \
+        for (int j = 0; j < mat->cols; j++) {                           \
+            k = 0;                                                      \
+            while (k < cpp && fabs((double)(getter(posa, j * cpp + k) - \
+                                            getter(posb, k))) < epsilon) { \
+                k++;                                                    \
+            }                                                           \
+            if (k == cpp) {                                             \
+                if (x == -1) x = j;                                     \
+                delta = x - j;                                          \
+                if (delta != 0 && abs(delta) <= maxstep) {              \
+                    /* 移动 */                                          \
+                    memlen = x > j ? mat->cols - x : mat->cols - j;     \
+                    memlen *= pixellen;                                 \
+                    memmove(posa + (x * pixellen), posa + (j * pixellen), memlen); \
+                    /* 填空 */                                          \
+                    int p = x > j ? j : mat->cols - delta;              \
+                    pos_pad = posa + p * pixellen;                      \
+                    for (int m = 0; m < delta; m++) {                   \
+                        memcpy(pos_pad, pad_pixel.data.u8, pixellen);   \
+                        pos_pad += pixellen;                            \
+                    }                                                   \
+                }                                                       \
+                break;                                                  \
+            }                                                           \
+        }                                                               \
+        posa += mat->step;                                              \
+    }
+
+    _MCV_MAT_GETTER(mat->type, FOR_BLOCK);
+#undef FOR_BLOCK
+
+    return MERR_OK;
+}

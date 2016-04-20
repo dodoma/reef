@@ -106,6 +106,16 @@ typedef enum {
     MCV_FLAG_UNSIGNED           /* compute fabs(x) of elements */
 } MCV_FLAG;
 
+/*
+ * N north, S south, W west, E east
+ */
+typedef enum {
+    MCV_DIR_NW = 0,
+    MCV_DIR_NE,
+    MCV_DIR_SW,
+    MCV_DIR_SE
+} MCV_DIRECTION;
+
 typedef union {
     unsigned char *u8;
     int     *i32;

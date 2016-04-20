@@ -77,3 +77,60 @@ MERR* mcv_vline_angle(MCV_MAT *mat, int targetv, float *r)
 
     return MERR_OK;
 }
+
+MERR* mcv_hline_angle(MCV_MAT *mat, int targetv, float *r)
+{
+    MCV_POINT pstart, pend;
+    unsigned char *pos;
+    bool reached;
+    int section;
+    float accuracy;
+
+    MERR_NOT_NULLB(mat, r);
+
+    accuracy = 0.01;
+    section = 10;
+
+    /*
+     * just accpet gray bitmap currently
+     */
+    if (mat->type != MCV_DATA_GRAY) return merr_raise(MERR_ASSERT, "expect gray matrix");
+
+    if (mat->cols < section * 2)
+        return merr_raise(MERR_ASSERT, "expect %d+ cols matrix", section * 2);
+
+    *r = 0.0;
+
+#define FOR_BLOCK(colstart, point)                                      \
+    reached = false;                                                    \
+    pos = mat->data.u8 + colstart;                                      \
+    for (int i = colstart; i < mat->cols; i++) {                        \
+        for (int j = 0; j < mat->rows; j++) {                           \
+            if (pos[j*mat->step] == targetv) {                          \
+                point.x = i;                                            \
+                point.y = j;                                            \
+                reached = true;                                         \
+                break;                                                  \
+            }                                                           \
+        }                                                               \
+        if (reached) break;                                             \
+        pos++;                                                          \
+    }                                                                   \
+    if (!reached) return merr_raise(MERR_ASSERT, "target not found from %d col", colstart);
+
+    FOR_BLOCK(0, pstart);
+    FOR_BLOCK(mat->cols - section, pend);
+#undef FOR_BLOCK
+
+    int width, height;
+    float tanv;
+
+    width = pend.x - pstart.x;
+    height = -(pend.y - pstart.y);
+    tanv = (float)height / width;
+
+    if (fabs(tanv) < accuracy) *r = 0.0;
+    else *r = atan(tanv);
+
+    return MERR_OK;
+}
