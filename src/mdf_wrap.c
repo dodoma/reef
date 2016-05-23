@@ -71,3 +71,27 @@ bool mdf_path_existf(MDF *node, const char *fmt, ...)
 
     return mdf_path_exist(node, key);
 }
+
+MERR* mdf_set_typef(MDF *node, MDF_TYPE type, const char *fmt, ...)
+{
+    char key[1024];
+    va_list ap;
+
+    va_start(ap, fmt);
+    vsnprintf(key, sizeof(key), fmt, ap);
+    va_end(ap);
+
+    return mdf_set_type(node, key, type);
+}
+
+MDF*  mdf_get_or_create_nodef(MDF *node, const char *fmt, ...)
+{
+    char key[1024];
+    va_list ap;
+
+    va_start(ap, fmt);
+    vsnprintf(key, sizeof(key), fmt, ap);
+    va_end(ap);
+
+    return mdf_get_or_create_node(node, key);
+}
