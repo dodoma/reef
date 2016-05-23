@@ -55,6 +55,10 @@ void test_string_short()
     MTEST_ASSERT_STR_EQ("{\"a\": [1, true, 3], \"b\": {\"ba\": {\"baa\": 1}, \"bb\": [1, \"2\", 3]}}", str);
     mos_free(str);
 
+    str = mdf_json_export_string(mdf_get_node(node, "b.ba"));
+    MTEST_ASSERT_STR_EQ("{\"baa\": 1}", str);
+    mos_free(str);
+
     mdf_destroy(&node);
 }
 

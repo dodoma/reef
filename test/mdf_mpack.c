@@ -26,6 +26,22 @@ void test_short()
     mos_free(stra);
     mos_free(strb);
 
+    MDF *nodea = mdf_get_node(node, "bdofe");
+    lena = mdf_mpack_serialize(nodea, buf, 10240);
+    MTEST_ASSERT(lena > 0);
+
+    mdf_destroy(&nodeb);
+    mdf_init(&nodeb);
+    lenb = mdf_mpack_deserialize(nodeb, buf, lena);
+    MTEST_ASSERT(lena == lenb);
+
+    stra = mdf_json_export_string(nodea);
+    strb = mdf_json_export_string(nodeb);
+    MTEST_ASSERT_STR_EQ(stra, strb);
+
+    mos_free(stra);
+    mos_free(strb);
+
     mdf_destroy(&node);
     mdf_destroy(&nodeb);
 }

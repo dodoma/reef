@@ -278,13 +278,36 @@ static inline int _mpack_get_map_count(unsigned char *buf, size_t *step)
     }
 }
 
+static inline size_t _string_serialize(size_t len, char *val, unsigned char *pos)
+{
+    if (len <= 0x1F) {
+        *pos = 0xA0 + len;
+        memcpy(pos + 1, val, len);
+        return 1 + len;
+    } else if (len <= 0xFF) {
+        *pos = 0xD9;
+        *(uint8_t*)(pos+1) = len;
+        memcpy(pos + 2, val, len);
+        return 2 + len;
+    } else if (len <= 0xFFFF) {
+        *pos = 0xDA;
+        *(uint16_t*)(pos+1) = len;
+        memcpy(pos + 3, val, len);
+        return 3 + len;
+    } else {
+        *pos = 0xDB;
+        *(uint32_t*)(pos+1) = len;
+        memcpy(pos + 5, val, len);
+        return 5 + len;
+    }
+}
 
 size_t mdf_mpack_serialize(MDF *node, unsigned char *buf, size_t len)
 {
     int nodenum;
-    MDF_TYPE pnodetype;
     unsigned char *pos;
     size_t mylen, step;
+    MDF *cnode;
 
     if (!node || !buf || len <= 0) return 0;
 
@@ -292,186 +315,149 @@ size_t mdf_mpack_serialize(MDF *node, unsigned char *buf, size_t len)
     pos = buf;
     nodenum = 0;
 
-    if (node->parent) pnodetype = node->parent->type;
-    else pnodetype = MDF_TYPE_UNKNOWN;
+    switch (node->type) {
+    case MDF_TYPE_OBJECT:
+        nodenum = mdf_child_count(node, NULL);
+        if (nodenum <= 0xF) {
+            *pos = 0x80 + nodenum;
+            step = 1;
+        } else if (nodenum <= 0xFFFF) {
+            *pos = 0xDE;
+            *(uint16_t*)(pos+1) = nodenum;
+            step = 3;
+        } else {
+            *pos = 0xDF;
+            *(uint32_t*)(pos+1) = nodenum;
+            step = 5;
+        }
 
-    while (node && mylen < len) {
-        if (pnodetype == MDF_TYPE_OBJECT) {
-            if (node->namelen <= 0x1F) {
-                *pos = 0xA0 + node->namelen;
-                memcpy(pos + 1, node->name, node->namelen);
-                step = 1 + node->namelen;
-            } else if (node->namelen <= 0xFF) {
-                *pos = 0xD9;
-                *(uint8_t*)(pos+1) = node->namelen;
-                memcpy(pos + 2, node->name, node->namelen);
-                step = 2 + node->namelen;
-            } else if (node->namelen <= 0xFFFF) {
-                *pos = 0xDA;
-                *(uint16_t*)(pos+1) = node->namelen;
-                memcpy(pos + 3, node->name, node->namelen);
-                step = 3 + node->namelen;
-            } else {
-                *pos = 0xDB;
-                *(uint32_t*)(pos+1) = node->namelen;
-                memcpy(pos + 5, node->name, node->namelen);
-                step = 5 + node->namelen;
-            }
+        mylen = step;
+        pos += step;
+        cnode = node->child;
+        while (cnode && mylen < len) {
+            step = _string_serialize(cnode->namelen, cnode->name, pos);
+            step += mdf_mpack_serialize(cnode, pos + step, len - mylen);
             pos += step;
             mylen += step;
             step = 0;
-        }
 
-        switch (node->type) {
-        case MDF_TYPE_OBJECT:
-            nodenum = mdf_child_count(node, NULL);
-            if (nodenum <= 0xF) {
-                *pos = 0x80 + nodenum;
-                step = mdf_mpack_serialize(node->child, pos + 1, len - mylen);
-                step += 1;
-            } else if (nodenum <= 0xFFFF) {
-                *pos = 0xDE;
-                *(uint16_t*)(pos+1) = nodenum;
-                step = mdf_mpack_serialize(node->child, pos + 3, len - mylen);
-                step += 3;
-            } else {
-                *pos = 0xDF;
-                *(uint32_t*)(pos+1) = nodenum;
-                step = mdf_mpack_serialize(node->child, pos + 5, len - mylen);
-                step += 5;
-            }
-            break;
-        case MDF_TYPE_ARRAY:
-            nodenum = mdf_child_count(node, NULL);
-            if (nodenum <= 0xF) {
-                *pos = 0x90 + nodenum;
-                step = mdf_mpack_serialize(node->child, pos + 1, len - mylen);
-                step += 1;
-            } else if (nodenum <= 0xFFFF) {
-                *pos = 0xDC;
-                *(uint16_t*)(pos+1) = nodenum;
-                step = mdf_mpack_serialize(node->child, pos + 3, len - mylen);
-                step += 3;
-            } else {
-                *pos = 0xDD;
-                *(uint32_t*)(pos+1) = nodenum;
-                step = mdf_mpack_serialize(node->child, pos + 5, len - mylen);
-                step += 5;
-            }
-            break;
-        case MDF_TYPE_STRING:
-            if (node->valuelen <= 0x1F) {
-                *pos = 0xA0 + node->valuelen;
-                memcpy(pos + 1, node->val.s, node->valuelen);
-                step = 1 + node->valuelen;
-            } else if (node->valuelen <= 0xFF) {
-                *pos = 0xD9;
-                *(uint8_t*)(pos+1) = node->valuelen;
-                memcpy(pos + 2, node->val.s, node->valuelen);
-                step = 2 + node->valuelen;
-            } else if (node->valuelen <= 0xFFFF) {
-                *pos = 0xDA;
-                *(uint16_t*)(pos+1) = node->valuelen;
-                memcpy(pos + 3, node->val.s, node->valuelen);
-                step = 3 + node->valuelen;
-            } else {
-                *pos = 0xDB;
-                *(uint32_t*)(pos+1) = node->valuelen;
-                memcpy(pos + 5, node->val.s, node->valuelen);
-                step = 5 + node->valuelen;
-            }
-            break;
-        case MDF_TYPE_INT:
-            if (node->val.n < 0) {
-                if (node->val.n >= -0x20) {
-                    *pos = (int8_t)node->val.n;
-                    step = 1;
-                } else if (node->val.n >= -0xFF) {
-                    *pos = 0xd0;
-                    *(int8_t*)(pos+1) = node->val.n;
-                    step = 2;
-                } else if (node->val.n >= -0xFFFF) {
-                    *pos = 0xd1;
-                    *(int16_t*)(pos+1) = node->val.n;
-                    step = 3;
-                } else if (node->val.n >= -0xFFFFFFFF) {
-                    *pos = 0xd2;
-                    *(int32_t*)(pos+1) = node->val.n;
-                    step = 5;
-                } else {
-                    *pos = 0xd3;
-                    *(int64_t*)(pos+1) = node->val.n;
-                    step = 9;
-                }
-            } else {
-                if (node->val.n <= 0x80) {
-                    *pos = node->val.n;
-                    step = 1;
-                } else if (node->val.n <= 0xFF) {
-                    *pos = 0xCC;
-                    *(uint8_t*)(pos+1) = node->val.n;
-                    step = 2;
-                } else if (node->val.n <= 0xFFFF) {
-                    *pos = 0xCD;
-                    *(uint16_t*)(pos+1) = node->val.n;
-                    step = 3;
-                } else if (node->val.n <= 0xFFFFFFFF) {
-                    *pos = 0xCE;
-                    *(uint32_t*)(pos+1) = node->val.n;
-                    step = 5;
-                } else {
-                    *pos = 0xCF;
-                    *(uint64_t*)(pos+1) = node->val.n;
-                    step = 9;
-                }
-            }
-            break;
-        case MDF_TYPE_FLOAT:
-            *pos = 0xCA;
-            *(float*)(pos+1) = node->val.f;
-            step = 5;
-            break;
-        case MDF_TYPE_BOOL:
-            if (node->val.n != 0) {
-                *pos = 0xC3;
-            } else {
-                *pos = 0xC2;
-            }
+            cnode = cnode->next;
+        }
+        break;
+    case MDF_TYPE_ARRAY:
+        nodenum = mdf_child_count(node, NULL);
+        if (nodenum <= 0xF) {
+            *pos = 0x90 + nodenum;
             step = 1;
-            break;
-        case MDF_TYPE_BINARY:
-            if (node->valuelen < 0xFF) {
-                *pos = 0xC4;
-                *(uint8_t*)(pos+1) = node->valuelen;
-                memcpy(pos + 2, node->val.s, node->valuelen);
-                step = 2 + node->valuelen;
-            } else if (node->valuelen < 0xFFFF) {
-                *pos = 0xC5;
-                *(uint16_t*)(pos+1) = node->valuelen;
-                memcpy(pos + 3, node->val.s, node->valuelen);
-                step = 3 + node->valuelen;
-            } else {
-                *pos = 0xC6;
-                *(uint32_t*)(pos+1) = node->valuelen;
-                memcpy(pos + 5, node->val.s, node->valuelen);
-                step = 5 + node->valuelen;
-            }
-            break;
-        case MDF_TYPE_NULL:
-            *pos = 0xC0;
-            step = 1;
-            break;
-        default:
-            /* EXT_1 for MDF_TYPE_UNKNOWN */
-            *pos = 0xD4;
+        } else if (nodenum <= 0xFFFF) {
+            *pos = 0xDC;
+            *(uint16_t*)(pos+1) = nodenum;
             step = 3;
+        } else {
+            *pos = 0xDD;
+            *(uint32_t*)(pos+1) = nodenum;
+            step = 5;
         }
 
+        mylen = step;
         pos += step;
-        mylen += step;
-        step = 0;
+        cnode = node->child;
+        while (cnode && mylen < len) {
+            step = mdf_mpack_serialize(cnode, pos, len - mylen);
+            pos += step;
+            mylen += step;
+            step = 0;
 
-        node = node->next;
+            cnode = cnode->next;
+        }
+        break;
+    case MDF_TYPE_STRING:
+        mylen = _string_serialize(node->valuelen, node->val.s, pos);
+        break;
+    case MDF_TYPE_INT:
+        if (node->val.n < 0) {
+            if (node->val.n >= -0x20) {
+                *pos = (int8_t)node->val.n;
+                mylen = 1;
+            } else if (node->val.n >= -0xFF) {
+                *pos = 0xd0;
+                *(int8_t*)(pos+1) = node->val.n;
+                mylen = 2;
+            } else if (node->val.n >= -0xFFFF) {
+                *pos = 0xd1;
+                *(int16_t*)(pos+1) = node->val.n;
+                mylen = 3;
+            } else if (node->val.n >= -0xFFFFFFFF) {
+                *pos = 0xd2;
+                *(int32_t*)(pos+1) = node->val.n;
+                mylen = 5;
+            } else {
+                *pos = 0xd3;
+                *(int64_t*)(pos+1) = node->val.n;
+                mylen = 9;
+            }
+        } else {
+            if (node->val.n <= 0x80) {
+                *pos = node->val.n;
+                mylen = 1;
+            } else if (node->val.n <= 0xFF) {
+                *pos = 0xCC;
+                *(uint8_t*)(pos+1) = node->val.n;
+                mylen = 2;
+            } else if (node->val.n <= 0xFFFF) {
+                *pos = 0xCD;
+                *(uint16_t*)(pos+1) = node->val.n;
+                mylen = 3;
+            } else if (node->val.n <= 0xFFFFFFFF) {
+                *pos = 0xCE;
+                *(uint32_t*)(pos+1) = node->val.n;
+                mylen = 5;
+            } else {
+                *pos = 0xCF;
+                *(uint64_t*)(pos+1) = node->val.n;
+                mylen = 9;
+            }
+        }
+        break;
+    case MDF_TYPE_FLOAT:
+        *pos = 0xCA;
+        *(float*)(pos+1) = node->val.f;
+        mylen = 5;
+        break;
+    case MDF_TYPE_BOOL:
+        if (node->val.n != 0) {
+            *pos = 0xC3;
+        } else {
+            *pos = 0xC2;
+        }
+        mylen = 1;
+        break;
+    case MDF_TYPE_BINARY:
+        if (node->valuelen < 0xFF) {
+            *pos = 0xC4;
+            *(uint8_t*)(pos+1) = node->valuelen;
+            memcpy(pos + 2, node->val.s, node->valuelen);
+            mylen = 2 + node->valuelen;
+        } else if (node->valuelen < 0xFFFF) {
+            *pos = 0xC5;
+            *(uint16_t*)(pos+1) = node->valuelen;
+            memcpy(pos + 3, node->val.s, node->valuelen);
+            mylen = 3 + node->valuelen;
+        } else {
+            *pos = 0xC6;
+            *(uint32_t*)(pos+1) = node->valuelen;
+            memcpy(pos + 5, node->val.s, node->valuelen);
+            mylen = 5 + node->valuelen;
+        }
+        break;
+    case MDF_TYPE_NULL:
+        *pos = 0xC0;
+        mylen = 1;
+        break;
+    default:
+        /* EXT_1 for MDF_TYPE_UNKNOWN */
+        *pos = 0xD4;
+        mylen = 3;
     }
 
     return mylen;
@@ -480,125 +466,117 @@ size_t mdf_mpack_serialize(MDF *node, unsigned char *buf, size_t len)
 size_t mdf_mpack_len(MDF *node)
 {
     int nodenum;
-    MDF_TYPE pnodetype;
     size_t mylen, step;
+    MDF *cnode;
 
     if (!node) return 0;
 
     mylen = step = 0;
     nodenum = 0;
 
-    if (node->parent) pnodetype = node->parent->type;
-    else pnodetype = MDF_TYPE_UNKNOWN;
+    switch (node->type) {
+    case MDF_TYPE_OBJECT:
+        nodenum = mdf_child_count(node, NULL);
+        if (nodenum <= 0xF) step = 1;
+        else if(nodenum <= 0xFFFF) step = 3;
+        else step = 5;
 
-    while (node) {
-        if (pnodetype == MDF_TYPE_OBJECT) {
-            if (node->namelen <= 0x1F) {
-                step = 1 + node->namelen;
-            } else if (node->namelen <= 0xFF) {
-                step = 2 + node->namelen;
-            } else if (node->namelen <= 0xFFFF) {
-                step = 3 + node->namelen;
+        mylen = step;
+
+        cnode = node->child;
+        while (cnode) {
+            if (cnode->namelen <= 0x1F) {
+                step = 1 + cnode->namelen;
+            } else if (cnode->namelen <= 0xFF) {
+                step = 2 + cnode->namelen;
+            } else if (cnode->namelen <= 0xFFFF) {
+                step = 3 + cnode->namelen;
             } else {
-                step = 5 + node->namelen;
+                step = 5 + cnode->namelen;
             }
+
+            step += mdf_mpack_len(cnode);
             mylen += step;
             step = 0;
+
+            cnode = cnode->next;
         }
+        break;
+    case MDF_TYPE_ARRAY:
+        nodenum = mdf_child_count(node, NULL);
+        if (nodenum <= 0xF) step = 1;
+        else if(nodenum <= 0xFFFF) step = 3;
+        else step = 5;
 
-        switch (node->type) {
-        case MDF_TYPE_OBJECT:
-            nodenum = mdf_child_count(node, NULL);
-            if (nodenum <= 0xF) {
-                step = mdf_mpack_len(node->child);
-                step += 1;
-            } else if (nodenum <= 0xFFFF) {
-                step = mdf_mpack_len(node->child);
-                step += 3;
-            } else {
-                step = mdf_mpack_len(node->child);
-                step += 5;
-            }
-            break;
-        case MDF_TYPE_ARRAY:
-            nodenum = mdf_child_count(node, NULL);
-            if (nodenum <= 0xF) {
-                step = mdf_mpack_len(node->child);
-                step += 1;
-            } else if (nodenum <= 0xFFFF) {
-                step = mdf_mpack_len(node->child);
-                step += 3;
-            } else {
-                step = mdf_mpack_len(node->child);
-                step += 5;
-            }
-            break;
-        case MDF_TYPE_STRING:
-            if (node->valuelen <= 0x1F) {
-                step = 1 + node->valuelen;
-            } else if (node->valuelen <= 0xFF) {
-                step = 2 + node->valuelen;
-            } else if (node->valuelen <= 0xFFFF) {
-                step = 3 + node->valuelen;
-            } else {
-                step = 5 + node->valuelen;
-            }
-            break;
-        case MDF_TYPE_INT:
-            if (node->val.n < 0) {
-                if (node->val.n >= -0x20) {
-                    step = 1;
-                } else if (node->val.n >= -0xFF) {
-                    step = 2;
-                } else if (node->val.n >= -0xFFFF) {
-                    step = 3;
-                } else if (node->val.n >= -0xFFFFFFFF) {
-                    step = 5;
-                } else {
-                    step = 9;
-                }
-            } else {
-                if (node->val.n <= 0x80) {
-                    step = 1;
-                } else if (node->val.n <= 0xFF) {
-                    step = 2;
-                } else if (node->val.n <= 0xFFFF) {
-                    step = 3;
-                } else if (node->val.n <= 0xFFFFFFFF) {
-                    step = 5;
-                } else {
-                    step = 9;
-                }
-            }
-            break;
-        case MDF_TYPE_FLOAT:
-            step = 5;
-            break;
-        case MDF_TYPE_BOOL:
-            step = 1;
-            break;
-        case MDF_TYPE_BINARY:
-            if (node->valuelen < 0xFF) {
-                step = 2 + node->valuelen;
-            } else if (node->valuelen < 0xFFFF) {
-                step = 3 + node->valuelen;
-            } else {
-                step = 5 + node->valuelen;
-            }
-            break;
-        case MDF_TYPE_NULL:
-            step = 1;
-            break;
-        default:
-            /* MDF_TYPE_UNKNOWN */
-            step = 3;
-            break;
+        mylen = step;
+
+        cnode = node->child;
+        while (cnode) {
+            mylen += mdf_mpack_len(cnode);
+
+            cnode = cnode->next;
         }
-
-        mylen += step;
-        step = 0;
-
-        node = node->next;
+        break;
+    case MDF_TYPE_STRING:
+        if (node->valuelen <= 0x1F) {
+            mylen = 1 + node->valuelen;
+        } else if (node->valuelen <= 0xFF) {
+            mylen = 2 + node->valuelen;
+        } else if (node->valuelen <= 0xFFFF) {
+            mylen = 3 + node->valuelen;
+        } else {
+            mylen = 5 + node->valuelen;
+        }
+        break;
+    case MDF_TYPE_INT:
+        if (node->val.n < 0) {
+            if (node->val.n >= -0x20) {
+                mylen = 1;
+            } else if (node->val.n >= -0xFF) {
+                mylen = 2;
+            } else if (node->val.n >= -0xFFFF) {
+                mylen = 3;
+            } else if (node->val.n >= -0xFFFFFFFF) {
+                mylen = 5;
+            } else {
+                mylen = 9;
+            }
+        } else {
+            if (node->val.n <= 0x80) {
+                mylen = 1;
+            } else if (node->val.n <= 0xFF) {
+                mylen = 2;
+            } else if (node->val.n <= 0xFFFF) {
+                mylen = 3;
+            } else if (node->val.n <= 0xFFFFFFFF) {
+                mylen = 5;
+            } else {
+                mylen = 9;
+            }
+        }
+        break;
+    case MDF_TYPE_FLOAT:
+        mylen = 5;
+        break;
+    case MDF_TYPE_BOOL:
+        mylen = 1;
+        break;
+    case MDF_TYPE_BINARY:
+        if (node->valuelen < 0xFF) {
+            mylen = 2 + node->valuelen;
+        } else if (node->valuelen < 0xFFFF) {
+            mylen = 3 + node->valuelen;
+        } else {
+            mylen = 5 + node->valuelen;
+        }
+        break;
+    case MDF_TYPE_NULL:
+        mylen = 1;
+        break;
+    default:
+        /* MDF_TYPE_UNKNOWN */
+        mylen = 3;
+        break;
     }
 
     return mylen;

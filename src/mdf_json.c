@@ -811,68 +811,68 @@ static void _json_outbuf_appendf(void *rock, const char *fmt, ...)
 /*
  * level 参数用来控制输出格式，-1为单行输出，否则会以换行和缩进控制输出
  */
-static void _export_json_string(MDF *node, void *rock, MDF_PRINTF mprintf, int level)
+static void _export_json_string(MDF *node, void *rock, MDF_PRINTF mprintf, int level, MDF *nnode)
 {
-    MDF_TYPE pnodetype;
+    MDF *cnode;
 
-#define PAD_SPACE() for (int _i = 1; _i < level; _i++) mprintf(rock, "  ");
-#define NEWLINE() if (level > 0) mprintf(rock, "\n");
+#define PAD_SPACE() for (int _i = 0; _i < level; _i++) mprintf(rock, "  ");
+#define NEWLINE() if (level >= 0) mprintf(rock, "\n");
 
-    if (node->parent) pnodetype = node->parent->type;
-    else pnodetype = MDF_TYPE_UNKNOWN;
+    switch(node->type) {
+    case MDF_TYPE_OBJECT:
+        mprintf(rock, "{"); NEWLINE();
 
-    level = level < 0 ? -1 : level + 1;
+        level = level < 0 ? -1 : level + 1;
+        cnode = node->child;
+        while (cnode) {
+            PAD_SPACE(); mprintf(rock, "\"%s\": ", cnode->name);
+            _export_json_string(cnode, rock, mprintf, level, cnode->next);
 
-    while (node) {
-        if (pnodetype == MDF_TYPE_OBJECT) {
-            PAD_SPACE(); mprintf(rock, "\"%s\": ", node->name);
-        } else if (pnodetype == MDF_TYPE_ARRAY) {
+            cnode = cnode->next;
+        }
+
+        level = level < 0 ? -1: level - 1;
+        PAD_SPACE(); mprintf(rock, "}");
+        break;
+    case MDF_TYPE_ARRAY:
+        mprintf(rock, "["); NEWLINE();
+
+        level = level < 0 ? -1 : level + 1;
+        cnode = node->child;
+        while (cnode) {
             PAD_SPACE();
+            _export_json_string(cnode, rock, mprintf, level, cnode->next);
+
+            cnode = cnode->next;
         }
 
-        switch(node->type) {
-        case MDF_TYPE_OBJECT:
-            mprintf(rock, "{"); NEWLINE();
-            if (node->child) {
-                _export_json_string(node->child, rock, mprintf, level);
-            }
-            PAD_SPACE(); mprintf(rock, "}");
-            break;
-        case MDF_TYPE_ARRAY:
-            mprintf(rock, "["); NEWLINE();
-            if (node->child) {
-                _export_json_string(node->child, rock, mprintf, level);
-            }
-            PAD_SPACE(); mprintf(rock, "]");
-            break;
-        case MDF_TYPE_STRING:
-            mprintf(rock, "\"%s\"", node->val.s);
-            break;
-        case MDF_TYPE_INT:
-            mprintf(rock, "%ld", node->val.n);
-            break;
-        case MDF_TYPE_FLOAT:
-            mprintf(rock, "%.5f", node->val.f);
-            break;
-        case MDF_TYPE_BOOL:
-            if (node->val.n != 0) mprintf(rock, "true");
-            else mprintf(rock, "false");
-            break;
-        case MDF_TYPE_NULL:
-            mprintf(rock, "null");
-            break;
-        default:
-            /* null for MDF_TYPE_UNKNOWN */
-            mprintf(rock, "null");
-            break;
-        }
-
-        if (node->next) mprintf(rock, ", ");
-
-        NEWLINE();
-
-        node = node->next;
+        level = level < 0 ? -1: level - 1;
+        PAD_SPACE(); mprintf(rock, "]");
+        break;
+    case MDF_TYPE_STRING:
+        mprintf(rock, "\"%s\"", node->val.s);
+        break;
+    case MDF_TYPE_INT:
+        mprintf(rock, "%ld", node->val.n);
+        break;
+    case MDF_TYPE_FLOAT:
+        mprintf(rock, "%.5f", node->val.f);
+        break;
+    case MDF_TYPE_BOOL:
+        if (node->val.n != 0) mprintf(rock, "true");
+        else mprintf(rock, "false");
+        break;
+    case MDF_TYPE_NULL:
+        mprintf(rock, "null");
+        break;
+    default:
+        /* null for MDF_TYPE_UNKNOWN */
+        mprintf(rock, "null");
+        break;
     }
+
+    if (nnode) mprintf(rock, ", ");
+    NEWLINE();
 }
 
 MERR* mdf_json_import_string(MDF *node, const char *str)
@@ -940,7 +940,7 @@ char* mdf_json_export_string(MDF *node)
     if (!node) return NULL;
 
     mstr_init(&astr);
-    _export_json_string(node, &astr, (MDF_PRINTF)mstr_appendf, -1);
+    _export_json_string(node, &astr, (MDF_PRINTF)mstr_appendf, -1, NULL);
 
     return astr.buf;
 }
@@ -955,7 +955,7 @@ size_t mdf_json_export_buffer(MDF *node, char *buf, size_t len)
     jbuf.max = len;
     jbuf.len = 0;
 
-    _export_json_string(node, &jbuf, (MDF_PRINTF)_json_outbuf_appendf, -1);
+    _export_json_string(node, &jbuf, (MDF_PRINTF)_json_outbuf_appendf, -1, NULL);
 
     if (jbuf.len > jbuf.max) return 0;
 
@@ -972,7 +972,7 @@ MERR* mdf_json_export_file(MDF *node, const char *fname)
     else fp = fopen(fname, "w");
     if (!fp) return merr_raise(MERR_OPENFILE, "open %s for write failure", fname);
 
-    _export_json_string(node, fp, (MDF_PRINTF)fprintf, 0);
+    _export_json_string(node, fp, (MDF_PRINTF)fprintf, 0, NULL);
 
     if (fname && strcmp(fname, "-")) fclose(fp);
 
