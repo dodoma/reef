@@ -76,6 +76,7 @@
 #include "mtrace_macro.h"
 
 #include "mstring.h"
+#include "mhttp.h"
 
 #include "mlist.h"
 #include "mlist_macro.h"
