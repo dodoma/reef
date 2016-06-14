@@ -44,6 +44,7 @@
 #include <inttypes.h>
 #include <ctype.h>
 #include <limits.h>
+#include <arpa/inet.h>
 
 #include <pthread.h>
 #include <math.h>
