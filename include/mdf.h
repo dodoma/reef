@@ -62,6 +62,7 @@ MERR* mdf_set_int64_value(MDF *node, const char *path, int64_t value);
 MERR* mdf_set_float_value(MDF *node, const char *path, float value);
 MERR* mdf_set_bool_value(MDF *node, const char *path, bool value);
 MERR* mdf_set_binary(MDF *node, const char *path, const unsigned char *buf, size_t len);
+MERR* mdf_set_binary_noalloc(MDF *node, const char *path, unsigned char *buf, size_t len);
 /* 将字符串类型节点 转换成 其他类型 */
 MERR* mdf_set_type(MDF *node, const char *path, MDF_TYPE type);
 MERR* mdf_object_2_array(MDF *node, const char *path);

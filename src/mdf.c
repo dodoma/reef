@@ -449,6 +449,29 @@ MERR* mdf_set_binary(MDF *node, const char *path, const unsigned char *buf, size
     return MERR_OK;
 }
 
+MERR* mdf_set_binary_noalloc(MDF *node, const char *path, unsigned char *buf, size_t len)
+{
+    MDF *anode;
+    MERR *err;
+
+    MERR_NOT_NULLA(node);
+
+    err = _walk_mdf(node, path, true, &anode);
+    if (err) return merr_pass(err);
+
+    if (anode->type == MDF_TYPE_STRING || anode->type == MDF_TYPE_BINARY)
+        mos_free(anode->val.s);
+    if (anode->type == MDF_TYPE_OBJECT || anode->type == MDF_TYPE_ARRAY) {
+        mdf_destroy(&anode->child);
+        anode->last_child = NULL;
+    }
+    anode->type = MDF_TYPE_BINARY;
+    anode->val.s = (char*)buf;
+    anode->valuelen = len;
+
+    return MERR_OK;
+}
+
 MERR* mdf_set_type(MDF *node, const char *path, MDF_TYPE type)
 {
     MDF *anode;
