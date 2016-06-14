@@ -107,6 +107,30 @@ void mstr_appendf(MSTR *astr, const char *fmt, ...)
     va_end(ap);
 }
 
+void mstr_appendvf(MSTR *astr, const char *fmt, va_list ap)
+{
+    char buf[1024];
+    int len;
+    va_list tmpap;
+
+    if (!astr || !fmt) return;
+
+    va_copy(tmpap, ap);
+    len = vsnprintf(buf, 1024, fmt, tmpap);
+
+    if (len >= 0 && len < 1024) {
+        mstr_appendn(astr, buf, len);
+    } else {
+        /* from vsnprintf() manual:
+         * a return value of size or more means that the output was truncated.
+         */
+        _check_length(astr, len + 1);
+        vsprintf(astr->buf + astr->len, fmt, ap);
+        astr->len += len;
+        astr->buf[astr->len] = '\0';
+    }
+}
+
 void mstr_set(MSTR *astr, const char *buf)
 {
     if (!astr) return;

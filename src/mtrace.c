@@ -121,7 +121,7 @@ bool mtc_msg(const char *func, const char *file, long line, MTC_LEVEL level,
 
     fprintf(m_fp, "[%s:%li %s] ", file, line, func);
 
-    va_start(ap, (void*)fmt);
+    va_start(ap, fmt);
     vfprintf(m_fp, fmt, ap);
     va_end(ap);
 

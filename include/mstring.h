@@ -27,6 +27,7 @@ void mstr_append(MSTR *astr, const char *buf);
 void mstr_appendc(MSTR *astr, char c);
 void mstr_appendn(MSTR *astr, const char *buf, size_t len);
 void mstr_appendf(MSTR *astr, const char *fmt, ...) ATTRIBUTE_PRINTF(2,3);
+void mstr_appendvf(MSTR *astr, const char *fmt, va_list ap);
 void mstr_set(MSTR *astr, const char *buf);
 void mstr_clear(MSTR *astr);
 
