@@ -88,6 +88,46 @@ MCV_MAT* mcv_matrix_detach(MCV_MAT *mat, MCV_RECT rect)
     return rmat;
 }
 
+MCV_MAT* mcv_matrix_scale(MCV_MAT *mat, int num, int denom)
+{
+    MCV_MAT *rmat;
+
+    if (!mat) return NULL;
+
+    int remain = num > denom ? num % denom : denom % num;
+    int times = num > denom ? num / denom : denom / num;
+    if (remain != 0 || times % 2 != 0) {
+        mtc_warn("%d %d can't scale", num, denom);
+        return NULL;
+    }
+
+    float ratio = (float)num / denom;
+    int rows = mat->rows * ratio;
+    int cols = mat->cols * ratio;
+
+    rmat = mcv_matrix_new(rows, cols, mat->type);
+
+    int cpp = MCV_GET_CPP(mat->type);
+    unsigned char *posa = mat->data.u8;
+    unsigned char *posb = rmat->data.u8;
+
+#define FOR_BLOCK(setter, getter)                                       \
+    for (int i = 0; i < rmat->rows; i++) {                              \
+        for (int j = 0; j < rmat->cols; j++) {                          \
+            for (int k = 0; k < cpp; k++) {                             \
+                setter(posb, j * cpp + k, getter(posa, (int)(j / ratio) * cpp + k)); \
+            }                                                           \
+        }                                                               \
+        posa += mat->step;                                              \
+        posb += rmat->step;                                             \
+    }
+
+    _MCV_MAT_SETTER(rmat->type, _MCV_MAT_GETTER, mat->type, FOR_BLOCK);
+#undef FOR_BLOCK
+
+    return rmat;
+}
+
 MCV_MAT* mcv_matrix_clone(MCV_MAT *mat)
 {
     MCV_MAT *rmat;
@@ -99,6 +139,50 @@ MCV_MAT* mcv_matrix_clone(MCV_MAT *mat)
     memcpy(rmat->data.u8, mat->data.u8, MCV_MAT_DATA_SIZE(mat));
 
     return rmat;
+}
+
+MCV_MAT* mcv_read(const char *fname)
+{
+    if (!fname) return NULL;
+
+    FILE *fd = fopen(fname, "rb");
+    if (fd) {
+        fseek(fd, 8, SEEK_SET);
+
+        int type, rows, cols;
+        fread(&type, 1, 4, fd);
+        fread(&rows, 1, 4, fd);
+        fread(&cols, 1, 4, fd);
+
+        MCV_MAT *mat = mcv_matrix_new(rows, cols, type);
+        fread(mat->data.u8, 1, mat->step * mat->rows, fd);
+
+        fclose(fd);
+
+        return mat;
+    } else {
+        mtc_warn("can't open %s for read", fname);
+    }
+
+    return NULL;
+}
+
+void mcv_write(MCV_MAT *mat, const char *fname)
+{
+    if (!mat || !fname) return;
+
+    FILE *fd = fopen(fname, "wb");
+    if (fd) {
+        fwrite("MCVBINDM", 1, 8, fd);
+        fwrite(&(mat->type), 1, 4, fd);
+        fwrite(&(mat->rows), 1, 4, fd);
+        fwrite(&(mat->cols), 1, 4, fd);
+        fwrite(mat->data.u8, 1, mat->step * mat->rows, fd);
+        fflush(fd);
+        fclose(fd);
+    } else {
+        mtc_warn("can't open %s for write", fname);
+    }
 }
 
 bool mcv_matrix_eq(MCV_MAT *mata, MCV_MAT *matb)

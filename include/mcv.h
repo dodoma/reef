@@ -29,12 +29,23 @@ MCV_MAT mcv_matrix_attach(MCV_MAT *mat, MCV_RECT rect);
 MCV_MAT* mcv_matrix_detach(MCV_MAT *mat, MCV_RECT rect);
 
 /*
+ * 矩阵缩放，新申请内存(建议缩放2的整数倍)
+ */
+MCV_MAT* mcv_matrix_scale(MCV_MAT *mat, int num, int denom);
+
+/*
  * 矩阵克隆，新申请内存，
  *   等价于 mcv_matrix_detach(mat, mcv_rect(0, 0, mat->cols, mat->rows))
  *   等价于 numpy.copy()
  * 但速度更快，特别是对于 rows 很大的 matrix
  */
 MCV_MAT* mcv_matrix_clone(MCV_MAT *mat);
+
+/*
+ * TODO 支持 bmp, jpeg, png 读取，写入
+ */
+MCV_MAT* mcv_read(const char *fname);
+void mcv_write(MCV_MAT *mat, const char *fname);
 
 /*
  * 判断2矩阵是否相等
