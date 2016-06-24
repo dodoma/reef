@@ -58,5 +58,16 @@ static inline MCV_RECT mcv_rect(int x, int y, int width, int height)
     return rect;
 }
 
+static inline bool mcv_matrix_match(MCV_MAT *mata, MCV_MAT *matb)
+{
+    if (!mata || !matb) return false;
+
+    if (mata->type != matb->type ||
+        mata->rows != matb->rows ||
+        mata->cols != matb->cols) return false;
+
+    return true;
+}
+
 __END_DECLS
 #endif

@@ -16,6 +16,35 @@ MCV_MAT* mcv_matrix_new(int rows, int cols, int type)
     return mat;
 }
 
+MCV_MAT* mcv_matrix_new_nalloc(int rows, int cols, int type, void *data)
+{
+    MCV_MAT *mat;
+
+    mat = mos_calloc(1, sizeof(MCV_MAT));
+    mat->type = type;
+    mat->rows = rows;
+    mat->cols = cols;
+    mat->step = (cols * MCV_GET_CPP(type) * MCV_GET_CHANNEL_SIZE(type) + 3) & -4;
+    mat->data.u8 = data;
+
+    return mat;
+}
+
+MCV_MAT* mcv_matrix_new_memcpy(int rows, int cols, int type, void *data)
+{
+    MCV_MAT *mat;
+
+    mat = mos_calloc(1, MCV_MATRIX_SIZE(rows, cols, type));
+    mat->type = type;
+    mat->rows = rows;
+    mat->cols = cols;
+    mat->step = (cols * MCV_GET_CPP(type) * MCV_GET_CHANNEL_SIZE(type) + 3) & -4;
+    mat->data.u8 = (unsigned char*)(mat + 1);
+    memcpy(mat->data.u8, data, MCV_MAT_DATA_SIZE(mat));
+
+    return mat;
+}
+
 void mcv_matrix_destroy(MCV_MAT **mat)
 {
     if (!mat) return;
@@ -118,7 +147,7 @@ MCV_MAT* mcv_matrix_scale(MCV_MAT *mat, int num, int denom)
                 setter(posb, j * cpp + k, getter(posa, (int)(j / ratio) * cpp + k)); \
             }                                                           \
         }                                                               \
-        posa += mat->step;                                              \
+        posa = mat->data.u8 + mat->step * (int)(i / ratio);             \
         posb += rmat->step;                                             \
     }
 
@@ -217,7 +246,7 @@ bool mcv_matrix_eq(MCV_MAT *mata, MCV_MAT *matb)
     return true;
 }
 
-MERR* mcv_matrix_set_pixel(MCV_MAT *mat, MCV_RECT rect, MCV_PIXEL pixel)
+MERR* mcv_rect_set_pixel(MCV_MAT *mat, MCV_RECT rect, MCV_PIXEL pixel)
 {
     MERR_NOT_NULLA(mat);
 
@@ -339,6 +368,59 @@ unsigned int mcv_pixel_number(MCV_MAT *mat, MCV_PIXEL pixel)
 #undef FOR_BLOCK
 
     return num;
+}
+
+unsigned int mcv_nonzero_pixel_number(MCV_MAT *mat)
+{
+    if (!mat) return 0;
+
+    unsigned int num = 0;
+    int cpp = MCV_GET_CPP(mat->type);
+    unsigned char *pos = mat->data.u8;
+
+#define FOR_BLOCK(_, getter)                                    \
+    for (int i = 0; i < mat->rows; i++) {                       \
+        for (int j = 0; j < mat->cols; j++) {                   \
+            int k = 0;                                          \
+            while (k < cpp && getter(pos, j * cpp + k) == 0) {  \
+                k++;                                            \
+            }                                                   \
+            if (k != cpp) num++;                                \
+        }                                                       \
+        pos += mat->step;                                       \
+    }
+
+    _MCV_MAT_GETTER(mat->type, FOR_BLOCK);
+#undef FOR_BLOCK
+
+    return num;
+}
+
+MERR* mcv_subtract(MCV_MAT *mata, MCV_MAT *matb, MCV_MAT *matc)
+{
+    MERR_NOT_NULLC(mata, matb, matc);
+
+    if (!mcv_matrix_match(mata, matb)) return merr_raise(MERR_ASSERT, "matrix mismatch");
+
+    int cpp = MCV_GET_CPP(mata->type);
+    unsigned char *posa = mata->data.u8;
+    unsigned char *posb = matb->data.u8;
+    unsigned char *posc = matc->data.u8;
+
+#define FOR_BLOCK(setter, getter)                               \
+    for (int i = 0; i < mata->rows; i++) {                      \
+        for (int j = 0; j < mata->cols * cpp; j++) {            \
+            setter(posc, j, getter(posa, j) - getter(posb, j)); \
+        }                                                       \
+        posa += mata->step;                                     \
+        posb += matb->step;                                     \
+        posc += matc->step;                                     \
+    }
+
+    _MCV_MAT_SETTER(matc->type, _MCV_MAT_GETTER, mata->type, FOR_BLOCK);
+#undef FOR_BLOCK
+
+    return MERR_OK;
 }
 
 MERR* mcv_pixel_position(MCV_MAT *mat, MCV_PIXEL pixel, MCV_POINT *point)
@@ -505,7 +587,7 @@ MERR* mcv_matrix_subwin_position(MCV_MAT *mat, MCV_SIZE msize, MCV_PIXEL pixel,
 
     MCV_MAT *matx = mcv_matrix_new(msize.h, msize.w, pixel.type);
 
-    err = mcv_matrix_set_pixel(matx, mcv_rect(0, 0, matx->cols, matx->rows), pixel);
+    err = mcv_rect_set_pixel(matx, mcv_rect(0, 0, matx->cols, matx->rows), pixel);
     if (err) return merr_pass(err);
 
     err = mcv_matrix_submat_position(mat, matx, direction, point);

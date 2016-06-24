@@ -1,7 +1,7 @@
 #include "reef.h"
 #include "_mcv.h"
 
-MERR* mcv_matrix_set_gray(MCV_MAT *mat, MCV_RECT rect, unsigned char v)
+MERR* mcv_rect_set_gray(MCV_MAT *mat, MCV_RECT rect, unsigned char v)
 {
     MERR_NOT_NULLA(mat);
 
@@ -17,6 +17,17 @@ MERR* mcv_matrix_set_gray(MCV_MAT *mat, MCV_RECT rect, unsigned char v)
         memset(pos, v, rect.w);
         pos += mat->step;
     }
+
+    return MERR_OK;
+}
+
+MERR* mcv_matrix_set_gray(MCV_MAT *mat, unsigned char v)
+{
+    MERR_NOT_NULLA(mat);
+
+    if (mat->type != MCV_DATA_GRAY) return merr_raise(MERR_ASSERT, "expect gray matrix");
+
+    memset(mat->data.u8, v, MCV_MAT_DATA_SIZE(mat));
 
     return MERR_OK;
 }

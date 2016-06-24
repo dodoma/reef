@@ -64,7 +64,7 @@ void load_matrix_set()
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
             MCV_MAT *matx = mcv_matrix_clone(mata);
-            mcv_matrix_set_gray(matx, mcv_rect(j, i, cols - j, rows - i), 255);
+            mcv_rect_set_gray(matx, mcv_rect(j, i, cols - j, rows - i), 255);
             mcv_matrix_destroy(&matx);
         }
     }

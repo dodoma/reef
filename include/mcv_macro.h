@@ -3,6 +3,7 @@
 
 __BEGIN_DECLS
 
+/* 长度为 r 的弧度为1，圆周的弧度为 2pi */
 #define MCV_PI (3.141592653589793)
 #define MCV_DEG_PER_RAD (57.295779513082323)
 #define MCV_DEGREE_2_RADIAN(x) ((x)/MCV_DEG_PER_RAD)

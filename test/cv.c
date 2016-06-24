@@ -68,12 +68,12 @@ void test_matrix_set()
 
     mata = mcv_matrix_new(rows, cols, MCV_DATA_GRAY);
 
-    mcv_matrix_set_gray(mata, mcv_rect(0, 0, mata->cols, mata->rows), 0);
+    mcv_rect_set_gray(mata, mcv_rect(0, 0, mata->cols, mata->rows), 0);
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
             MCV_MAT matx = mcv_matrix_attach(mata, mcv_rect(j, i, cols - j, rows - i));
 
-            err = mcv_matrix_set_gray(&matx, mcv_rect(0, 0, matx.cols, matx.rows), 255);
+            err = mcv_rect_set_gray(&matx, mcv_rect(0, 0, matx.cols, matx.rows), 255);
             TRACE_NOK(err);
 
             int num = mcv_pixel_number(&matx, mcv_pixel_gray(&white));
@@ -82,17 +82,17 @@ void test_matrix_set()
             num = mcv_pixel_number(mata, mcv_pixel_gray(&white));
             MTEST_ASSERT(num == (cols - j) * (rows - i));
 
-            err = mcv_matrix_set_gray(&matx, mcv_rect(0, 0, matx.cols, matx.rows), 0);
+            err = mcv_rect_set_gray(&matx, mcv_rect(0, 0, matx.cols, matx.rows), 0);
             TRACE_NOK(err);
         }
     }
 
-    mcv_matrix_set_gray(mata, mcv_rect(0, 0, mata->cols, mata->rows), 0);
+    mcv_rect_set_gray(mata, mcv_rect(0, 0, mata->cols, mata->rows), 0);
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
             MCV_MAT *matx = mcv_matrix_detach(mata, mcv_rect(j, i, cols - j, rows - i));
 
-            err = mcv_matrix_set_gray(matx, mcv_rect(0, 0, matx->cols, matx->rows), 255);
+            err = mcv_rect_set_gray(matx, mcv_rect(0, 0, matx->cols, matx->rows), 255);
             TRACE_NOK(err);
 
             int num = mcv_pixel_number(matx, mcv_pixel_gray(&white));
@@ -101,7 +101,7 @@ void test_matrix_set()
             num = mcv_pixel_number(mata, mcv_pixel_gray(&white));
             MTEST_ASSERT(num == 0);
 
-            err = mcv_matrix_set_gray(matx, mcv_rect(0, 0, matx->cols, matx->rows), 0);
+            err = mcv_rect_set_gray(matx, mcv_rect(0, 0, matx->cols, matx->rows), 0);
             TRACE_NOK(err);
 
             mcv_matrix_destroy(&matx);
@@ -127,7 +127,7 @@ void test_sub_matrix_gray()
 
     for (int i = 1; i < rows / 2; i++) {
         for (int j = 1; j < cols / 2; j++) {
-            mcv_matrix_set_gray(mata, mcv_rect(j, i, j, i), 255);
+            mcv_rect_set_gray(mata, mcv_rect(j, i, j, i), 255);
 
             mcv_pixel_position(mata, mcv_pixel_gray(&white), &point);
             if (i == 0 || j == 0) {
@@ -151,7 +151,7 @@ void test_sub_matrix_gray()
                 MTEST_ASSERT(point.y == i);
             }
 
-            mcv_matrix_set_gray(mata, mcv_rect(j, i, j, i), 0);
+            mcv_rect_set_gray(mata, mcv_rect(j, i, j, i), 0);
         }
     }
 
@@ -178,7 +178,7 @@ void test_sub_matrix_color()
 
     for (int i = 1; i < rows / 2; i++) {
         for (int j = 1; j < cols / 2; j++) {
-            mcv_matrix_set_pixel(mata, mcv_rect(j, i, j, i), mcv_pixel(type, &white));
+            mcv_rect_set_pixel(mata, mcv_rect(j, i, j, i), mcv_pixel(type, &white));
 
             mcv_pixel_position(mata, mcv_pixel(type, &white2), &point);
             if (i == 0 || j == 0) {
@@ -202,7 +202,7 @@ void test_sub_matrix_color()
                 MTEST_ASSERT(point.y == i);
             }
 
-            mcv_matrix_set_pixel(mata, mcv_rect(j, i, j, i), mcv_pixel(type, &black));
+            mcv_rect_set_pixel(mata, mcv_rect(j, i, j, i), mcv_pixel(type, &black));
         }
     }
 

@@ -13,6 +13,11 @@
 __BEGIN_DECLS
 
 MCV_MAT* mcv_matrix_new(int rows, int cols, int type);
+/* 沿用已有内存，请确保 data padded by 4 bytes */
+MCV_MAT* mcv_matrix_new_nalloc(int rows, int cols, int type, void *data);
+/* 复制已有内存，请确保 data padded by 4 bytes */
+MCV_MAT* mcv_matrix_new_memcpy(int rows, int cols, int type, void *data);
+/* 栈区(stack)声明变量，沿用已有内存，请确保 data padded by 4 bytes */
 MCV_MAT  mcv_matrix(int rows, int cols, int type, void *data);
 
 void mcv_matrix_destroy(MCV_MAT **mat);
@@ -29,7 +34,7 @@ MCV_MAT mcv_matrix_attach(MCV_MAT *mat, MCV_RECT rect);
 MCV_MAT* mcv_matrix_detach(MCV_MAT *mat, MCV_RECT rect);
 
 /*
- * 矩阵缩放，新申请内存(建议缩放2的整数倍)
+ * 矩阵缩放（线性分散的取矩阵内容），新申请内存(建议缩放2的整数倍)
  */
 MCV_MAT* mcv_matrix_scale(MCV_MAT *mat, int num, int denom);
 
@@ -42,7 +47,7 @@ MCV_MAT* mcv_matrix_scale(MCV_MAT *mat, int num, int denom);
 MCV_MAT* mcv_matrix_clone(MCV_MAT *mat);
 
 /*
- * TODO 支持 bmp, jpeg, png 读取，写入
+ * 文件 IO
  */
 MCV_MAT* mcv_read(const char *fname);
 void mcv_write(MCV_MAT *mat, const char *fname);
@@ -53,10 +58,11 @@ void mcv_write(MCV_MAT *mat, const char *fname);
 bool mcv_matrix_eq(MCV_MAT *mata, MCV_MAT *matb);
 
 /*
- * 将矩阵，指定矩形内元素赋值为 pixel， rect 为 NULL 时，操作全部矩阵
+ * 将矩阵，指定矩形内元素赋值为 pixel
  */
-MERR* mcv_matrix_set_pixel(MCV_MAT *mat, MCV_RECT rect, MCV_PIXEL pixel);
-MERR* mcv_matrix_set_gray(MCV_MAT *mat, MCV_RECT rect, unsigned char v);
+MERR* mcv_rect_set_pixel(MCV_MAT *mat, MCV_RECT rect, MCV_PIXEL pixel);
+MERR* mcv_rect_set_gray(MCV_MAT *mat, MCV_RECT rect, unsigned char v);
+MERR* mcv_matrix_set_gray(MCV_MAT *mat, unsigned char v);
 
 
 /*
@@ -68,6 +74,12 @@ double mcv_summary(MCV_MAT *mat, int flag);
  * 计算矩阵内所有指定像素个数
  */
 unsigned int mcv_pixel_number(MCV_MAT *mat, MCV_PIXEL pixel);
+unsigned int mcv_nonzero_pixel_number(MCV_MAT *mat);
+
+/*
+ * 两矩阵相减
+ */
+MERR* mcv_subtract(MCV_MAT *mata, MCV_MAT *matb, MCV_MAT *matc);
 
 /*
  * 查找位置
