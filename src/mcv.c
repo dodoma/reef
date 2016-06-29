@@ -170,45 +170,82 @@ MCV_MAT* mcv_matrix_clone(MCV_MAT *mat)
     return rmat;
 }
 
-MCV_MAT* mcv_read(const char *fname)
+MCV_MAT* mcv_read(const char *fname, int type)
 {
+    MCV_FILE_TYPE filetype;
+    MCV_MAT *rmat;
+
     if (!fname) return NULL;
+
+    rmat = NULL;
 
     FILE *fd = fopen(fname, "rb");
     if (fd) {
-        fseek(fd, 8, SEEK_SET);
+        unsigned char sig[8];
+        fread(sig, 1, 8, fd);
+        filetype = MCV_FILE_RAW;
+		if (memcmp(sig, "\x89\x50\x4e\x47\xd\xa\x1a\xa", 8) == 0)
+			filetype = MCV_FILE_PNG;
+		else if (memcmp(sig, "\xff\xd8\xff", 3) == 0)
+			filetype = MCV_FILE_JPEG;
+		else if (memcmp(sig, "BM", 2) == 0)
+			filetype = MCV_FILE_BMP;
+		else if (memcmp(sig, "CCVBINDM", 8) == 0)
+			filetype = MCV_FILE_RAW;
+		fseek(fd, 0, SEEK_SET);
 
-        int type, rows, cols;
-        fread(&type, 1, 4, fd);
-        fread(&rows, 1, 4, fd);
-        fread(&cols, 1, 4, fd);
+        switch (filetype) {
+        case MCV_FILE_JPEG:
+            rmat = mcv_read_jpeg(fd, type);
+            fclose(fd);
+            break;
+        case MCV_FILE_RAW:
+        {
+            int type, rows, cols;
+            fread(&type, 1, 4, fd);
+            fread(&rows, 1, 4, fd);
+            fread(&cols, 1, 4, fd);
 
-        MCV_MAT *mat = mcv_matrix_new(rows, cols, type);
-        fread(mat->data.u8, 1, mat->step * mat->rows, fd);
-
-        fclose(fd);
-
-        return mat;
+            rmat = mcv_matrix_new(rows, cols, type);
+            fread(rmat->data.u8, 1, rmat->step * rmat->rows, fd);
+            fclose(fd);
+            break;
+        }
+        default:
+            fclose(fd);
+            break;
+        }
     } else {
         mtc_warn("can't open %s for read", fname);
     }
 
-    return NULL;
+    return rmat;
 }
 
-void mcv_write(MCV_MAT *mat, const char *fname)
+void mcv_write(MCV_MAT *mat, const char *fname, MCV_FILE_TYPE filetype)
 {
     if (!mat || !fname) return;
 
     FILE *fd = fopen(fname, "wb");
     if (fd) {
-        fwrite("MCVBINDM", 1, 8, fd);
-        fwrite(&(mat->type), 1, 4, fd);
-        fwrite(&(mat->rows), 1, 4, fd);
-        fwrite(&(mat->cols), 1, 4, fd);
-        fwrite(mat->data.u8, 1, mat->step * mat->rows, fd);
-        fflush(fd);
-        fclose(fd);
+        switch (filetype) {
+        case MCV_FILE_JPEG:
+            mcv_write_jpeg(mat, fd);
+            fclose(fd);
+            break;
+        case MCV_FILE_RAW:
+            fwrite("MCVBINDM", 1, 8, fd);
+            fwrite(&(mat->type), 1, 4, fd);
+            fwrite(&(mat->rows), 1, 4, fd);
+            fwrite(&(mat->cols), 1, 4, fd);
+            fwrite(mat->data.u8, 1, mat->step * mat->rows, fd);
+            fflush(fd);
+            fclose(fd);
+            break;
+        default:
+            fclose(fd);
+            break;
+        }
     } else {
         mtc_warn("can't open %s for write", fname);
     }

@@ -49,8 +49,8 @@ MCV_MAT* mcv_matrix_clone(MCV_MAT *mat);
 /*
  * 文件 IO
  */
-MCV_MAT* mcv_read(const char *fname);
-void mcv_write(MCV_MAT *mat, const char *fname);
+MCV_MAT* mcv_read(const char *fname, int type);
+void mcv_write(MCV_MAT *mat, const char *fname, MCV_FILE_TYPE filetype);
 
 /*
  * 判断2矩阵是否相等

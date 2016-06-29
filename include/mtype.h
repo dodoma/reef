@@ -116,6 +116,13 @@ typedef enum {
     MCV_DIR_SE
 } MCV_DIRECTION;
 
+typedef enum {
+    MCV_FILE_JPEG = 0,
+    MCV_FILE_BMP,
+    MCV_FILE_PNG,
+    MCV_FILE_RAW
+} MCV_FILE_TYPE;
+
 typedef union {
     unsigned char *u8;
     int     *i32;

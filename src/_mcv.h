@@ -1,6 +1,8 @@
 #ifndef ___MCV_H__
 #define ___MCV_H__
 
+#include <jpeglib.h>
+
 #define _MCV_GET_8U_VALUE(pos, i)  (((unsigned char*)(pos))[(i)])
 #define _MCV_GET_32S_VALUE(pos, i) (((int*)(pos))[(i)])
 #define _MCV_GET_32F_VALUE(pos, i) (((float*)(pos))[(i)])
@@ -76,5 +78,8 @@
         }                                           \
         }                                           \
     }
+
+MCV_MAT* mcv_read_jpeg(FILE* in, int type);
+void mcv_write_jpeg(MCV_MAT* mat, FILE* fd);
 
 #endif
