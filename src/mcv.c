@@ -460,6 +460,34 @@ MERR* mcv_subtract(MCV_MAT *mata, MCV_MAT *matb, MCV_MAT *matc)
     return MERR_OK;
 }
 
+MERR* mcv_rotate_quart(MCV_MAT *mata, MCV_MAT *matb)
+{
+    MERR_NOT_NULLB(mata, matb);
+
+    if (mata->type != matb->type || mata->rows != matb->cols || mata->cols != matb->rows)
+        return merr_raise(MERR_ASSERT, "matrix mismatch");
+
+    int cpp = MCV_GET_CPP(mata->type);
+    unsigned char *posa = mata->data.u8 + (mata->rows - 1) * mata->step;
+    unsigned char *posb = matb->data.u8;
+
+#define FOR_BLOCK(setter, getter)                                       \
+    for (int i = 0; i < matb->rows; i++) {                              \
+        for (int j = 0; j < matb->cols; j++) {                          \
+            for (int k = 0; k < cpp; k++) {                             \
+                setter(posb, j * cpp + k, getter(posa, -j * mata->step + k)); \
+            }                                                           \
+        }                                                               \
+        posa += cpp;                                                    \
+        posb += matb->step;                                             \
+    }
+
+    _MCV_MAT_SETTER(matb->type, _MCV_MAT_GETTER, mata->type, FOR_BLOCK);
+#undef FOR_BLOCK
+
+    return MERR_OK;
+}
+
 MERR* mcv_pixel_position(MCV_MAT *mat, MCV_PIXEL pixel, MCV_POINT *point)
 {
     MERR_NOT_NULLA(mat);

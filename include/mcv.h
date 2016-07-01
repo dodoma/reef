@@ -80,10 +80,10 @@ unsigned int mcv_nonzero_pixel_number(MCV_MAT *mat);
  * 两矩阵相减
  */
 MERR* mcv_subtract(MCV_MAT *mata, MCV_MAT *matb, MCV_MAT *matc);
+MERR* mcv_rotate_quart(MCV_MAT *mata, MCV_MAT *matb);
 
 /*
  * 查找位置
- * TODO direction flag
  */
 MERR* mcv_pixel_position(MCV_MAT *mat, MCV_PIXEL pixel, MCV_POINT *point);
 MERR* mcv_matrix_submat_position(MCV_MAT *mata, MCV_MAT *matb,
