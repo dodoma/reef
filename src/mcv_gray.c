@@ -145,3 +145,35 @@ MERR* mcv_hline_angle(MCV_MAT *mat, int targetv, float *r)
 
     return MERR_OK;
 }
+
+MCV_MAT* mcv_gray_balance(MCV_MAT *mat)
+{
+    if (!mat || mat->type != MCV_DATA_GRAY) return NULL;
+
+    MCV_MAT *rmat = mcv_matrix_new(mat->rows, mat->cols, mat->type);
+    double factor = 0.000127;
+    unsigned char max = 0;
+    int b = 0;
+
+    unsigned char *posa = mat->data.u8;
+    for (int i = 0; i < mat->cols; i++) {
+        if (posa[i] > max) {
+            b = i;
+            max = posa[i];
+        }
+    }
+
+    unsigned char *posb = rmat->data.u8;
+    for (int i = 0; i < rmat->cols; i++) {
+        posb[i] = (max - posa[i]) * abs(i - b) * factor;
+    }
+    posb = rmat->data.u8;
+
+    unsigned char *p = rmat->data.u8 + rmat->step;
+    for (int i = 0; i < rmat->rows - 1; i++) {
+        memcpy(p, posb, rmat->step);
+        p += rmat->step;
+    }
+
+    return rmat;
+}
