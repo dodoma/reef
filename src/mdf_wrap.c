@@ -84,7 +84,19 @@ MERR* mdf_set_typef(MDF *node, MDF_TYPE type, const char *fmt, ...)
     return mdf_set_type(node, key, type);
 }
 
-MDF*  mdf_get_or_create_nodef(MDF *node, const char *fmt, ...)
+MDF* mdf_get_nodef(MDF *node, const char *fmt, ...)
+{
+    char key[1024];
+    va_list ap;
+
+    va_start(ap, fmt);
+    vsnprintf(key, sizeof(key), fmt, ap);
+    va_end(ap);
+
+    return mdf_get_node(node, key);
+}
+
+MDF* mdf_get_or_create_nodef(MDF *node, const char *fmt, ...)
 {
     char key[1024];
     va_list ap;
@@ -94,4 +106,28 @@ MDF*  mdf_get_or_create_nodef(MDF *node, const char *fmt, ...)
     va_end(ap);
 
     return mdf_get_or_create_node(node, key);
+}
+
+MERR* mdf_json_import_filef(MDF *node, const char *fmt, ...)
+{
+    char fname[PATH_MAX];
+    va_list ap;
+
+    va_start(ap, fmt);
+    vsnprintf(fname, sizeof(fname), fmt, ap);
+    va_end(ap);
+
+    return mdf_json_import_file(node, fname);
+}
+
+MERR* mdf_json_export_filef(MDF *node, const char *fmt, ...)
+{
+    char fname[PATH_MAX];
+    va_list ap;
+
+    va_start(ap, fmt);
+    vsnprintf(fname, sizeof(fname), fmt, ap);
+    va_end(ap);
+
+    return mdf_json_export_file(node, fname);
 }
