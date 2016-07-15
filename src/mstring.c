@@ -234,7 +234,7 @@ void mstr_bin2str(uint8_t *hexin, unsigned int inlen, char *charout)
         if (((in) & 0xf) < 10) {                \
             (out) = ((in)&0xf) + 48;            \
         } else {                                \
-            (out) = ((in)&0xf) - 10 + 97;       \
+            (out) = ((in)&0xf) - 10 + 65;       \
         }                                       \
     } while (0)
 
@@ -275,7 +275,7 @@ void mstr_bin2hexstr(uint8_t *hexin, unsigned int inlen, char *charout)
         if (((in) & 0xf) < 10) {                \
             (out) = ((in)&0xf) + 48;            \
         } else {                                \
-            (out) = ((in)&0xf) - 10 + 97;       \
+            (out) = ((in)&0xf) - 10 + 65;       \
         }                                       \
     } while (0)
 
