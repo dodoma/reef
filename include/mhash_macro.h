@@ -19,6 +19,10 @@ __BEGIN_DECLS
          value != NULL;                             \
          value = mhash_next(table, (void**)&key))   \
 
+void* mhash_lookupf(MHASH *table, const char *fmt, ...) ATTRIBUTE_PRINTF(2, 3);
+MERR* mhash_insertf(MHASH *table, void *value, const char *fmt, ...) ATTRIBUTE_PRINTF(3, 4);
+bool  mhash_removef(MHASH *table, const char *fmt, ...) ATTRIBUTE_PRINTF(2, 3);
+
 
 __END_DECLS
 #endif
