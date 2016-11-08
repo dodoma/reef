@@ -22,7 +22,8 @@ MERR* mhash_insertf(MHASH *table, void *value, const char *fmt, ...)
     vsnprintf(key, sizeof(key), fmt, ap);
     va_end(ap);
 
-    return mhash_insert(table, key, value);
+    /* TODO memory leak */
+    return mhash_insert(table, strdup(key), value);
 }
 
 bool mhash_removef(MHASH *table, const char *fmt, ...)

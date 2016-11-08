@@ -52,7 +52,7 @@ void test_iterate()
     for (int i = 0; i < 100; i++) {
         //mstr_rand_string(s, KEY_LEN);
         snprintf(s, sizeof(s), "str %d", i);
-        ps[i] = strdup(s);
+        ps[i] = strdup(s);      /* TODO memory leak */
     }
 
     err = mhash_init(&table, mhash_str_hash, mhash_str_comp, mhash_str_free);
