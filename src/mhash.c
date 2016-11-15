@@ -241,6 +241,7 @@ void* mhash_next(MHASH *table, void **key)
             }
             row++;
         }
+        return NULL;
     }
 
     /*
