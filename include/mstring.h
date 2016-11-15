@@ -81,5 +81,12 @@ void mstr_bin2str(uint8_t *hexin, unsigned int inlen, char *charout);
 void mstr_hexstr2bin(const unsigned char *charin, unsigned int inlen, uint8_t *hexout);
 
 
+/*
+ * 比较2个版本号，如 2.0.32, 2.0.21
+ * 返回 1: a > b, 0: a = b, -1: a < b
+ */
+int mstr_version_compare(char *a, char *b);
+
+
 __END_DECLS
 #endif

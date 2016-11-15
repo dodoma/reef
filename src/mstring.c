@@ -325,3 +325,36 @@ void mstr_hexstr2bin(const unsigned char *charin, unsigned int inlen, uint8_t *h
         STR2HEX(charin[i], charin[i+1], hexout[j]);
     }
 }
+
+int mstr_version_compare(char *a, char *b)
+{
+    int x, y;
+
+    if (!a) return -1;
+    if (!b) return 1;
+
+    char *p = a, *q = b;
+
+    while (*p && *q) {
+        x = atoi(p);
+        y = atoi(q);
+
+        if (x > y) return 1;
+        else if (x < y) return -1;
+
+        p = strchr(p, '.');
+        if (p) p += 1;
+
+        q = strchr(q, '.');
+        if (q) q += 1;
+
+        if (!p || !*p) {
+            if (!q || !*q) return 0;
+            else return -1;
+        }
+
+        if (!q || !*q) return 1;
+    }
+
+    return 0;
+}
