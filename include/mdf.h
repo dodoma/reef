@@ -27,7 +27,7 @@
  * 注意：
  *   1. mdf 操作 path 参数的 BNF 定义
  *      PATH := (MDFNAME | NILL)
- *      MDFNAME := (MDF_SUBNAME | MDF_SUBNAME\.MDF_NAME)
+ *      MDFNAME := (MDF_SUBNAME | MDF_SUBNAME\.MDFNAME)
  *      MDF_SUBNAME := (RAW_NAME | INDEX_NAME | RAW_NAMEINDEX_NAME)
  *      RAW_NAME := [0-9a-zA-Z_]+
  *      INDEX_NAME := \[[-1-9]+\]+
@@ -63,6 +63,13 @@ MERR* mdf_set_float_value(MDF *node, const char *path, float value);
 MERR* mdf_set_bool_value(MDF *node, const char *path, bool value);
 MERR* mdf_set_binary(MDF *node, const char *path, const unsigned char *buf, size_t len);
 MERR* mdf_set_binary_noalloc(MDF *node, const char *path, unsigned char *buf, size_t len);
+
+int     mdf_add_int_value(MDF *node, const char *path, int val);
+int64_t mdf_add_int64_value(MDF *node, const char *path, int64_t val);
+float   mdf_add_float_value(MDF *node, const char *path, float val);
+char*   mdf_append_string_value(MDF *node, const char *path, char *str);
+char*   mdf_preppend_string_value(MDF *node, const char *path, char *str);
+
 /* 将字符串类型节点 转换成 其他类型 */
 MERR* mdf_set_type(MDF *node, const char *path, MDF_TYPE type);
 MERR* mdf_object_2_array(MDF *node, const char *path);

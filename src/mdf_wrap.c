@@ -48,6 +48,66 @@ MERR* mdf_set_valuef(MDF *node, const char *fmt, ...)
     return MERR_OK;
 }
 
+int mdf_add_int_valuef(MDF *node, int val, const char *fmt, ...)
+{
+    char key[1024];
+    va_list ap;
+
+    va_start(ap, fmt);
+    vsnprintf(key, sizeof(key), fmt, ap);
+    va_end(ap);
+
+    return mdf_add_int_value(node, key, val);
+}
+
+int64_t mdf_add_int64_valuef(MDF *node, int64_t val, const char *fmt, ...)
+{
+    char key[1024];
+    va_list ap;
+
+    va_start(ap, fmt);
+    vsnprintf(key, sizeof(key), fmt, ap);
+    va_end(ap);
+
+    return mdf_add_int64_value(node, key, val);
+}
+
+float mdf_add_float_valuef(MDF *node, float val, const char *fmt, ...)
+{
+    char key[1024];
+    va_list ap;
+
+    va_start(ap, fmt);
+    vsnprintf(key, sizeof(key), fmt, ap);
+    va_end(ap);
+
+    return mdf_add_float_value(node, key, val);
+}
+
+char* mdf_append_string_valuef(MDF *node, char *str, const char *fmt, ...)
+{
+    char key[1024];
+    va_list ap;
+
+    va_start(ap, fmt);
+    vsnprintf(key, sizeof(key), fmt, ap);
+    va_end(ap);
+
+    return mdf_append_string_value(node, key, str);
+}
+
+char* mdf_preppend_string_valuef(MDF *node, char *str, const char *fmt, ...)
+{
+    char key[1024];
+    va_list ap;
+
+    va_start(ap, fmt);
+    vsnprintf(key, sizeof(key), fmt, ap);
+    va_end(ap);
+
+    return mdf_preppend_string_value(node, key, str);
+}
+
 MERR* mdf_copyf(MDF *dst, MDF *src, const char *fmt, ...)
 {
     char key[1024];

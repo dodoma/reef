@@ -154,7 +154,7 @@ static MERR* _walk_mdf(MDF *node, const char *path, bool create, MDF **rnode)
                 mlist_append(indexname_list, (void*)index);
             } else {
                 /* process RAW_NAME */
-                if (*pos == '_' || *pos == '$' || isalnum(*pos)) {
+                if (*pos == '_' || *pos == '$' || isalnum(*pos) || *(unsigned char*)pos > 127) {
                     if (mlist_length(indexname_list) > 0) goto format_error;
 
                     if (!start) start = pos;
@@ -470,6 +470,56 @@ MERR* mdf_set_binary_noalloc(MDF *node, const char *path, unsigned char *buf, si
     anode->valuelen = len;
 
     return MERR_OK;
+}
+
+int mdf_add_int_value(MDF *node, const char *path, int val)
+{
+    if (!node) return 0;
+
+    int ov = mdf_get_int_value(node, path, 0);
+    mdf_set_int_value(node, path, ov + val);
+
+    return ov + val;
+}
+
+int64_t mdf_add_int64_value(MDF *node, const char *path, int64_t val)
+{
+    if (!node) return 0;
+
+    int64_t ov = mdf_get_int64_value(node, path, 0);
+    mdf_set_int64_value(node, path, ov + val);
+
+    return ov + val;
+}
+
+float mdf_add_float_value(MDF *node, const char *path, float val)
+{
+    if (!node) return 0;
+
+    float ov = mdf_get_float_value(node, path, 0);
+    mdf_set_float_value(node, path, ov + val);
+
+    return ov + val;
+}
+
+char* mdf_append_string_value(MDF *node, const char *path, char *str)
+{
+    if (!node) return NULL;
+
+    char *ov = mdf_get_value(node, path, "");
+    mdf_set_valuef(node, "%s=%s%s", path, ov, str);
+
+    return mdf_get_value(node, path, NULL);
+}
+
+char* mdf_preppend_string_value(MDF *node, const char *path, char *str)
+{
+    if (!node) return NULL;
+
+    char *ov = mdf_get_value(node, path, "");
+    mdf_set_valuef(node, "%s=%s%s", path, str, ov);
+
+    return mdf_get_value(node, path, NULL);
 }
 
 MERR* mdf_set_type(MDF *node, const char *path, MDF_TYPE type)
