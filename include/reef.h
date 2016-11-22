@@ -47,7 +47,6 @@
 #include <arpa/inet.h>
 
 #include <pthread.h>
-#include <math.h>
 
 #ifdef __MACH__
 #include <mach/clock.h>
@@ -87,10 +86,5 @@
 
 #include "mdf.h"
 #include "mdf_macro.h"
-
-#include "mcv.h"
-#include "mcv_macro.h"
-#include "mcv_forspeed.h"
-#include "mcv_deprecate.h"
 
 #endif

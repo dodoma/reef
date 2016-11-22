@@ -6,7 +6,7 @@ BINARY = $(patsubst %.c, %, $(SOURCES))
 DEPEND = .depend
 
 INCS	= $(INCBASE)
-LIBS	= $(LIBBASE) -lm -ljpeg
+LIBS	= $(LIBBASE) -lm
 
 all: preload $(BINARY)
 
