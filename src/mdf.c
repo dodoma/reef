@@ -272,6 +272,8 @@ MERR* mdf_init(MDF **node)
 
     *node = lnode;
 
+    MDF_VALUE_UNKNOWN();
+
     return MERR_OK;
 }
 
