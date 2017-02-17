@@ -945,11 +945,25 @@ char* mdf_json_export_string(MDF *node)
     return astr.buf;
 }
 
+char* mdf_json_export_string_pretty(MDF *node)
+{
+    MSTR astr;
+
+    if (!node) return NULL;
+
+    mstr_init(&astr);
+    _export_json_string(node, &astr, (MDF_PRINTF)mstr_appendf, 0, NULL);
+
+    return astr.buf;
+}
+
 size_t mdf_json_export_buffer(MDF *node, char *buf, size_t len)
 {
     struct json_outbuf jbuf;
 
     if (!node) return 0;
+
+    memset(buf, 0x0, len);
 
     jbuf.buf = buf;
     jbuf.max = len;

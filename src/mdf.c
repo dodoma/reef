@@ -234,9 +234,11 @@ static MERR* _copy_mdf(MDF *dst, MDF *src)
     dst->val.n = src->val.n;
     dst->val.f = src->val.f;
     if (src->type == MDF_TYPE_STRING && src->val.s) {
+        mos_free(dst->val.s);
         dst->val.s = strdup(src->val.s);
         dst->valuelen = src->valuelen;
     } else if (src->type == MDF_TYPE_BINARY && src->val.s) {
+        mos_free(dst->val.s);
         dst->val.s = mos_calloc(1, src->valuelen);
         memcpy(dst->val.s, src->val.s, src->valuelen);
         dst->valuelen = src->valuelen;
@@ -275,7 +277,7 @@ MERR* mdf_init(MDF **node)
 
 void mdf_destroy(MDF **node)
 {
-    MDF *lnode, *cnode, *next;
+    MDF *lnode, *nnode, *next;
 
     if (!node || !*node) return;
 
@@ -286,14 +288,14 @@ void mdf_destroy(MDF **node)
         lnode->last_child = NULL;
     }
 
-    cnode = lnode->next;
-    while (cnode) {
-        next = cnode->next;
+    nnode = lnode->next;
+    while (nnode) {
+        next = nnode->next;
 
-        cnode->next = NULL;
-        mdf_destroy(&cnode);
+        nnode->next = NULL;
+        mdf_destroy(&nnode);
 
-        cnode = next;
+        nnode = next;
     }
 
     if (lnode->table) mhash_destroy(&lnode->table);
@@ -306,6 +308,87 @@ void mdf_destroy(MDF **node)
     mos_free(lnode);
 
     *node = NULL;
+}
+
+void mdf_clear(MDF *node)
+{
+    if (!node) return;
+
+    if (node->child) {
+        mdf_destroy(&node->child);
+        node->last_child = NULL;
+    }
+
+    MDF *nnode = node->next;
+    while (nnode) {
+        MDF *next = nnode->next;
+
+        nnode->next = NULL;
+        mdf_destroy(&nnode);
+
+        nnode = next;
+    }
+
+    if (node->table) mhash_destroy(&node->table);
+
+    if (node->type == MDF_TYPE_STRING || node->type == MDF_TYPE_BINARY)
+        mos_free(node->val.s);
+    mos_free(node->name);
+
+    node->namelen = node->valuelen = 0;
+    node->name = NULL;
+    node->type = MDF_TYPE_UNKNOWN;
+    node->val.s = NULL;
+    node->val.n = 0;
+    node->val.f = 0.0;
+
+    node->table = NULL;
+
+    node->prev = NULL;
+    node->next = NULL;
+
+    node->parent = NULL;
+    node->child = NULL;
+    node->last_child = NULL;
+}
+
+bool mdf_equal(MDF *anode, MDF *bnode)
+{
+    if (!anode && !bnode) return true;
+    if (!anode || !bnode) return false;
+
+    if (anode->type != bnode->type) return false;
+    if (mdf_child_count(anode, NULL) != mdf_child_count(bnode, NULL)) return false;
+    if (anode->namelen != bnode->namelen ||
+        (anode->namelen != 0 && strcmp(anode->name, bnode->name))) return false;
+
+    switch (anode->type) {
+    case MDF_TYPE_STRING:
+    case MDF_TYPE_BINARY:
+        if (anode->valuelen != bnode->valuelen ||
+            (anode->valuelen > 0 && memcmp(anode->val.s, bnode->val.s, anode->valuelen))) {
+            return false;
+        }
+        break;
+    case MDF_TYPE_INT:
+    case MDF_TYPE_BOOL:
+        if (anode->val.n != bnode->val.n) return false;
+        break;
+    case MDF_TYPE_FLOAT:
+        if (anode->val.f != bnode->val.f) return false;
+        break;
+    default:
+        break;
+    }
+
+    MDF *cnode = anode->child;
+    while (cnode) {
+        if (!mdf_equal(cnode, mdf_get_node(bnode, cnode->name))) return false;
+
+        cnode = cnode->next;
+    }
+
+    return true;
 }
 
 
@@ -522,19 +605,18 @@ char* mdf_preppend_string_value(MDF *node, const char *path, char *str)
     return mdf_get_value(node, path, NULL);
 }
 
-MERR* mdf_set_type(MDF *node, const char *path, MDF_TYPE type)
+void mdf_set_type(MDF *node, const char *path, MDF_TYPE type)
 {
     MDF *anode;
     char *s;
     MERR *err;
 
-    MERR_NOT_NULLA(node);
+    if (!node) return;
 
     err = _walk_mdf(node, path, false, &anode);
-    if (err) return merr_pass(err);
+    TRACE_NOK(err);
 
-    if (!anode || anode->type != MDF_TYPE_STRING)
-        return merr_raise(MERR_ASSERT, "node type not string");
+    if (!anode || anode->type != MDF_TYPE_STRING) return;
 
     s = anode->val.s;
 
@@ -565,44 +647,53 @@ MERR* mdf_set_type(MDF *node, const char *path, MDF_TYPE type)
 
     mos_free(s);
     anode->type = type;
-
-    return MERR_OK;
 }
 
-MERR* mdf_object_2_array(MDF *node, const char *path)
+void mdf_set_type_revert(MDF *node, const char *path)
+{
+    MERR *err;
+    MDF *anode;
+
+    if (!node) return;
+
+    err = _walk_mdf(node, path, false, &anode);
+    TRACE_NOK(err);
+
+    if (!anode || anode->type == MDF_TYPE_STRING) return;
+
+    anode->val.s = mdf_get_value_stringfy(anode, NULL, NULL);
+    anode->valuelen = anode->val.s ? strlen(anode->val.s) : 0;
+    anode->type = MDF_TYPE_STRING;
+}
+
+void mdf_object_2_array(MDF *node, const char *path)
 {
     MDF *anode;
     MERR *err;
 
-    MERR_NOT_NULLA(node);
+    if (!node) return;
 
     err = _walk_mdf(node, path, false, &anode);
-    if (err) return merr_pass(err);
+    TRACE_NOK(err);
 
-    if (!anode || anode->type != MDF_TYPE_OBJECT)
-        return merr_raise(MERR_ASSERT, "node type not object");
+    if (!anode || anode->type != MDF_TYPE_OBJECT) return;
 
     anode->type = MDF_TYPE_ARRAY;
-
-    return MERR_OK;
 }
 
-MERR* mdf_array_2_object(MDF *node, const char *path)
+void mdf_array_2_object(MDF *node, const char *path)
 {
     MDF *anode;
     MERR *err;
 
-    MERR_NOT_NULLA(node);
+    if (!node) return;
 
     err = _walk_mdf(node, path, false, &anode);
-    if (err) return merr_pass(err);
+    TRACE_NOK(err);
 
-    if (!anode || anode->type != MDF_TYPE_ARRAY)
-        return merr_raise(MERR_ASSERT, "node type not array");
+    if (!anode || anode->type != MDF_TYPE_ARRAY) return;
 
     anode->type = MDF_TYPE_OBJECT;
-
-    return MERR_OK;
 }
 
 MDF_TYPE mdf_get_type(MDF *node, const char *path)

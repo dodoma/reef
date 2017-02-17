@@ -230,9 +230,8 @@ void test_change()
     mdf_init(&node);
 
     mdf_set_int_value(node, "a", 100);
-    err = mdf_set_type(node, "a", MDF_TYPE_STRING);
-    MTEST_ASSERT(err != MERR_OK);
-    merr_destroy(&err);
+    mdf_set_type(node, "a", MDF_TYPE_STRING);
+    MTEST_ASSERT_STR_EQ(mdf_get_value(node, "a", NULL), "100");
     //TRACE_NOK(err);
 
     mdf_set_value(node, "a", "100");

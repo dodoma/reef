@@ -9,12 +9,13 @@
  *
  * mdf 可以方便的进行如下操作:
  *   基本操作：
- *     1. init, destroy
+ *     1. init, destroy, clear, equal compare
  *     2. set value (string, int, float, bool)
- *     3. get value, include key exist judement (support format string)
- *     4. remove, copy
- *     5. iterate child
- *     6. assemble new mdf according data, and config mdf (asmb)
+ *     3. type convert
+ *     4. get value, include key exist judement (support format string)
+ *     5. remove, copy
+ *     6. iterate child
+ *     7. assemble new mdf according data, and config mdf (rend)
  *   格式转换：
  *     1. 由 mdf 导出 json 字符串 (export string)
  *     2. 由 json 字符串生成 mdf  (import string)
@@ -55,6 +56,8 @@ __BEGIN_DECLS
 
 MERR* mdf_init(MDF **node);
 void  mdf_destroy(MDF **node);
+void  mdf_clear(MDF *node);
+bool  mdf_equal(MDF *anode, MDF *bnode);
 
 MERR* mdf_set_value(MDF *node, const char *path, const char *value);
 MERR* mdf_set_int_value(MDF *node, const char *path, int value);
@@ -70,10 +73,15 @@ float   mdf_add_float_value(MDF *node, const char *path, float val);
 char*   mdf_append_string_value(MDF *node, const char *path, char *str);
 char*   mdf_preppend_string_value(MDF *node, const char *path, char *str);
 
+/*
+ * 类型转换
+ */
 /* 将字符串类型节点 转换成 其他类型 */
-MERR* mdf_set_type(MDF *node, const char *path, MDF_TYPE type);
-MERR* mdf_object_2_array(MDF *node, const char *path);
-MERR* mdf_array_2_object(MDF *node, const char *path);
+void mdf_set_type(MDF *node, const char *path, MDF_TYPE type);
+/* 将其他类型节点 转换成 字符串类型节点 */
+void mdf_set_type_revert(MDF *node, const char *path);
+void mdf_object_2_array(MDF *node, const char *path);
+void mdf_array_2_object(MDF *node, const char *path);
 
 MDF_TYPE mdf_get_type(MDF *node, const char *path);
 char*   mdf_get_name(MDF *node, const char *path);
@@ -114,6 +122,7 @@ MERR* mdf_json_import_file(MDF *node, const char *fname);
 
 /* 返回字符串为新申请内存，使用后请自行释放 */
 char*  mdf_json_export_string(MDF *node);
+char*  mdf_json_export_string_pretty(MDF *node);
 MERR*  mdf_json_export_file(MDF *node, const char *fname);
 /* 往已有内存中写，速度更快 */
 size_t mdf_json_export_buffer(MDF *node, char *buf, size_t len);
