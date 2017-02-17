@@ -225,6 +225,24 @@ error:
     return merr_pass(err);
 }
 
+char* mstr_tolower(char *s)
+{
+    if (!s) return NULL;
+
+    char *r = s;
+    for ( ; *s; ++s) *s = tolower(*s);
+    return r;
+}
+
+char* mstr_toupper(char *s)
+{
+    if (!s) return NULL;
+
+    char *r = s;
+    for ( ; *s; ++s) *s = toupper(*s);
+    return r;
+}
+
 void mstr_bin2str(uint8_t *hexin, unsigned int inlen, char *charout)
 {
     /* 48 '0' */
@@ -260,7 +278,7 @@ void mstr_bin2str(uint8_t *hexin, unsigned int inlen, char *charout)
         }
     }
 
-    charout[j+1] = '\0';
+    charout[j] = '\0';
 }
 
 /*
@@ -290,7 +308,7 @@ void mstr_bin2hexstr(uint8_t *hexin, unsigned int inlen, char *charout)
         HEX2STR(hexin[i], charout[j+1]);
     }
 
-    charout[j+1] = '\0';
+    charout[j] = '\0';
 }
 
 void mstr_hexstr2bin(const unsigned char *charin, unsigned int inlen, uint8_t *hexout)
@@ -299,28 +317,19 @@ void mstr_hexstr2bin(const unsigned char *charin, unsigned int inlen, uint8_t *h
     do {                                                \
         if (in1 < ':')                                  \
             (out) = ((in1 - 48) & 0xf) << 4;            \
+        else if (in1 < 'G')                             \
+            (out) = ((in1 - 65 + 10) & 0xf) << 4;       \
         else                                            \
             (out) = ((in1 - 97 + 10) & 0xf) << 4;       \
         if (in2 < ':')                                  \
             (out) = (out) | ((in2 - 48) & 0xf);         \
+        else if (in2 < 'G')                             \
+            (out) = (out) | ((in2 - 65 + 10) & 0xf);    \
         else                                            \
             (out) = (out) | ((in2 - 97 + 10) & 0xf);    \
     } while (0)
 
     unsigned int i, j;
-    unsigned char *s;
-
-    /*
-     * tolower
-     */
-    s = (unsigned char*)charin;
-    i = 0;
-    while(*s != 0 && i < inlen) {
-        *s = tolower(*s);
-        s++;
-        i++;
-    }
-
     for (i = 0, j = 0; i < inlen; i += 2, j++) {
         STR2HEX(charin[i], charin[i+1], hexout[j]);
     }

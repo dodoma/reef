@@ -56,6 +56,12 @@ void mstr_rand_string_fixlen(char *s, size_t len);
 MERR* mstr_array_split(MLIST **alist, const char *sin, const char *sep, int max);
 
 /*
+ * 大小写转换，修改原字符串
+ */
+char* mstr_tolower(char *s);
+char* mstr_toupper(char *s);
+
+/*
  * 将一片二进制数组，转换成16进制字符串（一般用于网络包调试）
  * 例如：uint8_t hexin[4] = {12,5,6,15}
  *      将会转换成 "0c05060f"，串后会补 '\0'
