@@ -67,5 +67,17 @@ typedef struct _MDF MDF;
 
 typedef void (*MDF_PRINTF)(void *rock, const char *fmt, ...);
 
+typedef enum
+{
+    MMC_OP_SET = 0,
+    MMC_OP_ADD,
+    MMC_OP_REPLACE,
+    MMC_OP_APPEND,
+    MMC_OP_PREPEND,
+    MMC_OP_CAS,
+    MMC_OP_INC,
+    MMC_OP_DEC
+} MMC_OP;
+
 __END_DECLS
 #endif

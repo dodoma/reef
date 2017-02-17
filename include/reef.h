@@ -86,5 +86,8 @@
 
 #include "mdf.h"
 #include "mdf_macro.h"
+#include "mdf_data.h"
+
+#include "mmemcache.h"
 
 #endif
