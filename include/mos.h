@@ -28,7 +28,7 @@ void* mos_realloc(void *ptr, size_t size);
 /*
  * return rand integer between [0, max)
  */
-int mos_rand(int max);
+uint32_t mos_rand(uint32_t max);
 
 double mos_timef();
 

@@ -33,7 +33,7 @@ void* mos_realloc(void *ptr, size_t size)
     return p;
 }
 
-int mos_rand(int max)
+uint32_t mos_rand(uint32_t max)
 {
     static bool inited = false;
 
