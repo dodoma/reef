@@ -1,0 +1,119 @@
+{
+    "6EC89E03": {
+      "id": "6EC89E03",
+      "code": "DKO",
+      "channel": "ASXT",
+      "type": 3,
+      "price": 60000,
+      "count": 200,
+      "type_desc": "取消委托"
+    },
+    "5ACC9E03": {
+      "id": "5ACC9E03",
+      "code": "DKO",
+      "channel": "ASXT",
+      "type": 3,
+      "price": 60000,
+      "count": 100,
+      "type_desc": "取消委托"
+    },
+    "A5CD9E03": {
+      "id": "A5CD9E03",
+      "code": "DKO",
+      "channel": "ASXT",
+      "type": 3,
+      "price": 60000,
+      "count": 100,
+      "type_desc": "取消委托"
+    },
+    "91CE9E03": {
+      "id": "91CE9E03",
+      "code": "DKO",
+      "channel": "ASXT",
+      "type": 3,
+      "price": 59000,
+      "count": 100,
+      "type_desc": "取消委托"
+    },
+    "23D09E03": {
+      "id": "23D09E03",
+      "code": "DKO",
+      "channel": "ASXT",
+      "type": 3,
+      "price": 60000,
+      "count": 100,
+      "type_desc": "取消委托"
+    },
+    "1CDA9E03": {
+      "id": "1CDA9E03",
+      "code": "DKO",
+      "channel": "ASXT",
+      "type": 3,
+      "price": 59000,
+      "count": 100,
+      "type_desc": "取消委托"
+    },
+    "CCDB9E03": {
+      "id": "CCDB9E03",
+      "code": "DKO",
+      "channel": "ASXT",
+      "type": 4,
+      "price": 62000,
+      "count": 1000,
+      "type_desc": "已买入"
+    },
+    "31DC9E03": {
+      "id": "31DC9E03",
+      "code": "DKO",
+      "channel": "ASXT",
+      "type": 3,
+      "price": 63000,
+      "count": 1000,
+      "type_desc": "取消委托"
+    },
+    "52DC9E03": {
+      "id": "52DC9E03",
+      "code": "DKO",
+      "channel": "ASXT",
+      "type": 5,
+      "price": 62000,
+      "count": 1000,
+      "type_desc": "已卖出"
+    },
+    "25E69E03": {
+      "id": "25E69E03",
+      "code": "KDR",
+      "channel": "CXA",
+      "type": 1,
+      "price": 510000,
+      "count": 1800,
+      "type_desc": "委托买入"
+    },
+    "2AEF9E03": {
+      "id": "2AEF9E03",
+      "code": "GCY",
+      "channel": "CXA",
+      "type": 1,
+      "price": 615000,
+      "count": 1500,
+      "type_desc": "委托买入"
+    },
+    "F3F79E03": {
+      "id": "F3F79E03",
+      "code": "KDR",
+      "channel": "CXA",
+      "type": 1,
+      "price": 515000,
+      "count": 1800,
+      "type_desc": "委托买入"
+    },
+    "B0029F03": {
+      "id": "B0029F03",
+      "code": "AFI",
+      "channel": "ASXT",
+      "type": 4,
+      "price": 5880000,
+      "count": 900,
+      "type_desc": "已买入"
+    }
+  }

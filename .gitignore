@@ -15,4 +15,5 @@ gen
 test/*
 !test/*.c
 !test/*.py
+!test/*.json
 !test/Makefile

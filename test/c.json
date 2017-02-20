@@ -1,0 +1,447 @@
+{
+  "aaa": {
+    "5CA89E03": {
+      "id": "5CA89E03",
+      "code": "AFI",
+      "channel": "ASXT",
+      "type": 3,
+      "price": 5880000,
+      "count": 5000,
+      "type_desc": "取消委托"
+    },
+    "9DA89E03": {
+      "id": "9DA89E03",
+      "code": "DJW",
+      "channel": "ASXT",
+      "type": 4,
+      "price": 3630000,
+      "count": 6000,
+      "type_desc": "已买入"
+    },
+    "ACAD9E03": {
+      "id": "ACAD9E03",
+      "code": "AHZ",
+      "channel": "CXA",
+      "type": 3,
+      "price": 310000,
+      "count": 10000,
+      "type_desc": "取消委托"
+    },
+    "FAAE9E03": {
+      "id": "FAAE9E03",
+      "code": "DJW",
+      "channel": "ASXT",
+      "type": 5,
+      "price": 3650000,
+      "count": 6000,
+      "type_desc": "已卖出"
+    },
+    "73AF9E03": {
+      "id": "73AF9E03",
+      "code": "EQU",
+      "channel": "CXA",
+      "type": 3,
+      "price": 155000,
+      "count": 10000,
+      "type_desc": "取消委托"
+    },
+    "EBAF9E03": {
+      "id": "EBAF9E03",
+      "code": "LBT",
+      "channel": "CXA",
+      "type": 4,
+      "price": 300000,
+      "count": 3000,
+      "type_desc": "已买入"
+    },
+    "28B09E03": {
+      "id": "28B09E03",
+      "code": "ERM",
+      "channel": "CXA",
+      "type": 4,
+      "price": 112500,
+      "count": 10000,
+      "type_desc": "已买入"
+    },
+    "7CB09E03": {
+      "id": "7CB09E03",
+      "code": "COB",
+      "channel": "CXA",
+      "type": 3,
+      "price": 240000,
+      "count": 3000,
+      "type_desc": "取消委托"
+    },
+    "B1B09E03": {
+      "id": "B1B09E03",
+      "code": "ARL",
+      "channel": "CXA",
+      "type": 4,
+      "price": 290000,
+      "count": 5000,
+      "type_desc": "已买入"
+    },
+    "2CB19E03": {
+      "id": "2CB19E03",
+      "code": "NTU",
+      "channel": "CXA",
+      "type": 1,
+      "price": 120000,
+      "count": 5000,
+      "type_desc": "委托买入"
+    },
+    "E0B19E03": {
+      "id": "E0B19E03",
+      "code": "ACR",
+      "channel": "CXA",
+      "type": 1,
+      "price": 300000,
+      "count": 6000,
+      "type_desc": "委托买入"
+    },
+    "45B49E03": {
+      "id": "45B49E03",
+      "code": "COB",
+      "channel": "CXA",
+      "type": 4,
+      "price": 245000,
+      "count": 3000,
+      "type_desc": "已买入"
+    },
+    "D2B49E03": {
+      "id": "D2B49E03",
+      "code": "AHZ",
+      "channel": "CXA",
+      "type": 2,
+      "price": 315000,
+      "count": 7813,
+      "type_desc": "委托卖出"
+    },
+    "BAB89E03": {
+      "id": "BAB89E03",
+      "code": "COB",
+      "channel": "CXA",
+      "type": 5,
+      "price": 245000,
+      "count": 3000,
+      "type_desc": "已卖出"
+    },
+    "66BE9E03": {
+      "id": "66BE9E03",
+      "code": "KDR",
+      "channel": "CXA",
+      "type": 3,
+      "price": 505000,
+      "count": 6000,
+      "type_desc": "取消委托"
+    },
+    "6CBE9E03": {
+      "id": "6CBE9E03",
+      "code": "KDR",
+      "channel": "CXA",
+      "type": 4,
+      "price": 515000,
+      "count": 6000,
+      "type_desc": "已买入"
+    },
+    "1FC19E03": {
+      "id": "1FC19E03",
+      "code": "EQU",
+      "channel": "CXA",
+      "type": 1,
+      "price": 150000,
+      "count": 10000,
+      "type_desc": "委托买入"
+    },
+    "F5C99E03": {
+      "id": "F5C99E03",
+      "code": "ARL",
+      "channel": "CXA",
+      "type": 3,
+      "price": 295000,
+      "count": 5000,
+      "type_desc": "取消委托"
+    },
+    "D7CA9E03": {
+      "id": "D7CA9E03",
+      "code": "AFI",
+      "channel": "CXA",
+      "type": 4,
+      "price": 5890000,
+      "count": 3000,
+      "type_desc": "已买入"
+    },
+    "41CB9E03": {
+      "id": "41CB9E03",
+      "code": "ARL",
+      "channel": "CXA",
+      "type": 1,
+      "price": 285000,
+      "count": 5000,
+      "type_desc": "委托买入"
+    },
+    "7ACE9E03": {
+      "id": "7ACE9E03",
+      "code": "AFI",
+      "channel": "CXA",
+      "type": 2,
+      "price": 5900000,
+      "count": 3000,
+      "type_desc": "委托卖出"
+    },
+    "50CF9E03": {
+      "id": "50CF9E03",
+      "code": "ARL",
+      "channel": "CXA",
+      "type": 5,
+      "price": 300000,
+      "count": 5000,
+      "type_desc": "已卖出"
+    },
+    "14DA9E03": {
+      "id": "14DA9E03",
+      "code": "DJW",
+      "channel": "CXA",
+      "type": 3,
+      "price": 3630000,
+      "count": 3000,
+      "type_desc": "取消委托"
+    },
+    "29DA9E03": {
+      "id": "29DA9E03",
+      "code": "ARL",
+      "channel": "CXA",
+      "type": 1,
+      "price": 290000,
+      "count": 5000,
+      "type_desc": "委托买入"
+    },
+    "DEE19E03": {
+      "id": "DEE19E03",
+      "code": "DJW",
+      "channel": "ASXT",
+      "type": 5,
+      "price": 3650000,
+      "count": 2000,
+      "type_desc": "已卖出"
+    },
+    "C3E49E03": {
+      "id": "C3E49E03",
+      "code": "KDR",
+      "channel": "CXA",
+      "type": 3,
+      "price": 520000,
+      "count": 6000,
+      "type_desc": "取消委托"
+    },
+    "1AE69E03": {
+      "id": "1AE69E03",
+      "code": "KDR",
+      "channel": "ASXT",
+      "type": 5,
+      "price": 520000,
+      "count": 6000,
+      "type_desc": "已卖出"
+    },
+    "23E69E03": {
+      "id": "23E69E03",
+      "code": "KDR",
+      "channel": "CXA",
+      "type": 1,
+      "price": 510000,
+      "count": 6000,
+      "type_desc": "委托买入"
+    },
+    "28EF9E03": {
+      "id": "28EF9E03",
+      "code": "GCY",
+      "channel": "CXA",
+      "type": 1,
+      "price": 615000,
+      "count": 5000,
+      "type_desc": "委托买入"
+    },
+    "ECF39E03": {
+      "id": "ECF39E03",
+      "code": "LBT",
+      "channel": "CXA",
+      "type": 2,
+      "price": 305000,
+      "count": 3000,
+      "type_desc": "委托卖出"
+    },
+    "F0F49E03": {
+      "id": "F0F49E03",
+      "code": "QVE",
+      "channel": "ASXT",
+      "type": 4,
+      "price": 1310000,
+      "count": 2000,
+      "type_desc": "已买入"
+    },
+    "F9F49E03": {
+      "id": "F9F49E03",
+      "code": "QVE",
+      "channel": "ASXT",
+      "type": 3,
+      "price": 1340000,
+      "count": 1320,
+      "type_desc": "取消委托"
+    },
+    "E4F79E03": {
+      "id": "E4F79E03",
+      "code": "KDR",
+      "channel": "CXA",
+      "type": 1,
+      "price": 515000,
+      "count": 6000,
+      "type_desc": "委托买入"
+    },
+    "C2FE9E03": {
+      "id": "C2FE9E03",
+      "code": "QVE",
+      "channel": "ASXT",
+      "type": 2,
+      "price": 1340000,
+      "count": 2000,
+      "type_desc": "委托卖出"
+    },
+    "86FF9E03": {
+      "id": "86FF9E03",
+      "code": "ERM",
+      "channel": "CXA",
+      "type": 2,
+      "price": 115000,
+      "count": 10000,
+      "type_desc": "委托卖出"
+    },
+    "AE029F03": {
+      "id": "AE029F03",
+      "code": "AFI",
+      "channel": "ASXT",
+      "type": 1,
+      "price": 5880000,
+      "count": 3000,
+      "type_desc": "委托买入"
+    }
+  },
+  "bbb": {
+    "6EC89E03": {
+      "id": "6EC89E03",
+      "code": "DKO",
+      "channel": "ASXT",
+      "type": 3,
+      "price": 60000,
+      "count": 200,
+      "type_desc": "取消委托"
+    },
+    "5ACC9E03": {
+      "id": "5ACC9E03",
+      "code": "DKO",
+      "channel": "ASXT",
+      "type": 3,
+      "price": 60000,
+      "count": 100,
+      "type_desc": "取消委托"
+    },
+    "A5CD9E03": {
+      "id": "A5CD9E03",
+      "code": "DKO",
+      "channel": "ASXT",
+      "type": 3,
+      "price": 60000,
+      "count": 100,
+      "type_desc": "取消委托"
+    },
+    "91CE9E03": {
+      "id": "91CE9E03",
+      "code": "DKO",
+      "channel": "ASXT",
+      "type": 3,
+      "price": 59000,
+      "count": 100,
+      "type_desc": "取消委托"
+    },
+    "23D09E03": {
+      "id": "23D09E03",
+      "code": "DKO",
+      "channel": "ASXT",
+      "type": 3,
+      "price": 60000,
+      "count": 100,
+      "type_desc": "取消委托"
+    },
+    "1CDA9E03": {
+      "id": "1CDA9E03",
+      "code": "DKO",
+      "channel": "ASXT",
+      "type": 3,
+      "price": 59000,
+      "count": 100,
+      "type_desc": "取消委托"
+    },
+    "CCDB9E03": {
+      "id": "CCDB9E03",
+      "code": "DKO",
+      "channel": "ASXT",
+      "type": 4,
+      "price": 62000,
+      "count": 1000,
+      "type_desc": "已买入"
+    },
+    "31DC9E03": {
+      "id": "31DC9E03",
+      "code": "DKO",
+      "channel": "ASXT",
+      "type": 3,
+      "price": 63000,
+      "count": 1000,
+      "type_desc": "取消委托"
+    },
+    "52DC9E03": {
+      "id": "52DC9E03",
+      "code": "DKO",
+      "channel": "ASXT",
+      "type": 5,
+      "price": 62000,
+      "count": 1000,
+      "type_desc": "已卖出"
+    },
+    "25E69E03": {
+      "id": "25E69E03",
+      "code": "KDR",
+      "channel": "CXA",
+      "type": 1,
+      "price": 510000,
+      "count": 1800,
+      "type_desc": "委托买入"
+    },
+    "2AEF9E03": {
+      "id": "2AEF9E03",
+      "code": "GCY",
+      "channel": "CXA",
+      "type": 1,
+      "price": 615000,
+      "count": 1500,
+      "type_desc": "委托买入"
+    },
+    "F3F79E03": {
+      "id": "F3F79E03",
+      "code": "KDR",
+      "channel": "CXA",
+      "type": 1,
+      "price": 515000,
+      "count": 1800,
+      "type_desc": "委托买入"
+    },
+    "B0029F03": {
+      "id": "B0029F03",
+      "code": "AFI",
+      "channel": "ASXT",
+      "type": 4,
+      "price": 5880000,
+      "count": 900,
+      "type_desc": "已买入"
+    }
+  }
+}
