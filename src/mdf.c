@@ -198,15 +198,46 @@ format_error:
     return merr_raise(MERR_ASSERT, "unexpect path %s", pos);
 }
 
-static MERR* _copy_mdf(MDF *dst, MDF *src)
+static MERR* _copy_mdf(MDF *dst, MDF *src, bool overwrite)
 {
-    int childnum;
     MDF *cnode, *newnode;
+    MERR *err;
 
-    childnum = 0;
+    if (src->type != MDF_TYPE_ARRAY && src->type != MDF_TYPE_OBJECT) {
+        if (dst->type == MDF_TYPE_STRING || dst->type == MDF_TYPE_BINARY) {
+            mos_free(dst->val.s);
+        } else if (dst->type == MDF_TYPE_OBJECT || dst->type == MDF_TYPE_ARRAY) {
+            mdf_destroy(&dst->child);
+            dst->last_child = NULL;
+        }
+
+        dst->type = src->type;
+        if (src->type == MDF_TYPE_STRING && src->val.s) {
+            dst->val.s = strdup(src->val.s);
+            dst->valuelen = src->valuelen;
+        } else if (src->type == MDF_TYPE_BINARY && src->val.s) {
+            dst->val.s = mos_calloc(1, src->valuelen);
+            memcpy(dst->val.s, src->val.s, src->valuelen);
+            dst->valuelen = src->valuelen;
+        } else {
+            dst->val.n = src->val.n;
+            dst->val.f = src->val.f;
+        }
+
+        return MERR_OK;
+    }
 
     cnode = src->child;
     while (cnode) {
+        MDF *dnode;
+        err = _walk_mdf(dst, cnode->name, false, &dnode);
+        TRACE_NOK(err);
+        if (dnode) {
+            if (overwrite) {
+                _mdf_drop_child_node(dst, dnode);
+            } else goto nextnode;
+        }
+
         mdf_init(&newnode);
         newnode->name = strdup(cnode->name);
         newnode->namelen = strlen(cnode->name);
@@ -221,28 +252,16 @@ static MERR* _copy_mdf(MDF *dst, MDF *src)
             memcpy(newnode->val.s, cnode->val.s, cnode->valuelen);
             newnode->valuelen = cnode->valuelen;
         }
+        _mdf_append_child_node(dst, newnode, -1);
 
-        _mdf_append_child_node(dst, newnode, childnum);
+        if ((cnode->type == MDF_TYPE_OBJECT || cnode->type == MDF_TYPE_ARRAY) && cnode->child)
+            _copy_mdf(newnode, cnode, overwrite);
 
-        _copy_mdf(newnode, cnode);
-
-        childnum++;
+    nextnode:
         cnode = cnode->next;
     }
 
     dst->type = src->type;
-    dst->val.n = src->val.n;
-    dst->val.f = src->val.f;
-    if (src->type == MDF_TYPE_STRING && src->val.s) {
-        mos_free(dst->val.s);
-        dst->val.s = strdup(src->val.s);
-        dst->valuelen = src->valuelen;
-    } else if (src->type == MDF_TYPE_BINARY && src->val.s) {
-        mos_free(dst->val.s);
-        dst->val.s = mos_calloc(1, src->valuelen);
-        memcpy(dst->val.s, src->val.s, src->valuelen);
-        dst->valuelen = src->valuelen;
-    }
 
     return MERR_OK;
 }
@@ -871,7 +890,7 @@ dup_default:
 }
 
 
-MERR* mdf_copy(MDF *dst, const char *path, MDF *src)
+MERR* mdf_copy(MDF *dst, const char *path, MDF *src, bool overwrite)
 {
     MDF *anode;
     MERR *err;
@@ -881,7 +900,7 @@ MERR* mdf_copy(MDF *dst, const char *path, MDF *src)
     err = _walk_mdf(dst, path, true, &anode);
     if (err) return merr_pass(err);
 
-    return merr_pass(_copy_mdf(anode, src));
+    return merr_pass(_copy_mdf(anode, src, overwrite));
 }
 
 MERR* mdf_remove(MDF *node, const char *path)

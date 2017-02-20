@@ -95,7 +95,7 @@ unsigned char* mdf_get_binary(MDF *node, const char *path, size_t *len);
 /* 返回节点的值（以字符串的方式），返回内容为新申请内存，使用后请自行释放。*/
 char* mdf_get_value_stringfy(MDF *node, const char *path, char *dftvalue);
 
-MERR* mdf_copy(MDF *dst, const char *path, MDF *src);
+MERR* mdf_copy(MDF *dst, const char *path, MDF *src, bool overwrite);
 MERR* mdf_remove(MDF *node, const char *path);
 
 MDF* mdf_get_node(MDF *node, const char *path);

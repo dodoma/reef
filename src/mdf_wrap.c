@@ -244,7 +244,7 @@ char* mdf_preppend_string_valuef(MDF *node, char *str, const char *fmt, ...)
     return mdf_preppend_string_value(node, key, str);
 }
 
-MERR* mdf_copyf(MDF *dst, MDF *src, const char *fmt, ...)
+MERR* mdf_copyf(MDF *dst, MDF *src, bool overwrite, const char *fmt, ...)
 {
     char key[1024];
     va_list ap;
@@ -253,7 +253,7 @@ MERR* mdf_copyf(MDF *dst, MDF *src, const char *fmt, ...)
     vsnprintf(key, sizeof(key), fmt, ap);
     va_end(ap);
 
-    return merr_pass(mdf_copy(dst, key, src));
+    return merr_pass(mdf_copy(dst, key, src, overwrite));
 }
 
 bool mdf_path_existf(MDF *node, const char *fmt, ...)

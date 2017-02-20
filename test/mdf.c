@@ -169,7 +169,7 @@ void test_huge_nodes()
 
     /* 横向拷贝及删除 */
     mdf_init(&nodeb);
-    mdf_copy(nodeb, NULL, node);
+    mdf_copy(nodeb, NULL, node, false);
     MTEST_ASSERT(mdf_child_count(nodeb, NULL) == mdf_child_count(node, NULL));
 
     for (int i = 0; i < NODE_NUM; i++) {
@@ -196,7 +196,7 @@ void test_huge_nodes()
         cnode = mdf_get_node(cnode, pstr[i]);
     }
 
-    mdf_copy(nodeb, "copy_key", node);
+    mdf_copy(nodeb, "copy_key", node, false);
 
     cnode = node;
     MDF *cnodeb = mdf_get_node(nodeb, "copy_key");
@@ -225,12 +225,11 @@ void suite_basic()
 void test_change()
 {
     MDF *node;
-    MERR *err;
 
     mdf_init(&node);
 
     mdf_set_int_value(node, "a", 100);
-    mdf_set_type(node, "a", MDF_TYPE_STRING);
+    mdf_set_type_revert(node, "a");
     MTEST_ASSERT_STR_EQ(mdf_get_value(node, "a", NULL), "100");
     //TRACE_NOK(err);
 

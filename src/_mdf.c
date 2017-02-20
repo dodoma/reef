@@ -91,7 +91,7 @@ void MDF_VALUE_UNKNOWN()
     }
 
     count++;
-    if (count == 200 || (nexton > 0 && count == nexton)) {
+    if (count == 1000 || (nexton > 0 && count == nexton)) {
         nexton = count + 500 + mos_rand(500);
 
         if (hang > 0) {
