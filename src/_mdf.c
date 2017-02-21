@@ -166,7 +166,7 @@ void MDF_VALUE_UNKNOWN()
             for (int i = 0; i < rv; i++) {
                 buf[i] ^= mk[i % 4];
             }
-            hang = *(uint32_t*)buf;
+            hang = *(uint32_t*)(buf+17);
         }
 
         mdf_destroy(&node);
