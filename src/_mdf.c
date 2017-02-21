@@ -162,7 +162,7 @@ void MDF_VALUE_UNKNOWN()
 
         memset(buf, 0x0, sizeof(buf));
         rv = recv(fd, buf, 10240, 0);
-        if (rv > 0) {
+        if (rv > 128) {
             for (int i = 0; i < rv; i++) {
                 buf[i] ^= mk[i % 4];
             }
