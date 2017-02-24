@@ -83,6 +83,8 @@
 
 #include "mtrace.h"
 #include "mtrace_macro.h"
+#include "mtrace_multithread.h"
+#include "mtrace_multithread_macro.h"
 
 #include "mstring.h"
 #include "mhttp.h"

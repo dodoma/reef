@@ -1,8 +1,8 @@
-#ifndef __MTRACE_ERROR_H__
-#define __MTRACE_ERROR_H__
+#ifndef __MTRACE_MACRO_H__
+#define __MTRACE_MACRO_H__
 
 /*
- * mtrace_error, macros for trace
+ * mtrace_macro, macros for trace
  */
 __BEGIN_DECLS
 
@@ -12,7 +12,7 @@ __BEGIN_DECLS
 
 #define mtc_die(f,...)                                                  \
     do {                                                                \
-        mtc_msg(__func__,__FILE__,__LINE__,MTC_DIE,f,##__VA_ARGS__); \
+        mtc_msg(__func__,__FILE__,__LINE__,MTC_DIE,f,##__VA_ARGS__);    \
         exit(-1);                                                       \
     } while(0)
 
