@@ -104,11 +104,14 @@ static void _json_machine_init()
 
     GO_WHITESPACE_LOOP(go_object);
     GO_ALPHA_SET(go_object, A_PAIR_L_RAW);
+    GO_DIGIT_SET(go_object, A_PAIR_L_RAW);
     go_object['"'] = A_PAIR_L_QUOTE;
     go_object['\''] = A_PAIR_L_QUOTE;
     go_object['/'] = A_COMMENT_A;
+    go_object['}'] = A_UNOBJECT;
 
     GO_ALPHA_SET(go_pair_l_raw, A_LOOP);
+    GO_DIGIT_SET(go_pair_l_raw, A_LOOP);
     go_pair_l_raw[' '] = A_UNPAIR_L_RAW;
     go_pair_l_raw['\t'] = A_UNPAIR_L_RAW;
     go_pair_l_raw['\n'] = A_UNPAIR_L_RAW_NEWLINE;
@@ -167,6 +170,7 @@ static void _json_machine_init()
     go_array['{'] = A_VALUE_OBJECT;
     go_array['['] = A_VALUE_ARRAY;
     go_array['/'] = A_COMMENT_A;
+    go_array[']'] = A_UNARRAY;
 
     GO_ALPHA_SET(go_value_raw, A_LOOP);
     go_value_raw['.'] = A_UNVALUE_RAW;
