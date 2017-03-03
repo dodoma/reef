@@ -1,0 +1,19 @@
+{
+    a: {
+    },
+    b: {
+        __type__: "array"
+    },
+    c: {
+        __type__: "string"
+    },
+    d: {
+        __type__: "int"
+    },
+    e: {
+        __type__: "float"
+    },
+    f: {
+        __type__: "bool"
+    }
+}

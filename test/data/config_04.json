@@ -1,0 +1,74 @@
+{
+    a: {
+        __value__: "datai"
+    },
+    b: {
+        __value__: "dataf"
+    },
+    c: {
+        __value__: "datab"
+    },
+
+    d: {
+        __type__: "array",
+        __value__: "datai"
+    },
+    e: {
+        __type__: "string",
+        __value__: "datai"
+    },
+    f: {
+        __type__: "int",
+        __value__: "datai"
+    },
+    g: {
+        __type__: "float",
+        __value__: "datai"
+    },
+    h: {
+        __type__: "bool",
+        __value__: "datai"
+    },
+
+    i: {
+        __type__: "array",
+        __value__: "dataf"
+    },
+    j: {
+        __type__: "string",
+        __value__: "dataf"
+    },
+    k: {
+        __type__: "int",
+        __value__: "dataf"
+    },
+    l: {
+        __type__: "float",
+        __value__: "dataf"
+    },
+    m: {
+        __type__: "bool",
+        __value__: "dataf"
+    },
+
+    n: {
+        __type__: "array",
+        __value__: "datab"
+    },
+    o: {
+        __type__: "string",
+        __value__: "datab"
+    },
+    p: {
+        __type__: "int",
+        __value__: "datab"
+    },
+    q: {
+        __type__: "float",
+        __value__: "datab"
+    },
+    r: {
+        __type__: "bool",
+        __value__: "datab"
+    }
+}

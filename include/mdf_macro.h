@@ -13,6 +13,13 @@ __BEGIN_DECLS
         mos_free(_zstra);                                   \
     } while (0)
 
+#define MDF_TRACE_MT(node)                                  \
+    do {                                                    \
+        char *_zstra = mdf_json_export_string_pretty(node); \
+        mtc_mt_foo("\n%s", _zstra);                         \
+        mos_free(_zstra);                                   \
+    } while (0)
+
 void  mdf_set_typef(MDF *node, MDF_TYPE type, const char *fmt, ...)  ATTRIBUTE_PRINTF(3,4);
 
 char*   mdf_get_valuef(MDF *node, char *dftvalue, const char *fmt, ...) ATTRIBUTE_PRINTF(3,4);;

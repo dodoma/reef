@@ -78,6 +78,8 @@ char*   mdf_preppend_string_value(MDF *node, const char *path, char *str);
  */
 /* 将字符串类型节点 转换成 其他类型 */
 void mdf_set_type(MDF *node, const char *path, MDF_TYPE type);
+/* 数字类型节点在数字类型间转换 */
+void mdf_set_digit_type(MDF *node, const char *path, MDF_TYPE type);
 /* 将其他类型节点 转换成 字符串类型节点 */
 void mdf_set_type_revert(MDF *node, const char *path);
 void mdf_object_2_array(MDF *node, const char *path);
@@ -99,6 +101,7 @@ MERR* mdf_copy(MDF *dst, const char *path, MDF *src, bool overwrite);
 MERR* mdf_remove(MDF *node, const char *path);
 
 MDF* mdf_get_node(MDF *node, const char *path);
+/* 新建的node类型为 MDF_TYPE_UNKNOWN */
 MDF* mdf_get_or_create_node(MDF *node, const char *path);
 MDF* mdf_get_child(MDF *node, const char *path);
 

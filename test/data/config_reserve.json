@@ -1,0 +1,12 @@
+{
+    a: "__mr__datas",
+    b: "__mr__dataa[2].s",
+    c: {
+        __value__: "dataa",
+        __arraynode__: "__nodevalue__"
+    },
+    d: {
+        __value__: "dataa",
+        __arraynode__: "__mr__s"
+    }
+}

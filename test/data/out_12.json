@@ -1,0 +1,63 @@
+{
+  "a": [
+    100,
+    100,
+    100
+  ],
+  "b": [
+    100,
+    100,
+    100
+  ],
+  "f": true,
+  "g": [
+    {
+      "foo": "hello mdf"
+    },
+    {
+      "foo": "hello mdf agin"
+    },
+    {
+      "foo": "hello mdf agin agin"
+    }
+  ],
+  "h": [
+    {
+      "foo": 10
+    },
+    {
+      "foo": 100
+    },
+    {
+      "foo": 1000
+    }
+  ],
+  "i": [
+    {
+      "foo": 33.33
+    },
+    {
+      "foo": 333.33
+    },
+    {
+      "foo": 3333.33
+    }
+  ],
+  "j": [
+    {
+      "foo": {
+        "foo": "hello mdf"
+      }
+    },
+    {
+      "foo": {
+        "foo": "hello mdf agin"
+      }
+    },
+    {
+      "foo": {
+        "foo": "hello mdf agin agin"
+      }
+    }
+  ]
+}

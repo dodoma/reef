@@ -1,0 +1,26 @@
+{
+  "a": "hello mdf",
+  "b": "hello mdf agin agin",
+  "c": [
+    {
+      "s": "hello mdf",
+      "i": 10,
+      "f": 33.33
+    },
+    {
+      "s": "hello mdf agin",
+      "i": 100,
+      "f": 333.33
+    },
+    {
+      "s": "hello mdf agin agin",
+      "i": 1000,
+      "f": 3333.33
+    }
+  ],
+  "d": [
+    "hello mdf",
+    "hello mdf agin",
+    "hello mdf agin agin"
+  ]
+}

@@ -9,9 +9,9 @@ void test_copy()
     mdf_init(&cnode);
     mdf_init(&xnode);
 
-    mdf_json_import_file(anode, "a.json");
-    mdf_json_import_file(bnode, "b.json");
-    mdf_json_import_file(cnode, "c.json");
+    mdf_json_import_file(anode, "data/a.json");
+    mdf_json_import_file(bnode, "data/b.json");
+    mdf_json_import_file(cnode, "data/c.json");
 
     mdf_copy(xnode, "aaa", anode, true);
     mdf_copy(xnode, "bbb", bnode, true);

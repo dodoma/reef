@@ -1,0 +1,61 @@
+{
+    a: {
+        aa: 100,
+        __value__: "datao"
+    },
+    b: {
+        aa: 100,
+        bb: {
+            bbb: {
+                __value__: "xxx"
+            }
+        },
+        __value__: "datao"
+    },
+    c: {
+        cc: 100,
+        cc2: {
+            ccc: {
+                __value__: "zzz"
+            }
+        },
+        __value__: "datao",
+        __type__: "array"
+    },
+    d: {
+        dd: {
+            ddd: {
+                __value__: "xxx"
+            }
+        },
+        __value__: "datao",
+        __type__: "string"
+    },
+    e: {
+        ee: {
+            eee: {
+                __value__: "xxx"
+            }
+        },
+        __value__: "datao",
+        __type__: "int"
+    },
+    f: {
+        ff: {
+            fff: {
+                __value__: "xxx"
+            }
+        },
+        __value__: "datao",
+        __type__: "float"
+    },
+    g: {
+        gg: {
+            ggg: {
+                __value__: "yyy"
+            }
+        },
+        __value__: "datao",
+        __type__: "bool"
+    }
+}

@@ -1,0 +1,46 @@
+{
+    a: {
+        aa: 100
+    },
+    b: {
+        bb: "datas",
+        __type__: "array"
+    },
+    c: {
+        cc: {
+            __value__: "datas"
+        },
+        __type__: "string"
+    },
+    d: {
+        dd: {
+            __value__: "dataarray",
+        },
+        __type__: "int"
+    },
+    e: {
+        ee: {
+            __value__: "dataarray",
+            __type__: "array"
+        },
+        __type__: "float"
+    },
+    f: {
+        ff: "datas",
+        ff2: {
+            fff: {
+                ffff: 10,
+                ffff2: {
+                    __value__: "datas"
+                },
+                ffff3: {
+                    __value__: "datas",
+                    __type__: "bool"
+                },
+                ffff4: {
+                    __type__: "bool"
+                }
+            }
+        },
+    }
+}

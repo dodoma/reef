@@ -1,0 +1,19 @@
+{
+    bid: "__mr__boardid",
+    v: {
+        __value__: "video",
+        rid: "__mr__restid",
+        dids: {
+            __value__: "destids",
+            __arraynode__: "__mr__id"
+        },
+        sids: {
+            __value__: "srcids",
+            __arraynode__: {
+                xx: {
+                    xxx: "__nodevalue__"
+                }
+            }
+        }
+    }
+}

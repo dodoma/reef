@@ -1,0 +1,31 @@
+{
+    a: {
+        aa: 100,
+        __value__: "datas",
+    },
+    b: {
+        bb: 100,
+        __value__: "datas",
+        __type__: "array",
+    },
+    c: {
+        cc: 100,
+        __value__: "datas",
+        __type__: "string",
+    },
+    d: {
+        dd: 100,
+        __value__: "datas",
+        __type__: "int",
+    },
+    e: {
+        ee: 100,
+        __value__: "datas",
+        __type__: "float",
+    },
+    f: {
+        ff: 100,
+        __value__: "datas",
+        __type__: "bool",
+    }
+}

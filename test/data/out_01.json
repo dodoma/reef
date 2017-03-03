@@ -1,0 +1,12 @@
+{
+  "a": {
+    "xxx": "foo",
+    "yyy": "bar"
+  },
+  "b": [
+    "foo",
+    "bar"
+  ],
+  "f": true,
+  "g": false
+}

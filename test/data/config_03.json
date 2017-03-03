@@ -1,0 +1,29 @@
+{
+    a: {
+        __value__: "datab"
+    },
+    b: {
+        __type__: "array",
+        __value__: "datab"
+    },
+    c: {
+        __type__: "string",
+        __value__: "datab"
+    },
+    d: {
+        __type__: "int",
+        __value__: "datab"
+    },
+    e: {
+        __type__: "float",
+        __value__: "datab"
+    },
+    f: {
+        __type__: "bool",
+        __value__: "datab"
+    },
+    g: {
+        __type__: "bool",
+        __value__: "datac"
+    }
+}

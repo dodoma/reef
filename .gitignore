@@ -13,6 +13,7 @@ gen
 .DS_Store
 *.log
 test/*
+!test/data/
 !test/*.c
 !test/*.py
 !test/*.json

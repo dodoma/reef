@@ -1,0 +1,65 @@
+{
+    a: {
+        __value__: "dataa",
+        __arraynode__: 100
+    },
+    b: {
+        __value__: "dataa",
+        __arraynode__: 100,
+        __type__: "array"
+    },
+    c: {
+        __value__: "dataa",
+        __arraynode__: 100,
+        __type__: "string"
+    },
+    d: {
+        __value__: "dataa",
+        __arraynode__: 100,
+        __type__: "int"
+    },
+    e: {
+        __value__: "dataa",
+        __arraynode__: 100,
+        __type__: "float"
+    },
+    f: {
+        __value__: "dataa",
+        __arraynode__: 100,
+        __type__: "bool"
+    },
+    g: {
+        __value__: "dataa",
+        __arraynode__: {
+            foo: {
+                __value__: "s"
+            }
+        }
+    },
+    h: {
+        __value__: "dataa",
+        __arraynode__: {
+            foo: {
+                __value__: "i"
+            }
+        }
+    },
+    i: {
+        __value__: "dataa",
+        __arraynode__: {
+            foo: {
+                __value__: "f"
+            }
+        }
+    },
+    j: {
+        __value__: "dataa",
+        __arraynode__: {
+            foo: {
+                foo: {
+                    __value__: "s"
+                }
+            }
+        }
+    },
+}

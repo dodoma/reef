@@ -375,13 +375,20 @@ void mdf_clear(MDF *node)
 
 bool mdf_equal(MDF *anode, MDF *bnode)
 {
+    float epsilon = anode->type == MDF_TYPE_FLOAT ? 1e-4: 0;
+
     if (!anode && !bnode) return true;
     if (!anode || !bnode) return false;
 
+    /*
+     * mdf_int() 初始化的空节点类型为 MDF_TYPE_UNKNOWN, json 输出使会转换成 MDF_TYPE_NULL
+     * 此处，做一个 dirty 兼容
+     */
+    if (anode->type == MDF_TYPE_UNKNOWN) anode->type = MDF_TYPE_NULL;
+    if (bnode->type == MDF_TYPE_UNKNOWN) bnode->type = MDF_TYPE_NULL;
+
     if (anode->type != bnode->type) return false;
     if (mdf_child_count(anode, NULL) != mdf_child_count(bnode, NULL)) return false;
-    if (anode->namelen != bnode->namelen ||
-        (anode->namelen != 0 && strcmp(anode->name, bnode->name))) return false;
 
     switch (anode->type) {
     case MDF_TYPE_STRING:
@@ -396,17 +403,22 @@ bool mdf_equal(MDF *anode, MDF *bnode)
         if (anode->val.n != bnode->val.n) return false;
         break;
     case MDF_TYPE_FLOAT:
-        if (anode->val.f != bnode->val.f) return false;
+        if (fabs((double)(anode->val.f - bnode->val.f)) > epsilon) return false;
         break;
     default:
         break;
     }
 
     MDF *cnode = anode->child;
+    MDF *dnode = bnode->child;
     while (cnode) {
-        if (!mdf_equal(cnode, mdf_get_node(bnode, cnode->name))) return false;
+        /* mdf 数组即为特殊key的对象, 故 anode->name 与 bnode->name 不能做相等比较 */
+        dnode = mdf_get_node(bnode, cnode->name) == NULL ? dnode: mdf_get_node(bnode, cnode->name);
+
+        if (!mdf_equal(cnode, dnode)) return false;
 
         cnode = cnode->next;
+        dnode = dnode->next;
     }
 
     return true;
@@ -637,7 +649,7 @@ void mdf_set_type(MDF *node, const char *path, MDF_TYPE type)
     err = _walk_mdf(node, path, false, &anode);
     TRACE_NOK(err);
 
-    if (!anode || anode->type != MDF_TYPE_STRING) return;
+    if (!anode || (anode->type != MDF_TYPE_STRING && anode->type != MDF_TYPE_UNKNOWN)) return;
 
     s = anode->val.s;
 
@@ -668,6 +680,42 @@ void mdf_set_type(MDF *node, const char *path, MDF_TYPE type)
 
     mos_free(s);
     anode->type = type;
+}
+
+void mdf_set_digit_type(MDF *node, const char *path, MDF_TYPE type)
+{
+    MDF *anode;
+    MERR *err;
+
+    if (!node) return;
+
+    err = _walk_mdf(node, path, false, &anode);
+    TRACE_NOK(err);
+
+    if (!anode || (anode->type != MDF_TYPE_INT &&
+                   anode->type != MDF_TYPE_FLOAT &&
+                   anode->type != MDF_TYPE_BOOL) ||
+        (type != MDF_TYPE_INT &&
+         type != MDF_TYPE_FLOAT &&
+         type != MDF_TYPE_BOOL)) return;
+
+    if (anode->type != type) {
+        anode->type = type;
+        switch (type) {
+        case MDF_TYPE_INT:
+            anode->val.n = (int) anode->val.f;
+            break;
+        case MDF_TYPE_FLOAT:
+            anode->val.f = (float) anode->val.n;
+            break;
+        case MDF_TYPE_BOOL:
+            if (anode->val.n || anode->val.f) anode->val.n = 1;
+            else anode->val.n = 0;
+            break;
+        default:
+            break;
+        }
+    }
 }
 
 void mdf_set_type_revert(MDF *node, const char *path)

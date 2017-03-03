@@ -50,6 +50,7 @@
 #include <errno.h>
 #include <ifaddrs.h>            /* getifaddrs */
 #include <netdb.h>              /* getnameinfo */
+#include <math.h>
 
 #include <pthread.h>
 

@@ -55,7 +55,7 @@ void test_file()
     MERR *err;
 
     mdf_init(&node);
-    err = mdf_json_import_file(node, "mdf.json");
+    err = mdf_json_import_file(node, "data/mdf.json");
     MTEST_ASSERT(err == MERR_OK);
 
     lena = mdf_mpack_serialize(node, buf, 102400);

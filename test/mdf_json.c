@@ -116,14 +116,14 @@ void test_file()
     MERR *err;
 
     mdf_init(&node);
-    err = mdf_json_import_file(node, "mdf.json");
+    err = mdf_json_import_file(node, "data/mdf.json");
     MTEST_ASSERT(err == MERR_OK);
 
-    err = mdf_json_export_file(node, "mdf.json.export");
+    err = mdf_json_export_file(node, "data/mdf.json.export");
     MTEST_ASSERT(err == MERR_OK);
 
     mdf_init(&nodeb);
-    err = mdf_json_import_file(nodeb, "mdf.json.export");
+    err = mdf_json_import_file(nodeb, "data/mdf.json.export");
     MTEST_ASSERT(err == MERR_OK);
 
     MTEST_ASSERT(mdf_child_count(node, NULL) == mdf_child_count(nodeb, NULL));

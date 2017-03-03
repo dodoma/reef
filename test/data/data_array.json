@@ -1,0 +1,9 @@
+{
+    boardid: 100,
+    video: {
+        restid: 2,
+        title: "闺密争抢土豪现场痛苦",
+        destids: [{id: 21}, {id: 22}],
+        srcids: [11, 12]
+    }
+}
