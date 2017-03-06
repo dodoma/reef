@@ -72,6 +72,8 @@ int   mlist_index(MLIST *alist, const void *key,
 
 void  mlist_destroy(MLIST **alist);
 
+void  mlist_sort(MLIST *alist, int __F(compare)(const void *, const void*));
+
 /*
  * quick search, this will sort the list(change item's position).
  * 返回列表中内存元素的地址，而非内存元素

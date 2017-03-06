@@ -218,6 +218,14 @@ void mlist_destroy(MLIST **alist)
 }
 
 
+void mlist_sort(MLIST *alist, int __F(compare)(const void *, const void*))
+{
+    if (!alist || !compare) return;
+
+    qsort(alist->items, alist->num, sizeof(void*), compare);
+    alist->sorted = true;
+}
+
 void* mlist_search(MLIST *alist, const void *key,
                    int __F(compare)(const void*, const void*))
 {

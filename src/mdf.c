@@ -1033,11 +1033,40 @@ MDF* mdf_node_child(MDF *node)
 }
 
 
-MDF* mdf_sort_node(MDF *node, int __F(compare)(const void*, const void*))
+void mdf_sort_node(MDF *node, int __F(compare)(const void*, const void*))
 {
-    /* TODO sort */
+    if (!node || !node->child || !compare) return;
 
-    return node;
+    MLIST *alist;
+
+    mlist_init(&alist, NULL);
+
+    MDF *cnode = node->child;
+    while (cnode) {
+        mlist_append(alist, cnode);
+        cnode = cnode->next;
+    }
+
+    mlist_sort(alist, compare);
+
+    MDF *pnode, *xnode;
+    MLIST_ITERATE(alist, xnode) {
+        xnode->next = NULL;
+
+        if (_moon_i == 0) {
+            node->child = pnode = xnode;
+        } else {
+            pnode->next = xnode;;
+        }
+
+        if (_moon_i == mlist_length(alist) - 1) {
+            node->last_child = xnode;
+        }
+
+        pnode = xnode;
+    }
+
+    mlist_destroy(&alist);
 }
 
 
