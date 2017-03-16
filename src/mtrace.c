@@ -1,5 +1,7 @@
 #include "reef.h"
 
+#if defined(MOS_LINUX) || defined(MOS_OSX)
+
 /* 默认日志级别: debug */
 #define MTC_DEFAULT_LEVEL    5
 
@@ -133,3 +135,5 @@ bool mtc_msg(const char *func, const char *file, long line, MTC_LEVEL level,
 
     return true;
 }
+
+#endif  /* MOS_LINUX || MOS_OSX */

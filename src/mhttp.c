@@ -1,13 +1,13 @@
 #include "reef.h"
 
-char* mhttp_url_unescape(char *s, int buflen, char esc_char)
+char* mhttp_url_unescape(char *s, size_t buflen, char esc_char)
 {
-    int i = 0, o = 0;
+    size_t i = 0, o = 0;
 
     if (s == NULL) return s;
 
     while (i < buflen) {
-        if (s[i] == esc_char && (i+2 < buflen) && isxdigit(s[i+1]) && isxdigit(s[i+2])) {
+        if (s[i] == esc_char && (i+2 < buflen) && isxdigit((int)s[i+1]) && isxdigit((int)s[i+2])) {
             uint8_t num;
             num = (s[i+1] >= 'A') ? ((s[i+1] & 0xdf) - 'A') + 10 : (s[i+1] - '0');
             num *= 16;

@@ -1,7 +1,5 @@
 #!/bin/bash
 
-PATH=/usr/local/bin:/usr/local/sbin:/bin:/usr/bin:/usr/sbin
-
 useage()
 {
    echo "useage: $0 -m METHOD DIRS"

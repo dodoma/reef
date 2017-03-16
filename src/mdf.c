@@ -154,7 +154,8 @@ static MERR* _walk_mdf(MDF *node, const char *path, bool create, MDF **rnode)
                 mlist_append(indexname_list, (void*)index);
             } else {
                 /* process RAW_NAME */
-                if (*pos == '_' || *pos == '$' || isalnum(*pos) || *(unsigned char*)pos > 127) {
+                if (*(unsigned char*)pos == '_' || *(unsigned char*)pos == '$' ||
+                    isalnum(*(unsigned char*)pos) || *(unsigned char*)pos > 127) {
                     if (mlist_length(indexname_list) > 0) goto format_error;
 
                     if (!start) start = pos;
@@ -291,7 +292,7 @@ MERR* mdf_init(MDF **node)
 
     *node = lnode;
 
-    MDF_VALUE_UNKNOWN();
+    MDF_RESTRICT();
 
     return MERR_OK;
 }

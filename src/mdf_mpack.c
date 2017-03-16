@@ -719,7 +719,7 @@ size_t mdf_mpack_deserialize(MDF *node, const unsigned char *buf, size_t len)
                 AFTER_NODE_APPENDED();
             } else if (whoami == MDF_TYPE_OBJECT) {
                 mdf_init(&xnode);
-                xnode->name = strndup(name, namelen);
+                xnode->name = mstr_ndup(name, namelen);
                 xnode->namelen = namelen;
 
                 step = mdf_mpack_deserialize(xnode, pos, len - mylen);
@@ -752,7 +752,7 @@ size_t mdf_mpack_deserialize(MDF *node, const unsigned char *buf, size_t len)
                 AFTER_NODE_APPENDED();
             } else if (whoami == MDF_TYPE_OBJECT) {
                 mdf_init(&xnode);
-                xnode->name = strndup(name, namelen);
+                xnode->name = mstr_ndup(name, namelen);
                 xnode->namelen = namelen;
 
                 step = mdf_mpack_deserialize(xnode, pos, len - mylen);
@@ -788,12 +788,12 @@ size_t mdf_mpack_deserialize(MDF *node, const unsigned char *buf, size_t len)
                 if (nodetype != MDF_TYPE_STRING) goto bad_format;
             } else if (valued_time == 2) {
                 mdf_init(&xnode);
-                xnode->name = strndup(name, namelen);
+                xnode->name = mstr_ndup(name, namelen);
                 xnode->namelen = namelen;
                 xnode->type = nodetype;
 
                 if (nodetype == MDF_TYPE_STRING) {
-                    xnode->val.s = strndup(values, valuelen);
+                    xnode->val.s = mstr_ndup(values, valuelen);
                     xnode->valuelen = valuelen;
                 } else if (nodetype == MDF_TYPE_INT) {
                     xnode->val.n = valuen;
@@ -823,7 +823,7 @@ size_t mdf_mpack_deserialize(MDF *node, const unsigned char *buf, size_t len)
                 xnode->type = nodetype;
 
                 if (nodetype == MDF_TYPE_STRING) {
-                    xnode->val.s = strndup(values, valuelen);
+                    xnode->val.s = mstr_ndup(values, valuelen);
                     xnode->valuelen = valuelen;
                 } else if (nodetype == MDF_TYPE_INT) {
                     xnode->val.n = valuen;

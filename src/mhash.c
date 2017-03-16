@@ -305,7 +305,9 @@ uint32_t mhash_int_hash(const void *a)
 
 int mhash_int_comp(const void *a, const void *b)
 {
-    return a - b;
+    int ia = *(int*)a;
+    int ib = *(int*)b;
+    return ia - ib;
 }
 
 

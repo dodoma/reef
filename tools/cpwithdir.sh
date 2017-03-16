@@ -1,6 +1,6 @@
 #!/bin/sh
 
-PATH=/usr/local/bin:/usr/local/sbin:/bin:/usr/bin:/usr/sbin
+#PATH=/usr/local/bin:/usr/local/sbin:/bin:/usr/bin:/usr/sbin
 
 useage()
 {

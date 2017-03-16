@@ -1,5 +1,7 @@
 #include "reef.h"
 
+#if defined(MOS_LINUX) || defined(MOS_OSX)
+
 /* 默认日志级别: debug */
 #define MTC_DEFAULT_LEVEL    5
 
@@ -28,9 +30,9 @@ static int m_num = 0;
 
 static inline uint32_t _get_tid()
 {
-#if defined(__linux__)
+#if defined(MOS_LINUX)
     return syscall(__NR_gettid);
-#elif defined(__MACH__)
+#elif defined(MOS_OSX) || defined(MOS_ESP)
     uint64_t id;
     pthread_threadid_np(NULL, &id);
     return id;
@@ -210,3 +212,5 @@ bool mtc_mt_msg(const char *func, const char *file, long line, MTC_LEVEL level,
 
     return true;
 }
+
+#endif  /* MOS_LINUX || MOS_OSX */

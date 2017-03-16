@@ -14,7 +14,8 @@ __BEGIN_DECLS
  * ======================
  */
 /* strip will modify input string. make sure s is modifiable (not const) */
-char* mstr_strip (char *s, char n);
+char* mstr_strip(char *s, char n);
+char* mstr_ndup(const char *s, size_t n);
 
 
 /*

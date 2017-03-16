@@ -38,11 +38,19 @@ uint32_t mos_rand(uint32_t max)
     static bool inited = false;
 
     if (!inited) {
-        srand48(time(NULL));
         inited = true;
+#if defined(MOS_ESP)
+        srand(time(NULL));
+#else
+        srand48(time(NULL));
+#endif
     }
 
+#if defined(MOS_ESP)
+    return rand() * max;
+#else
     return drand48() * max;
+#endif
 }
 
 double mos_timef()

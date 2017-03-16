@@ -218,19 +218,19 @@ static inline void _add_pair_fixtype(MDF *node, char *name, char *value,
     MDF *xnode;
 
     mdf_init(&xnode);
-    xnode->name = strndup(name, namelen);
+    xnode->name = mstr_ndup(name, namelen);
     xnode->namelen = namelen;
     xnode->type = nodetype;
 
     if (nodetype == MDF_TYPE_STRING) {
-        xnode->val.s = strndup(value, valuelen);
+        xnode->val.s = mstr_ndup(value, valuelen);
         xnode->valuelen = valuelen;
     } else if (nodetype == MDF_TYPE_INT) {
-        char *s = strndup(value, valuelen);
+        char *s = mstr_ndup(value, valuelen);
         xnode->val.n = strtoll(s, NULL, 10);
         mos_free(s);
     } else if (nodetype == MDF_TYPE_FLOAT) {
-        char *s = strndup(value, valuelen);
+        char *s = mstr_ndup(value, valuelen);
         xnode->val.f = strtof(s, NULL);
         mos_free(s);
     }
@@ -245,7 +245,7 @@ static inline MERR* _add_pair_unknowntype(MDF *node, char *name, char *value,
     MDF *xnode;
 
     mdf_init(&xnode);
-    xnode->name = strndup(name, namelen);
+    xnode->name = mstr_ndup(name, namelen);
     xnode->namelen = namelen;
 
     if (valuelen == 4) {
@@ -293,14 +293,14 @@ static inline void _add_value_fixtype(MDF *node, char *value, int valuelen,
     xnode->type = nodetype;
 
     if (nodetype == MDF_TYPE_STRING) {
-        xnode->val.s = strndup(value, valuelen);
+        xnode->val.s = mstr_ndup(value, valuelen);
         xnode->valuelen = valuelen;
     } else if (nodetype == MDF_TYPE_INT) {
-        char *s = strndup(value, valuelen);
+        char *s = mstr_ndup(value, valuelen);
         xnode->val.n = strtoll(s, NULL, 10);
         mos_free(s);
     } else if (nodetype == MDF_TYPE_FLOAT) {
-        char *s = strndup(value, valuelen);
+        char *s = mstr_ndup(value, valuelen);
         xnode->val.f = strtof(s, NULL);
         mos_free(s);
     }
@@ -477,7 +477,7 @@ static MERR* _import_json(MDF *node, const char *str,
             size_t childlen;
 
             mdf_init(&xnode);
-            xnode->name = strndup(name, namelen);
+            xnode->name = mstr_ndup(name, namelen);
             xnode->namelen = namelen;
 
             err = _import_json(xnode, pos, &childlen, fname, lineno);

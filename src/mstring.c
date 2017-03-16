@@ -37,6 +37,21 @@ char* mstr_strip(char *s, char n)
     return s;
 }
 
+char* mstr_ndup(const char *s, size_t n)
+{
+    if (!s || n == 0) return NULL;
+
+    char *r = malloc(n + 1);
+    if (!r) return NULL;
+
+    for (int i = 0; i < n; i++) {
+        r[i] = s[i];
+    }
+    r[n] = '\0';
+
+    return r;
+}
+
 void mstr_init(MSTR *astr)
 {
     if (!astr) return;
@@ -200,7 +215,7 @@ MERR* mstr_array_split(MLIST **alist, const char *sin, const char *sep, int max)
     }
 
     while (p && q && mlist_length(llist) < max) {
-        err = mlist_append(llist, strndup(p, q - p));
+        err = mlist_append(llist, mstr_ndup(p, q - p));
         JUMP_NOK(err, error);
 
         p = q + lensep;
@@ -229,18 +244,20 @@ char* mstr_tolower(char *s)
 {
     if (!s) return NULL;
 
-    char *r = s;
-    for ( ; *s; ++s) *s = tolower(*s);
-    return r;
+    unsigned char *p = (unsigned char*)s;
+    for ( ; *p; p++) *p = tolower(*p);
+
+    return s;
 }
 
 char* mstr_toupper(char *s)
 {
     if (!s) return NULL;
 
-    char *r = s;
-    for ( ; *s; ++s) *s = toupper(*s);
-    return r;
+    unsigned char *p = (unsigned char*)s;
+    for ( ; *p; ++p) *p = toupper(*p);
+
+    return s;
 }
 
 void mstr_bin2str(uint8_t *hexin, unsigned int inlen, char *charout)

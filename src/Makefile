@@ -1,8 +1,8 @@
 BASEDIR = ../
 include $(BASEDIR)Make.env
 
-CFLAGS += -fPIC
-LDFLAGS += -shared
+#CFLAGS += -fPIC
+#LDFLAGS += -shared
 
 SOURCES = $(wildcard *.c)
 OBJS	= $(patsubst %.c, %.o, $(SOURCES))
@@ -16,19 +16,19 @@ all: libreef.a
 $(DEPEND): $(SOURCES)
 	@$(CC) $(CFLAGS) $(INCS) -MM $^ > $@
 
-libreef.so:$(OBJS) $(DEPEND)
-	@echo "CFLAGS="$(CFLAGS);
-	@$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(OBJS)
+include $(DEPEND)
+%.o:%.c
+	@echo "$(CC) -c $<"
+	@$(CC) $(CFLAGS) $(INCS) -c $< -o $@
 
 libreef.a:$(OBJS) $(DEPEND)
 	@echo "CFLAGS="$(CFLAGS);
 	@rm -rf $@
 	$(AR) rcs $@ $(OBJS)
 
-include $(DEPEND)
-%.o:%.c
-	@echo "$(CC) -c $<"
-	@$(CC) $(CFLAGS) -c $< -o $@ $(INCS)
+libreef.so:$(OBJS) $(DEPEND)
+	@echo "CFLAGS="$(CFLAGS);
+	@$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(OBJS)
 
 clean:
 	rm -f $(OBJS) *.so *.a

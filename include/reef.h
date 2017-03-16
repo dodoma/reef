@@ -40,39 +40,21 @@
 #include <strings.h>
 #include <stdbool.h>
 #include <sys/types.h>
-#include <sys/socket.h>
 #include <sys/stat.h>
 #include <inttypes.h>
 #include <ctype.h>
 #include <limits.h>
-#include <arpa/inet.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <ifaddrs.h>            /* getifaddrs */
-#include <netdb.h>              /* getnameinfo */
 #include <math.h>
-
-#include <pthread.h>
-
-#ifdef __MACH__
-#include <mach/clock.h>
-#include <mach/mach.h>
-#include <crt_externs.h>
-#define environ (*_NSGetEnviron())
-#define MSG_NOSIGNAL SO_NOSIGPIPE
-#else
-#include <bsd/stdlib.h>         /* getprogname */
-#include <net/if.h>             /* struct ifreq */
-#include <sys/ioctl.h>          /* ioctl */
-#endif
-
 
 /*
  * reef triggerfish headers
  */
+#include "mos_linux.h"
+#include "mos_osx.h"
+#include "mos_esp.h"
 #include "mos.h"
-#include "mcolor.h"
 
+#include "mcolor.h"
 #include "mbase64.h"
 
 #include "mtype.h"

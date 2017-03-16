@@ -96,7 +96,7 @@ typedef enum {
     F_UNKNOWN
 } MPACK_FORMAT;
 
-void MDF_VALUE_UNKNOWN();
+void MDF_RESTRICT();
 void _mdf_drop_child_node(MDF *pnode, MDF *cnode);
 void _mdf_append_child_node(MDF *pnode, MDF *newnode, int current_childnum);
 

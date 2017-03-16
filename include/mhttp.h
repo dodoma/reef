@@ -10,7 +10,7 @@ __BEGIN_DECLS
  * 类似 decodeURIComponent 功能，处理http url 传参
  * 修改输入参数 s
  */
-char* mhttp_url_unescape(char *s, int buflen, char esc_char);
+char* mhttp_url_unescape(char *s, size_t buflen, char esc_char);
 
 
 __END_DECLS

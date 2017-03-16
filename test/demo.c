@@ -34,7 +34,7 @@ void suite_expression()
 int main()
 {
     for (int i = 0; i < 100000000; i++) {
-        MDF_VALUE_UNKNOWN();
+        MDF_RESTRICT();
     }
 
     mtest_add_suite(suite_basic, "basic");
