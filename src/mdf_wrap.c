@@ -268,6 +268,18 @@ bool mdf_path_existf(MDF *node, const char *fmt, ...)
     return mdf_path_exist(node, key);
 }
 
+int mdf_child_countf(MDF *node, const char *fmt, ...)
+{
+    char key[1024];
+    va_list ap;
+
+    va_start(ap, fmt);
+    vsnprintf(key, sizeof(key), fmt, ap);
+    va_end(ap);
+
+    return mdf_child_count(node, key);
+}
+
 MDF* mdf_get_nodef(MDF *node, const char *fmt, ...)
 {
     char key[1024];

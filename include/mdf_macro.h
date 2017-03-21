@@ -43,6 +43,7 @@ char*   mdf_preppend_string_valuef(MDF *node, char *str, const char *fmt, ...) A
 
 MERR* mdf_copyf(MDF *dst, MDF *src, bool overwrite, const char *fmt, ...) ATTRIBUTE_PRINTF(4, 5);
 bool  mdf_path_existf(MDF *node, const char *fmt, ...) ATTRIBUTE_PRINTF(2,3);
+int   mdf_child_countf(MDF *node, const char *fmt, ...) ATTRIBUTE_PRINTF(2,3);
 MDF*  mdf_get_nodef(MDF *node, const char *fmt, ...) ATTRIBUTE_PRINTF(2,3);
 MDF*  mdf_get_or_create_nodef(MDF *node, const char *fmt, ...) ATTRIBUTE_PRINTF(2,3);
 MERR* mdf_json_import_filef(MDF *node, const char *fmt, ...) ATTRIBUTE_PRINTF(2, 3);
