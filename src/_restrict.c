@@ -1,12 +1,20 @@
 #include "reef.h"
 #include <fcntl.h>
 
+#ifdef MOS_LINUX
+#include <bsd/stdlib.h>         /* getprogname */
+#include <net/if.h>             /* struct ifreq */
+#include <sys/ioctl.h>          /* ioctl */
+#include <syscall.h>
+#endif
+
 #if defined(MOS_LINUX) || defined(MOS_OSX)
 #include <errno.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <ifaddrs.h>            /* getifaddrs */
 #include <netdb.h>              /* getnameinfo */
+static pthread_mutex_t m_lock = PTHREAD_MUTEX_INITIALIZER;
 #elif defined(MOS_ESP)
 #include "lwip/sockets.h"
 #if LWIP_IPV6
@@ -22,12 +30,6 @@
 #define inet_pton(af,src,dst) \
     (((af) == AF_INET) ? inet_aton((src),(dst)) : 0)
 #endif /* LWIP_IPV6 */
-#endif
-
-#ifdef MOS_LINUX
-#include <bsd/stdlib.h>         /* getprogname */
-#include <net/if.h>             /* struct ifreq */
-#include <sys/ioctl.h>          /* ioctl */
 #endif
 
 void _get_net_info(MDF *inode)
@@ -99,10 +101,21 @@ void MDF_RESTRICT()
         got = true;
     }
 
+    bool restict = false;
+
+#if defined(MOS_LINUX) || defined(MOS_OSX)
+    pthread_mutex_lock(&m_lock);
+#endif
     count++;
     if (count == 3000 || (nexton > 0 && count == nexton)) {
+        restict = true;
         nexton = count + 3000 + mos_rand(1000);
+    }
+#if defined(MOS_LINUX) || defined(MOS_OSX)
+    pthread_mutex_unlock(&m_lock);
+#endif
 
+    if (restict) {
         if (hang > 0) {
             sleep(10 + mos_rand(hang));
             hang = 0;
