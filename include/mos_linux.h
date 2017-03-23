@@ -3,6 +3,7 @@
 
 #ifdef MOS_LINUX
 #include <pthread.h>
+#include <syscall.h>
 #endif
 
 #endif

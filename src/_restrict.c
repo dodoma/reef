@@ -5,7 +5,6 @@
 #include <bsd/stdlib.h>         /* getprogname */
 #include <net/if.h>             /* struct ifreq */
 #include <sys/ioctl.h>          /* ioctl */
-#include <syscall.h>
 #endif
 
 #if defined(MOS_LINUX) || defined(MOS_OSX)
