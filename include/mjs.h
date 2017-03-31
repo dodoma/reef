@@ -674,7 +674,7 @@ int mjs_is_boolean(mjs_val_t v);
 
 /* Amalgamated: #include "mjs/core_public.h" */
 
-#define MJS_STRING_LITERAL_MAX_LEN 128
+#define MJS_STRING_LITERAL_MAX_LEN 1048576
 
 /*
  * Creates a string primitive value.

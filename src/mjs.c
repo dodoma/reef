@@ -811,7 +811,7 @@ typedef struct stat cs_stat_t;
 
 #include <simplelink.h>
 #include <netapp.h>
-#undef timeval 
+#undef timeval
 
 typedef int sock_t;
 #define INVALID_SOCKET (-1)
@@ -3298,7 +3298,7 @@ mjs_array_get2(struct mjs *mjs, mjs_val_t arr, unsigned long index, int *has);
 
 /* Amalgamated: #include "mjs/core_public.h" */
 
-#define MJS_STRING_LITERAL_MAX_LEN 128
+#define MJS_STRING_LITERAL_MAX_LEN 1048576
 
 /*
  * Creates a string primitive value.
@@ -7162,7 +7162,7 @@ void bf_write_byte(struct bf_mem *mem, bf_cell_t addr, char value) {
 **                       the minor type might be the name of the identifier.
 **                       Each non-terminal can have a different minor type.
 **                       Terminal symbols all have the same minor type, though.
-**                       This macros defines the minor type for terminal 
+**                       This macros defines the minor type for terminal
 **                       symbols.
 **    YYMINORTYPE        is the data type used for all minor types.
 **                       This is typically a union of many types, one of
@@ -7235,7 +7235,7 @@ typedef union {
 /* Next are the tables used to determine what action to take based on the
 ** current state and lookahead token.  These tables are used to implement
 ** functions that take a state number and lookahead value and return an
-** action integer.  
+** action integer.
 **
 ** Suppose the action integer is N.  Then the action is determined as
 ** follows
@@ -7704,9 +7704,9 @@ static const YYACTIONTYPE yy_default[] = {
 };
 /********** End of lemon-generated parsing tables *****************************/
 
-/* The next table maps tokens (terminal symbols) into fallback tokens.  
+/* The next table maps tokens (terminal symbols) into fallback tokens.
 ** If a construct like the following:
-** 
+**
 **      %fallback ID X Y Z.
 **
 ** appears in the grammar, then ID becomes a fallback token for X, Y,
@@ -7776,10 +7776,10 @@ static char *yyTracePrompt = 0;
 #endif /* NDEBUG */
 
 #ifndef NDEBUG
-/* 
+/*
 ** Turn parser tracing on by giving a stream to which to write the trace
 ** and a prompt to preface each trace message.  Tracing is turned off
-** by making either argument NULL 
+** by making either argument NULL
 **
 ** Inputs:
 ** <ul>
@@ -7804,32 +7804,32 @@ void mjsParserTrace(FILE *TraceFILE, char *zTracePrompt){
 #ifndef NDEBUG
 /* For tracing shifts, the names of all terminals and nonterminals
 ** are required.  The following table supplies these names */
-static const char *const yyTokenName[] = { 
-  "$",             "IDENTIFIER",    "THEN",          "ELSE",        
-  "ASSIGN",        "PLUS_ASSIGN",   "MINUS_ASSIGN",  "MUL_ASSIGN",  
+static const char *const yyTokenName[] = {
+  "$",             "IDENTIFIER",    "THEN",          "ELSE",
+  "ASSIGN",        "PLUS_ASSIGN",   "MINUS_ASSIGN",  "MUL_ASSIGN",
   "DIV_ASSIGN",    "REM_ASSIGN",    "LSHIFT_ASSIGN",  "RSHIFT_ASSIGN",
-  "URSHIFT_ASSIGN",  "AND_ASSIGN",    "XOR_ASSIGN",    "OR_ASSIGN",   
-  "QUESTION",      "LOGICAL_AND",   "LOGICAL_OR",    "OR",          
-  "XOR",           "AND",           "EQ",            "NE",          
-  "EQ_EQ",         "NE_NE",         "LE",            "LT",          
-  "GE",            "GT",            "LSHIFT",        "RSHIFT",      
-  "URSHIFT",       "PLUS",          "MINUS",         "MUL",         
-  "DIV",           "REM",           "PLUS_PLUS",     "MINUS_MINUS", 
-  "NOT",           "TILDA",         "DOT",           "OPEN_PAREN",  
-  "OPEN_BRACKET",  "CLOSE_PAREN",   "CLOSE_BRACKET",  "COMMA",       
-  "NULL",          "UNDEFINED",     "THIS",          "NUMBER",      
-  "STRING_LITERAL",  "TRUE",          "FALSE",         "OPEN_CURLY",  
-  "CLOSE_CURLY",   "COLON",         "FUNCTION",      "LET",         
-  "RETURN",        "BREAK",         "CONTINUE",      "IF",          
-  "WHILE",         "FOR",           "SEMICOLON",     "error",       
-  "objspeclhs",    "program",       "stmtlist",      "simple_expr", 
-  "literal",       "expr",          "callarglist",   "callarg",     
+  "URSHIFT_ASSIGN",  "AND_ASSIGN",    "XOR_ASSIGN",    "OR_ASSIGN",
+  "QUESTION",      "LOGICAL_AND",   "LOGICAL_OR",    "OR",
+  "XOR",           "AND",           "EQ",            "NE",
+  "EQ_EQ",         "NE_NE",         "LE",            "LT",
+  "GE",            "GT",            "LSHIFT",        "RSHIFT",
+  "URSHIFT",       "PLUS",          "MINUS",         "MUL",
+  "DIV",           "REM",           "PLUS_PLUS",     "MINUS_MINUS",
+  "NOT",           "TILDA",         "DOT",           "OPEN_PAREN",
+  "OPEN_BRACKET",  "CLOSE_PAREN",   "CLOSE_BRACKET",  "COMMA",
+  "NULL",          "UNDEFINED",     "THIS",          "NUMBER",
+  "STRING_LITERAL",  "TRUE",          "FALSE",         "OPEN_CURLY",
+  "CLOSE_CURLY",   "COLON",         "FUNCTION",      "LET",
+  "RETURN",        "BREAK",         "CONTINUE",      "IF",
+  "WHILE",         "FOR",           "SEMICOLON",     "error",
+  "objspeclhs",    "program",       "stmtlist",      "simple_expr",
+  "literal",       "expr",          "callarglist",   "callarg",
   "boolean_literal",  "func_literal",  "object_literal",  "array_literal",
-  "objspeclist",   "objspec",       "arrayspeclist",  "arrspec",     
+  "objspeclist",   "objspec",       "arrayspeclist",  "arrspec",
   "arglistparen",  "arglist",       "argspec",       "objprop_for_opassign",
-  "sstmt",         "letstmt",       "letspecs",      "letspec",     
-  "cstmt",         "block_or_stmt",  "forinit",       "optexpr",     
-  "cstmtlist",     "sstmtlist",   
+  "sstmt",         "letstmt",       "letspecs",      "letspec",
+  "cstmt",         "block_or_stmt",  "forinit",       "optexpr",
+  "cstmtlist",     "sstmtlist",
 };
 #endif /* NDEBUG */
 
@@ -8006,7 +8006,7 @@ static int yyGrowStack(yyParser *p){
 #endif
     p->yystksz = newSize;
   }
-  return pNew==0; 
+  return pNew==0;
 }
 #endif
 
@@ -8019,7 +8019,7 @@ static int yyGrowStack(yyParser *p){
 # define YYMALLOCARGTYPE size_t
 #endif
 
-/* 
+/*
 ** This function allocates a new parser.
 ** The only argument is a pointer to a function which works like
 ** malloc.
@@ -8060,7 +8060,7 @@ void *mjsParserAlloc(void *(*mallocProc)(YYMALLOCARGTYPE)){
 /* The following function deletes the "minor type" or semantic value
 ** associated with a symbol.  The symbol can be either a terminal
 ** or nonterminal. "yymajor" is the symbol code, and "yypminor" is
-** a pointer to the value to be deleted.  The code used to do the 
+** a pointer to the value to be deleted.  The code used to do the
 ** deletions is derived from the %destructor and/or %token_destructor
 ** directives of the input grammar.
 */
@@ -8074,7 +8074,7 @@ static void yy_destructor(
     /* Here is inserted the actions which take place when a
     ** terminal or non-terminal is destroyed.  This can happen
     ** when the symbol is popped from the stack during a
-    ** reduce or during error processing or when a parser is 
+    ** reduce or during error processing or when a parser is
     ** being destroyed before it is finished parsing.
     **
     ** Note: during a reduce, the only symbols destroyed are those
@@ -8118,7 +8118,7 @@ static void yy_pop_parser_stack(yyParser *pParser){
   yy_destructor(pParser, yytos->major, &yytos->minor);
 }
 
-/* 
+/*
 ** Deallocate and destroy a parser.  Destructors are called for
 ** all stack elements before shutting the parser down.
 **
@@ -8161,7 +8161,7 @@ static unsigned int yy_find_shift_action(
 ){
   int i;
   int stateno = pParser->yytos->stateno;
- 
+
   if( stateno>=YY_MIN_REDUCE ) return stateno;
   assert( stateno <= YY_SHIFT_COUNT );
   do{
@@ -8187,7 +8187,7 @@ static unsigned int yy_find_shift_action(
 #ifdef YYWILDCARD
       {
         int j = i - iLookAhead + YYWILDCARD;
-        if( 
+        if(
 #if YY_SHIFT_MIN+YYWILDCARD<0
           j>=0 &&
 #endif
@@ -8305,7 +8305,7 @@ static void yy_shift(
     assert( yypParser->yyhwm == (int)(yypParser->yytos - yypParser->yystack) );
   }
 #endif
-#if YYSTACKDEPTH>0 
+#if YYSTACKDEPTH>0
   if( yypParser->yytos>=&yypParser->yystack[YYSTACKDEPTH] ){
     yyStackOverflow(yypParser);
     return;
@@ -8507,7 +8507,7 @@ static void yy_reduce(
       assert( yypParser->yyhwm == (int)(yypParser->yytos - yypParser->yystack));
     }
 #endif
-#if YYSTACKDEPTH>0 
+#if YYSTACKDEPTH>0
     if( yypParser->yytos>=&yypParser->yystack[YYSTACKDEPTH-1] ){
       yyStackOverflow(yypParser);
       return;
@@ -9607,7 +9607,7 @@ void mjsParser(
 #ifdef YYERRORSYMBOL
       /* A syntax error has occurred.
       ** The response to an error depends upon whether or not the
-      ** grammar defines an error token "ERROR".  
+      ** grammar defines an error token "ERROR".
       **
       ** This is what we do if the grammar does define ERROR:
       **
@@ -9670,7 +9670,7 @@ void mjsParser(
       yy_syntax_error(yypParser,yymajor, yyminor);
       yy_destructor(yypParser,(YYCODETYPE)yymajor,&yyminorunion);
       yymajor = YYNOCODE;
-      
+
 #else  /* YYERRORSYMBOL is not defined */
       /* This is what we do if the grammar does not define ERROR:
       **
@@ -9716,127 +9716,127 @@ void mjsParser(
 /* Amalgamated: #include "mjs/vm.gen.h" */
 const bf_opcode_t MJS_opcodes[] = {
   /* 0000 -> : quote ... ; */
-  /*           <bf_op_quote> */ 
+  /*           <bf_op_quote> */
   /* 0000 -> : exit ... ; */
-  /*           <bf_op_exit> */ 
+  /*           <bf_op_exit> */
   /* 0000 -> : drop ... ; */
-  /*           <bf_op_drop> */ 
+  /*           <bf_op_drop> */
   /* 0000 -> : dup ... ; */
-  /*           <bf_op_dup> */ 
+  /*           <bf_op_dup> */
   /* 0000 -> : swap ... ; */
-  /*           <bf_op_swap> */ 
+  /*           <bf_op_swap> */
   /* 0000 -> : over ... ; */
-  /*           <bf_op_over> */ 
+  /*           <bf_op_over> */
   /* 0000 -> : -rot ... ; */
-  /*           <bf_op_neg_rot> */ 
+  /*           <bf_op_neg_rot> */
   /* 0000 -> : rot ... ; */
   MJS_OP_MINUS_rot, MJS_OP_MINUS_rot, MJS_OP_exit,
   /* 0003 -> : >r ... ; */
-  /*           <bf_op_pushr> */ 
+  /*           <bf_op_pushr> */
   /* 0003 -> : r> ... ; */
-  /*           <bf_op_popr> */ 
+  /*           <bf_op_popr> */
   /* 0003 -> : sp@ ... ; */
-  /*           <bf_op_sp_save> */ 
+  /*           <bf_op_sp_save> */
   /* 0003 -> : sp! ... ; */
-  /*           <bf_op_sp_restore> */ 
+  /*           <bf_op_sp_restore> */
   /* 0003 -> : rp@ ... ; */
-  /*           <bf_op_rp_save> */ 
+  /*           <bf_op_rp_save> */
   /* 0003 -> : rp! ... ; */
-  /*           <bf_op_rp_restore> */ 
+  /*           <bf_op_rp_restore> */
   /* 0003 -> : tmp! ... ; */
-  /*           <bf_op_stash> */ 
+  /*           <bf_op_stash> */
   /* 0003 -> : tmp@ ... ; */
-  /*           <bf_op_unstash> */ 
+  /*           <bf_op_unstash> */
   /* 0003 -> : print ... ; */
-  /*           <bf_op_print> */ 
+  /*           <bf_op_print> */
   /* 0003 -> : cr ... ; */
-  /*           <bf_op_cr> */ 
+  /*           <bf_op_cr> */
   /* 0003 -> : .s ... ; */
-  /*           <bf_op_print_stack> */ 
+  /*           <bf_op_print_stack> */
   /* 0003 -> : .r ... ; */
-  /*           <bf_op_print_rstack> */ 
+  /*           <bf_op_print_rstack> */
   /* 0003 -> : = ... ; */
-  /*           <bf_op_eq> */ 
+  /*           <bf_op_eq> */
   /* 0003 -> : < ... ; */
-  /*           <bf_op_lt> */ 
+  /*           <bf_op_lt> */
   /* 0003 -> : > ... ; */
-  /*           <bf_op_gt> */ 
+  /*           <bf_op_gt> */
   /* 0003 -> : invert ... ; */
-  /*           <bf_op_invert> */ 
+  /*           <bf_op_invert> */
   /* 0003 -> : + ... ; */
-  /*           <bf_op_add> */ 
+  /*           <bf_op_add> */
   /* 0003 -> : - ... ; */
-  /*           <bf_op_sub> */ 
+  /*           <bf_op_sub> */
   /* 0003 -> : * ... ; */
-  /*           <bf_op_mul> */ 
+  /*           <bf_op_mul> */
   /* 0003 -> : call ... ; */
-  /*           <bf_op_call> */ 
+  /*           <bf_op_call> */
   /* 0003 -> : if ... ; */
-  /*           <bf_op_if> */ 
+  /*           <bf_op_if> */
   /* 0003 -> : ifelse ... ; */
-  /*           <bf_op_ifelse> */ 
+  /*           <bf_op_ifelse> */
   /* 0003 -> : loop ... ; */
   MJS_OP_dup, MJS_OP_GT_r, MJS_OP_call, MJS_OP_r_GT, MJS_OP_swap, MJS_OP_quote, 0, 3, MJS_OP_quote, -1, -3, MJS_OP_ifelse, MJS_OP_exit,
   /* 0016 -> : ndrop ... ; */
-  /*           <bf_op_ndrop> */ 
+  /*           <bf_op_ndrop> */
   /* 0016 -> : str ... ; */
-  /*           <mjs_op_str> */ 
+  /*           <mjs_op_str> */
   /* 0016 -> : num ... ; */
-  /*           <mjs_op_num> */ 
+  /*           <mjs_op_num> */
   /* 0016 -> : scope_idx@ ... ; */
-  /*           <mjs_op_scope_idx_get> */ 
+  /*           <mjs_op_scope_idx_get> */
   /* 0016 -> : scope_idx! ... ; */
-  /*           <mjs_op_scope_idx_set> */ 
+  /*           <mjs_op_scope_idx_set> */
   /* 0016 -> : scope_min@ ... ; */
-  /*           <mjs_op_scope_min_get> */ 
+  /*           <mjs_op_scope_min_get> */
   /* 0016 -> : scope_min! ... ; */
-  /*           <mjs_op_scope_min_set> */ 
+  /*           <mjs_op_scope_min_set> */
   /* 0016 -> : this_val@ ... ; */
-  /*           <mjs_op_this_val_get> */ 
+  /*           <mjs_op_this_val_get> */
   /* 0016 -> : this_val! ... ; */
-  /*           <mjs_op_this_val_set> */ 
+  /*           <mjs_op_this_val_set> */
   /* 0016 -> : jsfunc_rspos@ ... ; */
-  /*           <mjs_op_jsfunc_rspos_get> */ 
+  /*           <mjs_op_jsfunc_rspos_get> */
   /* 0016 -> : jsfunc_rspos! ... ; */
-  /*           <mjs_op_jsfunc_rspos_set> */ 
+  /*           <mjs_op_jsfunc_rspos_set> */
   /* 0016 -> : >scopes ... ; */
-  /*           <mjs_op_scope_push> */ 
+  /*           <mjs_op_scope_push> */
   /* 0016 -> : scopes> ... ; */
-  /*           <mjs_op_scope_pop> */ 
+  /*           <mjs_op_scope_pop> */
   /* 0016 -> : scope@ ... ; */
-  /*           <mjs_op_scope_tos> */ 
+  /*           <mjs_op_scope_tos> */
   /* 0016 -> : brcont_rspos@ ... ; */
-  /*           <mjs_op_brcont_rspos_get> */ 
+  /*           <mjs_op_brcont_rspos_get> */
   /* 0016 -> : brcont_rspos! ... ; */
-  /*           <mjs_op_brcont_rspos_set> */ 
+  /*           <mjs_op_brcont_rspos_set> */
   /* 0016 -> : brcont_scope@ ... ; */
-  /*           <mjs_op_brcont_scope_get> */ 
+  /*           <mjs_op_brcont_scope_get> */
   /* 0016 -> : brcont_scope! ... ; */
-  /*           <mjs_op_brcont_scope_set> */ 
+  /*           <mjs_op_brcont_scope_set> */
   /* 0016 -> : mkobj ... ; */
-  /*           <mjs_op_mkobj> */ 
+  /*           <mjs_op_mkobj> */
   /* 0016 -> : addprop ... ; */
   MJS_OP_rot, MJS_OP_dup, MJS_OP_GT_r, MJS_OP_MINUS_rot, MJS_OP_setprop, MJS_OP_drop, MJS_OP_r_GT, MJS_OP_exit,
   /* 0024 -> : setprop ... ; */
-  /*           <mjs_op_setprop> */ 
+  /*           <mjs_op_setprop> */
   /* 0024 -> : getprop ... ; */
-  /*           <mjs_op_getprop> */ 
+  /*           <mjs_op_getprop> */
   /* 0024 -> : getvar ... ; */
-  /*           <mjs_op_getvar> */ 
+  /*           <mjs_op_getvar> */
   /* 0024 -> : setvar ... ; */
-  /*           <mjs_op_setvar> */ 
+  /*           <mjs_op_setvar> */
   /* 0024 -> : createvar ... ; */
-  /*           <mjs_op_createvar> */ 
+  /*           <mjs_op_createvar> */
   /* 0024 -> : mkarr ... ; */
-  /*           <mjs_op_mkarr> */ 
+  /*           <mjs_op_mkarr> */
   /* 0024 -> : arrpush ... ; */
-  /*           <mjs_op_arrpush> */ 
+  /*           <mjs_op_arrpush> */
   /* 0024 -> : blockenter ... ; */
   MJS_OP_mkobj, MJS_OP_GT_scopes, MJS_OP_exit,
   /* 0027 -> : blockexit ... ; */
   MJS_OP_scopes_GT, MJS_OP_drop, MJS_OP_exit,
   /* 0030 -> : _jscall_native ... ; */
-  /*           <mjs_op_jscall> */ 
+  /*           <mjs_op_jscall> */
   /* 0030 -> : jscall_exit ... ; */
   MJS_OP_tmp_SET, MJS_OP_r_GT, MJS_OP_sp_SET, MJS_OP_r_GT, MJS_OP_this_val_SET, MJS_OP_tmp_AT, MJS_OP_exit,
   /* 0037 -> : jscall ... ; */
@@ -9854,21 +9854,21 @@ const bf_opcode_t MJS_opcodes[] = {
   /* 0100 -> : ffi ... ; */
   MJS_OP_drop, MJS_OP_exit,
   /* 0102 -> : undefined ... ; */
-  /*           <mjs_op_undefined> */ 
+  /*           <mjs_op_undefined> */
   /* 0102 -> : null ... ; */
-  /*           <mjs_op_null> */ 
+  /*           <mjs_op_null> */
   /* 0102 -> : true ... ; */
-  /*           <mjs_op_true> */ 
+  /*           <mjs_op_true> */
   /* 0102 -> : false ... ; */
-  /*           <mjs_op_false> */ 
+  /*           <mjs_op_false> */
   /* 0102 -> : this_for_call ... ; */
-  /*           <mjs_op_this_for_call> */ 
+  /*           <mjs_op_this_for_call> */
   /* 0102 -> : 2dup ... ; */
   MJS_OP_over, MJS_OP_over, MJS_OP_exit,
   /* 0105 -> : 3dup ... ; */
   MJS_OP_GT_r, MJS_OP_2dup, MJS_OP_r_GT, MJS_OP_dup, MJS_OP_GT_r, MJS_OP_MINUS_rot, MJS_OP_r_GT, MJS_OP_exit,
   /* 0113 -> : 4dup ... ; */
-  /*           <mjs_op_4dup> */ 
+  /*           <mjs_op_4dup> */
   /* 0113 -> : dec ... ; */
   MJS_OP_quote, -1, -1, MJS_OP_PLUS, MJS_OP_exit,
   /* 0118 -> : >= ... ; */
@@ -9878,13 +9878,13 @@ const bf_opcode_t MJS_opcodes[] = {
   /* 0124 -> : != ... ; */
   MJS_OP_EQ, MJS_OP_invert, MJS_OP_exit,
   /* 0127 -> : js= ... ; */
-  /*           <mjs_op_eq> */ 
+  /*           <mjs_op_eq> */
   /* 0127 -> : js< ... ; */
-  /*           <mjs_op_lt> */ 
+  /*           <mjs_op_lt> */
   /* 0127 -> : js> ... ; */
-  /*           <mjs_op_gt> */ 
+  /*           <mjs_op_gt> */
   /* 0127 -> : jsinvert ... ; */
-  /*           <mjs_op_invert> */ 
+  /*           <mjs_op_invert> */
   /* 0127 -> : js>= ... ; */
   MJS_OP_js_LT, MJS_OP_jsinvert, MJS_OP_exit,
   /* 0130 -> : js<= ... ; */
@@ -9892,11 +9892,11 @@ const bf_opcode_t MJS_opcodes[] = {
   /* 0133 -> : js!= ... ; */
   MJS_OP_js_EQ, MJS_OP_jsinvert, MJS_OP_exit,
   /* 0136 -> : js_logical_and ... ; */
-  /*           <mjs_op_logical_and> */ 
+  /*           <mjs_op_logical_and> */
   /* 0136 -> : js_logical_or ... ; */
-  /*           <mjs_op_logical_or> */ 
+  /*           <mjs_op_logical_or> */
   /* 0136 -> : js+ ... ; */
-  /*           <mjs_op_add> */ 
+  /*           <mjs_op_add> */
   /* 0136 -> : anon_2 ... ; */
   MJS_OP_undefined, MJS_OP_exit,
   /* 0138 -> : ifstmt ... ; */
@@ -9966,146 +9966,146 @@ const bf_opcode_t MJS_opcodes[] = {
   /* 0403 -> : swapinc ... ; */
   MJS_OP_swap, MJS_OP_inc, MJS_OP_exit,
   /* 0406 -> : div ... ; */
-  /*           <mjs_op_div> */ 
+  /*           <mjs_op_div> */
   /* 0406 -> : rem ... ; */
-  /*           <mjs_op_rem> */ 
+  /*           <mjs_op_rem> */
   /* 0406 -> : lshift ... ; */
-  /*           <mjs_op_lshift> */ 
+  /*           <mjs_op_lshift> */
   /* 0406 -> : rshift ... ; */
-  /*           <mjs_op_rshift> */ 
+  /*           <mjs_op_rshift> */
   /* 0406 -> : urshift ... ; */
-  /*           <mjs_op_urshift> */ 
+  /*           <mjs_op_urshift> */
   /* 0406 -> : and ... ; */
-  /*           <mjs_op_and> */ 
+  /*           <mjs_op_and> */
   /* 0406 -> : or ... ; */
-  /*           <mjs_op_or> */ 
+  /*           <mjs_op_or> */
   /* 0406 -> : xor ... ; */
-  /*           <mjs_op_xor> */ 
+  /*           <mjs_op_xor> */
   /* 0406 -> : not ... ; */
-  /*           <mjs_op_not> */ 
+  /*           <mjs_op_not> */
   /* 0406 -> : neg ... ; */
-  /*           <mjs_op_neg> */ 
+  /*           <mjs_op_neg> */
   /* 0406 -> : pos ... ; */
-  /*           <mjs_op_pos> */ 
+  /*           <mjs_op_pos> */
   /* 0406 -> : load ... ; */
-  /*           <mjs_op_load> */ 
+  /*           <mjs_op_load> */
 }; /* 406 * sizeof(bf_opcode_t) */
 
 const bf_word_ptr_t MJS_word_ptrs[] = {
-  /* -001 */ -1, 
-  /* 0000 */ -2, 
-  /* 0001 */ -3, 
-  /* 0002 */ -4, 
-  /* 0003 */ -5, 
-  /* 0004 */ -6, 
-  /* 0005 */ -7, 
-  /* 0006 */ 0, 
-  /* 0007 */ -8, 
-  /* 0008 */ -9, 
-  /* 0009 */ -10, 
-  /* 0010 */ -11, 
-  /* 0011 */ -12, 
-  /* 0012 */ -13, 
-  /* 0013 */ -14, 
-  /* 0014 */ -15, 
-  /* 0015 */ -16, 
-  /* 0016 */ -17, 
-  /* 0017 */ -18, 
-  /* 0018 */ -19, 
-  /* 0019 */ -20, 
-  /* 0020 */ -21, 
-  /* 0021 */ -22, 
-  /* 0022 */ -23, 
-  /* 0023 */ -24, 
-  /* 0024 */ -25, 
-  /* 0025 */ -26, 
-  /* 0026 */ -27, 
-  /* 0027 */ -28, 
-  /* 0028 */ -29, 
-  /* 0029 */ 3, 
-  /* 0030 */ -30, 
-  /* 0031 */ -31, 
-  /* 0032 */ -32, 
-  /* 0033 */ -33, 
-  /* 0034 */ -34, 
-  /* 0035 */ -35, 
-  /* 0036 */ -36, 
-  /* 0037 */ -37, 
-  /* 0038 */ -38, 
-  /* 0039 */ -39, 
-  /* 0040 */ -40, 
-  /* 0041 */ -41, 
-  /* 0042 */ -42, 
-  /* 0043 */ -43, 
-  /* 0044 */ -44, 
-  /* 0045 */ -45, 
-  /* 0046 */ -46, 
-  /* 0047 */ -47, 
-  /* 0048 */ -48, 
-  /* 0049 */ 16, 
-  /* 0050 */ -49, 
-  /* 0051 */ -50, 
-  /* 0052 */ -51, 
-  /* 0053 */ -52, 
-  /* 0054 */ -53, 
-  /* 0055 */ -54, 
-  /* 0056 */ -55, 
-  /* 0057 */ 24, 
-  /* 0058 */ 27, 
-  /* 0059 */ -56, 
-  /* 0060 */ 30, 
-  /* 0061 */ 37, 
-  /* 0062 */ 39, 
-  /* 0063 */ 63, 
-  /* 0064 */ 80, 
-  /* 0065 */ -57, 
-  /* 0066 */ -58, 
-  /* 0067 */ -59, 
-  /* 0068 */ -60, 
-  /* 0069 */ -61, 
-  /* 0070 */ 102, 
-  /* 0071 */ 105, 
-  /* 0072 */ -62, 
-  /* 0073 */ 118, 
-  /* 0074 */ 121, 
-  /* 0075 */ 124, 
-  /* 0076 */ -63, 
-  /* 0077 */ -64, 
-  /* 0078 */ -65, 
-  /* 0079 */ -66, 
-  /* 0080 */ 127, 
-  /* 0081 */ 130, 
-  /* 0082 */ 133, 
-  /* 0083 */ -67, 
-  /* 0084 */ -68, 
-  /* 0085 */ -69, 
-  /* 0086 */ 138, 
-  /* 0087 */ 167, 
-  /* 0088 */ 180, 
-  /* 0089 */ 199, 
-  /* 0090 */ 216, 
-  /* 0091 */ 229, 
-  /* 0092 */ 248, 
-  /* 0093 */ 289, 
-  /* 0094 */ 344, 
-  /* 0095 */ 380, 
-  /* 0096 */ 387, 
-  /* 0097 */ 391, 
-  /* 0098 */ 395, 
-  /* 0099 */ 398, 
-  /* 0100 */ 403, 
-  /* 0101 */ -70, 
-  /* 0102 */ -71, 
-  /* 0103 */ -72, 
-  /* 0104 */ -73, 
-  /* 0105 */ -74, 
-  /* 0106 */ -75, 
-  /* 0107 */ -76, 
-  /* 0108 */ -77, 
-  /* 0109 */ -78, 
-  /* 0110 */ -79, 
-  /* 0111 */ -80, 
-  /* 0112 */ -81, 
+  /* -001 */ -1,
+  /* 0000 */ -2,
+  /* 0001 */ -3,
+  /* 0002 */ -4,
+  /* 0003 */ -5,
+  /* 0004 */ -6,
+  /* 0005 */ -7,
+  /* 0006 */ 0,
+  /* 0007 */ -8,
+  /* 0008 */ -9,
+  /* 0009 */ -10,
+  /* 0010 */ -11,
+  /* 0011 */ -12,
+  /* 0012 */ -13,
+  /* 0013 */ -14,
+  /* 0014 */ -15,
+  /* 0015 */ -16,
+  /* 0016 */ -17,
+  /* 0017 */ -18,
+  /* 0018 */ -19,
+  /* 0019 */ -20,
+  /* 0020 */ -21,
+  /* 0021 */ -22,
+  /* 0022 */ -23,
+  /* 0023 */ -24,
+  /* 0024 */ -25,
+  /* 0025 */ -26,
+  /* 0026 */ -27,
+  /* 0027 */ -28,
+  /* 0028 */ -29,
+  /* 0029 */ 3,
+  /* 0030 */ -30,
+  /* 0031 */ -31,
+  /* 0032 */ -32,
+  /* 0033 */ -33,
+  /* 0034 */ -34,
+  /* 0035 */ -35,
+  /* 0036 */ -36,
+  /* 0037 */ -37,
+  /* 0038 */ -38,
+  /* 0039 */ -39,
+  /* 0040 */ -40,
+  /* 0041 */ -41,
+  /* 0042 */ -42,
+  /* 0043 */ -43,
+  /* 0044 */ -44,
+  /* 0045 */ -45,
+  /* 0046 */ -46,
+  /* 0047 */ -47,
+  /* 0048 */ -48,
+  /* 0049 */ 16,
+  /* 0050 */ -49,
+  /* 0051 */ -50,
+  /* 0052 */ -51,
+  /* 0053 */ -52,
+  /* 0054 */ -53,
+  /* 0055 */ -54,
+  /* 0056 */ -55,
+  /* 0057 */ 24,
+  /* 0058 */ 27,
+  /* 0059 */ -56,
+  /* 0060 */ 30,
+  /* 0061 */ 37,
+  /* 0062 */ 39,
+  /* 0063 */ 63,
+  /* 0064 */ 80,
+  /* 0065 */ -57,
+  /* 0066 */ -58,
+  /* 0067 */ -59,
+  /* 0068 */ -60,
+  /* 0069 */ -61,
+  /* 0070 */ 102,
+  /* 0071 */ 105,
+  /* 0072 */ -62,
+  /* 0073 */ 118,
+  /* 0074 */ 121,
+  /* 0075 */ 124,
+  /* 0076 */ -63,
+  /* 0077 */ -64,
+  /* 0078 */ -65,
+  /* 0079 */ -66,
+  /* 0080 */ 127,
+  /* 0081 */ 130,
+  /* 0082 */ 133,
+  /* 0083 */ -67,
+  /* 0084 */ -68,
+  /* 0085 */ -69,
+  /* 0086 */ 138,
+  /* 0087 */ 167,
+  /* 0088 */ 180,
+  /* 0089 */ 199,
+  /* 0090 */ 216,
+  /* 0091 */ 229,
+  /* 0092 */ 248,
+  /* 0093 */ 289,
+  /* 0094 */ 344,
+  /* 0095 */ 380,
+  /* 0096 */ 387,
+  /* 0097 */ 391,
+  /* 0098 */ 395,
+  /* 0099 */ 398,
+  /* 0100 */ 403,
+  /* 0101 */ -70,
+  /* 0102 */ -71,
+  /* 0103 */ -72,
+  /* 0104 */ -73,
+  /* 0105 */ -74,
+  /* 0106 */ -75,
+  /* 0107 */ -76,
+  /* 0108 */ -77,
+  /* 0109 */ -78,
+  /* 0110 */ -79,
+  /* 0111 */ -80,
+  /* 0112 */ -81,
 };
 
 void bf_op_quote(struct bf_vm *vm);
@@ -10275,529 +10275,529 @@ const bf_native_t MJS_native_words[] = {
 };
 
 const char * const MJS_word_names[] = {
-  /* -001 */ "quote", 
-  /* 0000 */ "exit", 
-  /* 0001 */ "drop", 
-  /* 0002 */ "dup", 
-  /* 0003 */ "swap", 
-  /* 0004 */ "over", 
-  /* 0005 */ "-rot", 
-  /* 0006 */ "rot", 
-  /* 0007 */ ">r", 
-  /* 0008 */ "r>", 
-  /* 0009 */ "sp@", 
-  /* 0010 */ "sp!", 
-  /* 0011 */ "rp@", 
-  /* 0012 */ "rp!", 
-  /* 0013 */ "tmp!", 
-  /* 0014 */ "tmp@", 
-  /* 0015 */ "print", 
-  /* 0016 */ "cr", 
-  /* 0017 */ ".s", 
-  /* 0018 */ ".r", 
-  /* 0019 */ "=", 
-  /* 0020 */ "<", 
-  /* 0021 */ ">", 
-  /* 0022 */ "invert", 
-  /* 0023 */ "+", 
-  /* 0024 */ "-", 
-  /* 0025 */ "*", 
-  /* 0026 */ "call", 
-  /* 0027 */ "if", 
-  /* 0028 */ "ifelse", 
-  /* 0029 */ "loop", 
-  /* 0030 */ "ndrop", 
-  /* 0031 */ "str", 
-  /* 0032 */ "num", 
-  /* 0033 */ "scope_idx@", 
-  /* 0034 */ "scope_idx!", 
-  /* 0035 */ "scope_min@", 
-  /* 0036 */ "scope_min!", 
-  /* 0037 */ "this_val@", 
-  /* 0038 */ "this_val!", 
-  /* 0039 */ "jsfunc_rspos@", 
-  /* 0040 */ "jsfunc_rspos!", 
-  /* 0041 */ ">scopes", 
-  /* 0042 */ "scopes>", 
-  /* 0043 */ "scope@", 
-  /* 0044 */ "brcont_rspos@", 
-  /* 0045 */ "brcont_rspos!", 
-  /* 0046 */ "brcont_scope@", 
-  /* 0047 */ "brcont_scope!", 
-  /* 0048 */ "mkobj", 
-  /* 0049 */ "addprop", 
-  /* 0050 */ "setprop", 
-  /* 0051 */ "getprop", 
-  /* 0052 */ "getvar", 
-  /* 0053 */ "setvar", 
-  /* 0054 */ "createvar", 
-  /* 0055 */ "mkarr", 
-  /* 0056 */ "arrpush", 
-  /* 0057 */ "blockenter", 
-  /* 0058 */ "blockexit", 
-  /* 0059 */ "_jscall_native", 
-  /* 0060 */ "jscall_exit", 
-  /* 0061 */ "jscall", 
-  /* 0062 */ "jsenter", 
-  /* 0063 */ "jsexit", 
-  /* 0064 */ "setarg", 
-  /* 0065 */ "undefined", 
-  /* 0066 */ "null", 
-  /* 0067 */ "true", 
-  /* 0068 */ "false", 
-  /* 0069 */ "this_for_call", 
-  /* 0070 */ "2dup", 
-  /* 0071 */ "3dup", 
-  /* 0072 */ "4dup", 
-  /* 0073 */ ">=", 
-  /* 0074 */ "<=", 
-  /* 0075 */ "!=", 
-  /* 0076 */ "js=", 
-  /* 0077 */ "js<", 
-  /* 0078 */ "js>", 
-  /* 0079 */ "jsinvert", 
-  /* 0080 */ "js>=", 
-  /* 0081 */ "js<=", 
-  /* 0082 */ "js!=", 
-  /* 0083 */ "js_logical_and", 
-  /* 0084 */ "js_logical_or", 
-  /* 0085 */ "js+", 
-  /* 0086 */ "ifstmt", 
-  /* 0087 */ "repeat", 
-  /* 0088 */ "brcont_body_enter", 
-  /* 0089 */ "brcont_body_exit", 
-  /* 0090 */ "brcont_body", 
-  /* 0091 */ "brcont", 
-  /* 0092 */ "call_if_nonzero", 
-  /* 0093 */ "while", 
-  /* 0094 */ "forloop", 
-  /* 0095 */ "jsprint", 
-  /* 0096 */ "zero", 
-  /* 0097 */ "one", 
-  /* 0098 */ "nop", 
-  /* 0099 */ "inc", 
-  /* 0100 */ "swapinc", 
-  /* 0101 */ "div", 
-  /* 0102 */ "rem", 
-  /* 0103 */ "lshift", 
-  /* 0104 */ "rshift", 
-  /* 0105 */ "urshift", 
-  /* 0106 */ "and", 
-  /* 0107 */ "or", 
-  /* 0108 */ "xor", 
-  /* 0109 */ "not", 
-  /* 0110 */ "neg", 
-  /* 0111 */ "pos", 
-  /* 0112 */ "load", 
+  /* -001 */ "quote",
+  /* 0000 */ "exit",
+  /* 0001 */ "drop",
+  /* 0002 */ "dup",
+  /* 0003 */ "swap",
+  /* 0004 */ "over",
+  /* 0005 */ "-rot",
+  /* 0006 */ "rot",
+  /* 0007 */ ">r",
+  /* 0008 */ "r>",
+  /* 0009 */ "sp@",
+  /* 0010 */ "sp!",
+  /* 0011 */ "rp@",
+  /* 0012 */ "rp!",
+  /* 0013 */ "tmp!",
+  /* 0014 */ "tmp@",
+  /* 0015 */ "print",
+  /* 0016 */ "cr",
+  /* 0017 */ ".s",
+  /* 0018 */ ".r",
+  /* 0019 */ "=",
+  /* 0020 */ "<",
+  /* 0021 */ ">",
+  /* 0022 */ "invert",
+  /* 0023 */ "+",
+  /* 0024 */ "-",
+  /* 0025 */ "*",
+  /* 0026 */ "call",
+  /* 0027 */ "if",
+  /* 0028 */ "ifelse",
+  /* 0029 */ "loop",
+  /* 0030 */ "ndrop",
+  /* 0031 */ "str",
+  /* 0032 */ "num",
+  /* 0033 */ "scope_idx@",
+  /* 0034 */ "scope_idx!",
+  /* 0035 */ "scope_min@",
+  /* 0036 */ "scope_min!",
+  /* 0037 */ "this_val@",
+  /* 0038 */ "this_val!",
+  /* 0039 */ "jsfunc_rspos@",
+  /* 0040 */ "jsfunc_rspos!",
+  /* 0041 */ ">scopes",
+  /* 0042 */ "scopes>",
+  /* 0043 */ "scope@",
+  /* 0044 */ "brcont_rspos@",
+  /* 0045 */ "brcont_rspos!",
+  /* 0046 */ "brcont_scope@",
+  /* 0047 */ "brcont_scope!",
+  /* 0048 */ "mkobj",
+  /* 0049 */ "addprop",
+  /* 0050 */ "setprop",
+  /* 0051 */ "getprop",
+  /* 0052 */ "getvar",
+  /* 0053 */ "setvar",
+  /* 0054 */ "createvar",
+  /* 0055 */ "mkarr",
+  /* 0056 */ "arrpush",
+  /* 0057 */ "blockenter",
+  /* 0058 */ "blockexit",
+  /* 0059 */ "_jscall_native",
+  /* 0060 */ "jscall_exit",
+  /* 0061 */ "jscall",
+  /* 0062 */ "jsenter",
+  /* 0063 */ "jsexit",
+  /* 0064 */ "setarg",
+  /* 0065 */ "undefined",
+  /* 0066 */ "null",
+  /* 0067 */ "true",
+  /* 0068 */ "false",
+  /* 0069 */ "this_for_call",
+  /* 0070 */ "2dup",
+  /* 0071 */ "3dup",
+  /* 0072 */ "4dup",
+  /* 0073 */ ">=",
+  /* 0074 */ "<=",
+  /* 0075 */ "!=",
+  /* 0076 */ "js=",
+  /* 0077 */ "js<",
+  /* 0078 */ "js>",
+  /* 0079 */ "jsinvert",
+  /* 0080 */ "js>=",
+  /* 0081 */ "js<=",
+  /* 0082 */ "js!=",
+  /* 0083 */ "js_logical_and",
+  /* 0084 */ "js_logical_or",
+  /* 0085 */ "js+",
+  /* 0086 */ "ifstmt",
+  /* 0087 */ "repeat",
+  /* 0088 */ "brcont_body_enter",
+  /* 0089 */ "brcont_body_exit",
+  /* 0090 */ "brcont_body",
+  /* 0091 */ "brcont",
+  /* 0092 */ "call_if_nonzero",
+  /* 0093 */ "while",
+  /* 0094 */ "forloop",
+  /* 0095 */ "jsprint",
+  /* 0096 */ "zero",
+  /* 0097 */ "one",
+  /* 0098 */ "nop",
+  /* 0099 */ "inc",
+  /* 0100 */ "swapinc",
+  /* 0101 */ "div",
+  /* 0102 */ "rem",
+  /* 0103 */ "lshift",
+  /* 0104 */ "rshift",
+  /* 0105 */ "urshift",
+  /* 0106 */ "and",
+  /* 0107 */ "or",
+  /* 0108 */ "xor",
+  /* 0109 */ "not",
+  /* 0110 */ "neg",
+  /* 0111 */ "pos",
+  /* 0112 */ "load",
 };
 
 const char * const MJS_pos_names[] = {
-  "rot", 
-  "rot+1", 
-  "rot+2", 
-  "loop", 
-  "loop+1", 
-  "loop+2", 
-  "loop+3", 
-  "loop+4", 
-  "loop+5", 
-  "loop+6", 
-  "loop+7", 
-  "loop+8", 
-  "loop+9", 
-  "loop+10", 
-  "loop+11", 
-  "loop+12", 
-  "addprop", 
-  "addprop+1", 
-  "addprop+2", 
-  "addprop+3", 
-  "addprop+4", 
-  "addprop+5", 
-  "addprop+6", 
-  "addprop+7", 
-  "blockenter", 
-  "blockenter+1", 
-  "blockenter+2", 
-  "blockexit", 
-  "blockexit+1", 
-  "blockexit+2", 
-  "jscall_exit", 
-  "jscall_exit+1", 
-  "jscall_exit+2", 
-  "jscall_exit+3", 
-  "jscall_exit+4", 
-  "jscall_exit+5", 
-  "jscall_exit+6", 
-  "jscall", 
-  "jscall+1", 
-  "jsenter", 
-  "jsenter+1", 
-  "jsenter+2", 
-  "jsenter+3", 
-  "jsenter+4", 
-  "jsenter+5", 
-  "jsenter+6", 
-  "jsenter+7", 
-  "jsenter+8", 
-  "jsenter+9", 
-  "jsenter+10", 
-  "jsenter+11", 
-  "jsenter+12", 
-  "jsenter+13", 
-  "jsenter+14", 
-  "jsenter+15", 
-  "jsenter+16", 
-  "jsenter+17", 
-  "jsenter+18", 
-  "jsenter+19", 
-  "jsenter+20", 
-  "jsenter+21", 
-  "jsenter+22", 
-  "jsenter+23", 
-  "jsexit", 
-  "jsexit+1", 
-  "jsexit+2", 
-  "jsexit+3", 
-  "jsexit+4", 
-  "jsexit+5", 
-  "jsexit+6", 
-  "jsexit+7", 
-  "jsexit+8", 
-  "jsexit+9", 
-  "jsexit+10", 
-  "jsexit+11", 
-  "jsexit+12", 
-  "anon_0", 
-  "anon_0+1", 
-  "anon_1", 
-  "anon_1+1", 
-  "setarg", 
-  "setarg+1", 
-  "setarg+2", 
-  "setarg+3", 
-  "setarg+4", 
-  "setarg+5", 
-  "setarg+6", 
-  "setarg+7", 
-  "setarg+8", 
-  "setarg+9", 
-  "setarg+10", 
-  "setarg+11", 
-  "setarg+12", 
-  "setarg+13", 
-  "setarg+14", 
-  "setarg+15", 
-  "setarg+16", 
-  "setarg+17", 
-  "setarg+18", 
-  "setarg+19", 
-  "ffi", 
-  "ffi+1", 
-  "2dup", 
-  "2dup+1", 
-  "2dup+2", 
-  "3dup", 
-  "3dup+1", 
-  "3dup+2", 
-  "3dup+3", 
-  "3dup+4", 
-  "3dup+5", 
-  "3dup+6", 
-  "3dup+7", 
-  "dec", 
-  "dec+1", 
-  "dec+2", 
-  "dec+3", 
-  "dec+4", 
-  ">=", 
-  ">=+1", 
-  ">=+2", 
-  "<=", 
-  "<=+1", 
-  "<=+2", 
-  "!=", 
-  "!=+1", 
-  "!=+2", 
-  "js>=", 
-  "js>=+1", 
-  "js>=+2", 
-  "js<=", 
-  "js<=+1", 
-  "js<=+2", 
-  "js!=", 
-  "js!=+1", 
-  "js!=+2", 
-  "anon_2", 
-  "anon_2+1", 
-  "ifstmt", 
-  "ifstmt+1", 
-  "ifstmt+2", 
-  "ifstmt+3", 
-  "ifstmt+4", 
-  "anon_3", 
-  "anon_3+1", 
-  "anon_3+2", 
-  "anon_3+3", 
-  "anon_3+4", 
-  "anon_3+5", 
-  "anon_3+6", 
-  "anon_3+7", 
-  "anon_3+8", 
-  "anon_3+9", 
-  "anon_3+10", 
-  "anon_3+11", 
-  "anon_3+12", 
-  "anon_3+13", 
-  "anon_3+14", 
-  "anon_3+15", 
-  "anon_3+16", 
-  "anon_4", 
-  "anon_4+1", 
-  "anon_4+2", 
-  "anon_4+3", 
-  "anon_4+4", 
-  "anon_4+5", 
-  "anon_4+6", 
-  "repeat", 
-  "repeat+1", 
-  "repeat+2", 
-  "repeat+3", 
-  "repeat+4", 
-  "repeat+5", 
-  "repeat+6", 
-  "repeat+7", 
-  "repeat+8", 
-  "repeat+9", 
-  "repeat+10", 
-  "repeat+11", 
-  "repeat+12", 
-  "brcont_body_enter", 
-  "brcont_body_enter+1", 
-  "brcont_body_enter+2", 
-  "brcont_body_enter+3", 
-  "brcont_body_enter+4", 
-  "brcont_body_enter+5", 
-  "brcont_body_enter+6", 
-  "brcont_body_enter+7", 
-  "brcont_body_enter+8", 
-  "brcont_body_enter+9", 
-  "brcont_body_enter+10", 
-  "brcont_body_enter+11", 
-  "brcont_body_enter+12", 
-  "brcont_body_enter+13", 
-  "brcont_body_enter+14", 
-  "brcont_body_enter+15", 
-  "brcont_body_enter+16", 
-  "brcont_body_enter+17", 
-  "brcont_body_enter+18", 
-  "brcont_body_exit", 
-  "brcont_body_exit+1", 
-  "brcont_body_exit+2", 
-  "brcont_body_exit+3", 
-  "brcont_body_exit+4", 
-  "brcont_body_exit+5", 
-  "brcont_body_exit+6", 
-  "brcont_body_exit+7", 
-  "brcont_body_exit+8", 
-  "brcont_body_exit+9", 
-  "brcont_body_exit+10", 
-  "brcont_body_exit+11", 
-  "brcont_body_exit+12", 
-  "brcont_body_exit+13", 
-  "brcont_body_exit+14", 
-  "brcont_body_exit+15", 
-  "brcont_body_exit+16", 
-  "brcont_body", 
-  "brcont_body+1", 
-  "brcont_body+2", 
-  "brcont_body+3", 
-  "brcont_body+4", 
-  "brcont_body+5", 
-  "brcont_body+6", 
-  "anon_5", 
-  "anon_5+1", 
-  "anon_5+2", 
-  "anon_5+3", 
-  "anon_6", 
-  "anon_6+1", 
-  "brcont", 
-  "brcont+1", 
-  "brcont+2", 
-  "brcont+3", 
-  "brcont+4", 
-  "brcont+5", 
-  "brcont+6", 
-  "brcont+7", 
-  "brcont+8", 
-  "brcont+9", 
-  "brcont+10", 
-  "brcont+11", 
-  "brcont+12", 
-  "anon_7", 
-  "anon_7+1", 
-  "anon_7+2", 
-  "anon_8", 
-  "anon_8+1", 
-  "anon_8+2", 
-  "call_if_nonzero", 
-  "call_if_nonzero+1", 
-  "call_if_nonzero+2", 
-  "call_if_nonzero+3", 
-  "call_if_nonzero+4", 
-  "call_if_nonzero+5", 
-  "call_if_nonzero+6", 
-  "call_if_nonzero+7", 
-  "call_if_nonzero+8", 
-  "call_if_nonzero+9", 
-  "call_if_nonzero+10", 
-  "call_if_nonzero+11", 
-  "call_if_nonzero+12", 
-  "call_if_nonzero+13", 
-  "call_if_nonzero+14", 
-  "call_if_nonzero+15", 
-  "anon_9", 
-  "anon_9+1", 
-  "anon_9+2", 
-  "anon_9+3", 
-  "anon_9+4", 
-  "anon_9+5", 
-  "anon_10", 
-  "anon_10+1", 
-  "anon_10+2", 
-  "anon_11", 
-  "anon_11+1", 
-  "anon_11+2", 
-  "anon_11+3", 
-  "anon_11+4", 
-  "anon_11+5", 
-  "anon_11+6", 
-  "anon_11+7", 
-  "anon_11+8", 
-  "anon_11+9", 
-  "anon_12", 
-  "anon_12+1", 
-  "anon_12+2", 
-  "anon_12+3", 
-  "anon_12+4", 
-  "anon_12+5", 
-  "while", 
-  "while+1", 
-  "while+2", 
-  "while+3", 
-  "while+4", 
-  "while+5", 
-  "while+6", 
-  "while+7", 
-  "while+8", 
-  "anon_13", 
-  "anon_13+1", 
-  "anon_13+2", 
-  "anon_13+3", 
-  "anon_14", 
-  "anon_14+1", 
-  "anon_15", 
-  "anon_15+1", 
-  "anon_15+2", 
-  "anon_15+3", 
-  "anon_15+4", 
-  "anon_15+5", 
-  "anon_15+6", 
-  "anon_16", 
-  "anon_16+1", 
-  "anon_16+2", 
-  "anon_16+3", 
-  "anon_16+4", 
-  "anon_17", 
-  "anon_17+1", 
-  "anon_17+2", 
-  "anon_17+3", 
-  "anon_17+4", 
-  "anon_17+5", 
-  "anon_17+6", 
-  "anon_17+7", 
-  "anon_17+8", 
-  "anon_17+9", 
-  "anon_17+10", 
-  "anon_17+11", 
-  "anon_17+12", 
-  "anon_17+13", 
-  "anon_17+14", 
-  "anon_17+15", 
-  "anon_17+16", 
-  "anon_17+17", 
-  "anon_17+18", 
-  "anon_17+19", 
-  "anon_17+20", 
-  "anon_17+21", 
-  "anon_18", 
-  "anon_18+1", 
-  "anon_18+2", 
-  "anon_18+3", 
-  "anon_18+4", 
-  "anon_18+5", 
-  "forloop", 
-  "forloop+1", 
-  "forloop+2", 
-  "forloop+3", 
-  "forloop+4", 
-  "forloop+5", 
-  "forloop+6", 
-  "forloop+7", 
-  "forloop+8", 
-  "forloop+9", 
-  "forloop+10", 
-  "forloop+11", 
-  "forloop+12", 
-  "forloop+13", 
-  "forloop+14", 
-  "forloop+15", 
-  "forloop+16", 
-  "forloop+17", 
-  "forloop+18", 
-  "anon_19", 
-  "anon_19+1", 
-  "anon_19+2", 
-  "anon_19+3", 
-  "anon_19+4", 
-  "anon_20", 
-  "anon_20+1", 
-  "anon_20+2", 
-  "anon_20+3", 
-  "anon_20+4", 
-  "anon_20+5", 
-  "anon_20+6", 
-  "anon_20+7", 
-  "anon_20+8", 
-  "anon_20+9", 
-  "anon_20+10", 
-  "anon_20+11", 
-  "jsprint", 
-  "jsprint+1", 
-  "jsprint+2", 
-  "jsprint+3", 
-  "jsprint+4", 
-  "jsprint+5", 
-  "jsprint+6", 
-  "zero", 
-  "zero+1", 
-  "zero+2", 
-  "zero+3", 
-  "one", 
-  "one+1", 
-  "one+2", 
-  "one+3", 
-  "nop", 
-  "nop+1", 
-  "nop+2", 
-  "inc", 
-  "inc+1", 
-  "inc+2", 
-  "inc+3", 
-  "inc+4", 
-  "swapinc", 
-  "swapinc+1", 
-  "swapinc+2", 
+  "rot",
+  "rot+1",
+  "rot+2",
+  "loop",
+  "loop+1",
+  "loop+2",
+  "loop+3",
+  "loop+4",
+  "loop+5",
+  "loop+6",
+  "loop+7",
+  "loop+8",
+  "loop+9",
+  "loop+10",
+  "loop+11",
+  "loop+12",
+  "addprop",
+  "addprop+1",
+  "addprop+2",
+  "addprop+3",
+  "addprop+4",
+  "addprop+5",
+  "addprop+6",
+  "addprop+7",
+  "blockenter",
+  "blockenter+1",
+  "blockenter+2",
+  "blockexit",
+  "blockexit+1",
+  "blockexit+2",
+  "jscall_exit",
+  "jscall_exit+1",
+  "jscall_exit+2",
+  "jscall_exit+3",
+  "jscall_exit+4",
+  "jscall_exit+5",
+  "jscall_exit+6",
+  "jscall",
+  "jscall+1",
+  "jsenter",
+  "jsenter+1",
+  "jsenter+2",
+  "jsenter+3",
+  "jsenter+4",
+  "jsenter+5",
+  "jsenter+6",
+  "jsenter+7",
+  "jsenter+8",
+  "jsenter+9",
+  "jsenter+10",
+  "jsenter+11",
+  "jsenter+12",
+  "jsenter+13",
+  "jsenter+14",
+  "jsenter+15",
+  "jsenter+16",
+  "jsenter+17",
+  "jsenter+18",
+  "jsenter+19",
+  "jsenter+20",
+  "jsenter+21",
+  "jsenter+22",
+  "jsenter+23",
+  "jsexit",
+  "jsexit+1",
+  "jsexit+2",
+  "jsexit+3",
+  "jsexit+4",
+  "jsexit+5",
+  "jsexit+6",
+  "jsexit+7",
+  "jsexit+8",
+  "jsexit+9",
+  "jsexit+10",
+  "jsexit+11",
+  "jsexit+12",
+  "anon_0",
+  "anon_0+1",
+  "anon_1",
+  "anon_1+1",
+  "setarg",
+  "setarg+1",
+  "setarg+2",
+  "setarg+3",
+  "setarg+4",
+  "setarg+5",
+  "setarg+6",
+  "setarg+7",
+  "setarg+8",
+  "setarg+9",
+  "setarg+10",
+  "setarg+11",
+  "setarg+12",
+  "setarg+13",
+  "setarg+14",
+  "setarg+15",
+  "setarg+16",
+  "setarg+17",
+  "setarg+18",
+  "setarg+19",
+  "ffi",
+  "ffi+1",
+  "2dup",
+  "2dup+1",
+  "2dup+2",
+  "3dup",
+  "3dup+1",
+  "3dup+2",
+  "3dup+3",
+  "3dup+4",
+  "3dup+5",
+  "3dup+6",
+  "3dup+7",
+  "dec",
+  "dec+1",
+  "dec+2",
+  "dec+3",
+  "dec+4",
+  ">=",
+  ">=+1",
+  ">=+2",
+  "<=",
+  "<=+1",
+  "<=+2",
+  "!=",
+  "!=+1",
+  "!=+2",
+  "js>=",
+  "js>=+1",
+  "js>=+2",
+  "js<=",
+  "js<=+1",
+  "js<=+2",
+  "js!=",
+  "js!=+1",
+  "js!=+2",
+  "anon_2",
+  "anon_2+1",
+  "ifstmt",
+  "ifstmt+1",
+  "ifstmt+2",
+  "ifstmt+3",
+  "ifstmt+4",
+  "anon_3",
+  "anon_3+1",
+  "anon_3+2",
+  "anon_3+3",
+  "anon_3+4",
+  "anon_3+5",
+  "anon_3+6",
+  "anon_3+7",
+  "anon_3+8",
+  "anon_3+9",
+  "anon_3+10",
+  "anon_3+11",
+  "anon_3+12",
+  "anon_3+13",
+  "anon_3+14",
+  "anon_3+15",
+  "anon_3+16",
+  "anon_4",
+  "anon_4+1",
+  "anon_4+2",
+  "anon_4+3",
+  "anon_4+4",
+  "anon_4+5",
+  "anon_4+6",
+  "repeat",
+  "repeat+1",
+  "repeat+2",
+  "repeat+3",
+  "repeat+4",
+  "repeat+5",
+  "repeat+6",
+  "repeat+7",
+  "repeat+8",
+  "repeat+9",
+  "repeat+10",
+  "repeat+11",
+  "repeat+12",
+  "brcont_body_enter",
+  "brcont_body_enter+1",
+  "brcont_body_enter+2",
+  "brcont_body_enter+3",
+  "brcont_body_enter+4",
+  "brcont_body_enter+5",
+  "brcont_body_enter+6",
+  "brcont_body_enter+7",
+  "brcont_body_enter+8",
+  "brcont_body_enter+9",
+  "brcont_body_enter+10",
+  "brcont_body_enter+11",
+  "brcont_body_enter+12",
+  "brcont_body_enter+13",
+  "brcont_body_enter+14",
+  "brcont_body_enter+15",
+  "brcont_body_enter+16",
+  "brcont_body_enter+17",
+  "brcont_body_enter+18",
+  "brcont_body_exit",
+  "brcont_body_exit+1",
+  "brcont_body_exit+2",
+  "brcont_body_exit+3",
+  "brcont_body_exit+4",
+  "brcont_body_exit+5",
+  "brcont_body_exit+6",
+  "brcont_body_exit+7",
+  "brcont_body_exit+8",
+  "brcont_body_exit+9",
+  "brcont_body_exit+10",
+  "brcont_body_exit+11",
+  "brcont_body_exit+12",
+  "brcont_body_exit+13",
+  "brcont_body_exit+14",
+  "brcont_body_exit+15",
+  "brcont_body_exit+16",
+  "brcont_body",
+  "brcont_body+1",
+  "brcont_body+2",
+  "brcont_body+3",
+  "brcont_body+4",
+  "brcont_body+5",
+  "brcont_body+6",
+  "anon_5",
+  "anon_5+1",
+  "anon_5+2",
+  "anon_5+3",
+  "anon_6",
+  "anon_6+1",
+  "brcont",
+  "brcont+1",
+  "brcont+2",
+  "brcont+3",
+  "brcont+4",
+  "brcont+5",
+  "brcont+6",
+  "brcont+7",
+  "brcont+8",
+  "brcont+9",
+  "brcont+10",
+  "brcont+11",
+  "brcont+12",
+  "anon_7",
+  "anon_7+1",
+  "anon_7+2",
+  "anon_8",
+  "anon_8+1",
+  "anon_8+2",
+  "call_if_nonzero",
+  "call_if_nonzero+1",
+  "call_if_nonzero+2",
+  "call_if_nonzero+3",
+  "call_if_nonzero+4",
+  "call_if_nonzero+5",
+  "call_if_nonzero+6",
+  "call_if_nonzero+7",
+  "call_if_nonzero+8",
+  "call_if_nonzero+9",
+  "call_if_nonzero+10",
+  "call_if_nonzero+11",
+  "call_if_nonzero+12",
+  "call_if_nonzero+13",
+  "call_if_nonzero+14",
+  "call_if_nonzero+15",
+  "anon_9",
+  "anon_9+1",
+  "anon_9+2",
+  "anon_9+3",
+  "anon_9+4",
+  "anon_9+5",
+  "anon_10",
+  "anon_10+1",
+  "anon_10+2",
+  "anon_11",
+  "anon_11+1",
+  "anon_11+2",
+  "anon_11+3",
+  "anon_11+4",
+  "anon_11+5",
+  "anon_11+6",
+  "anon_11+7",
+  "anon_11+8",
+  "anon_11+9",
+  "anon_12",
+  "anon_12+1",
+  "anon_12+2",
+  "anon_12+3",
+  "anon_12+4",
+  "anon_12+5",
+  "while",
+  "while+1",
+  "while+2",
+  "while+3",
+  "while+4",
+  "while+5",
+  "while+6",
+  "while+7",
+  "while+8",
+  "anon_13",
+  "anon_13+1",
+  "anon_13+2",
+  "anon_13+3",
+  "anon_14",
+  "anon_14+1",
+  "anon_15",
+  "anon_15+1",
+  "anon_15+2",
+  "anon_15+3",
+  "anon_15+4",
+  "anon_15+5",
+  "anon_15+6",
+  "anon_16",
+  "anon_16+1",
+  "anon_16+2",
+  "anon_16+3",
+  "anon_16+4",
+  "anon_17",
+  "anon_17+1",
+  "anon_17+2",
+  "anon_17+3",
+  "anon_17+4",
+  "anon_17+5",
+  "anon_17+6",
+  "anon_17+7",
+  "anon_17+8",
+  "anon_17+9",
+  "anon_17+10",
+  "anon_17+11",
+  "anon_17+12",
+  "anon_17+13",
+  "anon_17+14",
+  "anon_17+15",
+  "anon_17+16",
+  "anon_17+17",
+  "anon_17+18",
+  "anon_17+19",
+  "anon_17+20",
+  "anon_17+21",
+  "anon_18",
+  "anon_18+1",
+  "anon_18+2",
+  "anon_18+3",
+  "anon_18+4",
+  "anon_18+5",
+  "forloop",
+  "forloop+1",
+  "forloop+2",
+  "forloop+3",
+  "forloop+4",
+  "forloop+5",
+  "forloop+6",
+  "forloop+7",
+  "forloop+8",
+  "forloop+9",
+  "forloop+10",
+  "forloop+11",
+  "forloop+12",
+  "forloop+13",
+  "forloop+14",
+  "forloop+15",
+  "forloop+16",
+  "forloop+17",
+  "forloop+18",
+  "anon_19",
+  "anon_19+1",
+  "anon_19+2",
+  "anon_19+3",
+  "anon_19+4",
+  "anon_20",
+  "anon_20+1",
+  "anon_20+2",
+  "anon_20+3",
+  "anon_20+4",
+  "anon_20+5",
+  "anon_20+6",
+  "anon_20+7",
+  "anon_20+8",
+  "anon_20+9",
+  "anon_20+10",
+  "anon_20+11",
+  "jsprint",
+  "jsprint+1",
+  "jsprint+2",
+  "jsprint+3",
+  "jsprint+4",
+  "jsprint+5",
+  "jsprint+6",
+  "zero",
+  "zero+1",
+  "zero+2",
+  "zero+3",
+  "one",
+  "one+1",
+  "one+2",
+  "one+3",
+  "nop",
+  "nop+1",
+  "nop+2",
+  "inc",
+  "inc+1",
+  "inc+2",
+  "inc+3",
+  "inc+4",
+  "swapinc",
+  "swapinc+1",
+  "swapinc+2",
 };
 
 const struct bf_code MJS_code = {
@@ -12217,10 +12217,10 @@ MJS_PRIVATE int mjs_is_truthy(struct mjs *mjs, mjs_val_t v) {
 /* Amalgamated: #include "mjs/vm.gen.h" */
 
 #ifndef MJS_DEFAULT_OBJECT_ARENA_SIZE
-#define MJS_DEFAULT_OBJECT_ARENA_SIZE 20
+#define MJS_DEFAULT_OBJECT_ARENA_SIZE 2000
 #endif
 #ifndef MJS_DEFAULT_PROPERTY_ARENA_SIZE
-#define MJS_DEFAULT_PROPERTY_ARENA_SIZE 20
+#define MJS_DEFAULT_PROPERTY_ARENA_SIZE 2000
 #endif
 
 static void object_destructor(struct mjs *mjs, void *ptr) {
