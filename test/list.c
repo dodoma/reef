@@ -161,6 +161,7 @@ void test_strsearch()
     mlist_append(alist, (void*)"ccc");
 
     char *key = "fff";
+    char key2[10] = "fff", *keyp2 = key2;
 
     char *x = "ddd";
     char *y = "eee";
@@ -173,8 +174,10 @@ void test_strsearch()
     /* aaa, bbb, ccc, ddd, fff, eee */
 
     char *s = *(char**)mlist_in(alist, &key, strcompare);
+    char *s2 = *(char**)mlist_in(alist, &keyp2, strcompare);
 
     MTEST_ASSERT_STR_EQ(s, key);
+    MTEST_ASSERT_STR_EQ(s2, keyp2);
 
     key = "aaa";
     MTEST_ASSERT(mlist_index(alist, &key, strcompare) == 0);

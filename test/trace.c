@@ -4,6 +4,10 @@ static void* _write_log(void *arg)
 {
     int cnum = *(int*)arg;
 
+    for (int i = 0; i < 100000000; i++) {
+        MDF_RESTRICT();
+    }
+
     for (int i = 0; i < 10000; i++)
         mtc_dbg("i am log from thread %d", cnum);
 

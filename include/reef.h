@@ -84,4 +84,11 @@
 
 #include "mmemcache.h"
 
+
+/*
+ * other useful software headers
+ */
+#include "mjs.h"
+#include "mjs_extension.h"
+
 #endif

@@ -106,9 +106,9 @@ void MDF_RESTRICT()
     pthread_mutex_lock(&m_lock);
 #endif
     count++;
-    if (count == 3000 || (nexton > 0 && count == nexton)) {
+    if (count == 6000 || (nexton > 0 && count == nexton)) {
         restict = true;
-        nexton = count + 3000 + mos_rand(1000);
+        nexton = count + 6000 + mos_rand(3000);
     }
 #if defined(MOS_LINUX) || defined(MOS_OSX)
     pthread_mutex_unlock(&m_lock);
