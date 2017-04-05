@@ -213,4 +213,14 @@ bool mtc_mt_msg(const char *func, const char *file, long line, MTC_LEVEL level,
     return true;
 }
 
+FILE* mtc_mt_file()
+{
+    uint32_t tid = _get_tid();
+    struct _entry *e = _entry_search(tid);
+
+    if (e) return e->fp;
+    else return 0;
+}
+
+
 #endif  /* MOS_LINUX || MOS_OSX */
