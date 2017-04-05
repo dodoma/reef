@@ -1,3 +1,4 @@
+#if JS_USE_MJS
 #ifdef MG_MODULE_LINES
 #line 1 "mjs/license.h"
 #endif
@@ -17058,3 +17059,4 @@ MJS_PRIVATE int encode_varint(size_t len, unsigned char *p) {
 }
 #endif /* __cplusplus */
 #endif /* MG_EXPORT_INTERNAL_HEADERS */
+#endif

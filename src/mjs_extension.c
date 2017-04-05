@@ -1,5 +1,6 @@
 #include "reef.h"
 
+#if JS_USE_MJS
 enum mjs_type {
   /* Primitive types */
   MJS_TYPE_UNDEFINED,
@@ -165,3 +166,5 @@ void mjs_init_local(struct mjs *jsm, mjs_val_t o)
     mjs_set(jsm, os, "itostring", ~0, mjs_mk_foreign(jsm, mjs_op_os_itostring));
     mjs_set(jsm, os, "ftostring", ~0, mjs_mk_foreign(jsm, mjs_op_os_ftostring));
 }
+
+#endif
