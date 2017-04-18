@@ -99,10 +99,12 @@ char* mdf_get_value_stringfy(MDF *node, const char *path, char *dftvalue);
 
 MERR* mdf_copy(MDF *dst, const char *path, MDF *src, bool overwrite);
 MERR* mdf_remove(MDF *node, const char *path);
+MERR* mdf_remove_me(MDF *node);
 
 MDF* mdf_get_node(MDF *node, const char *path);
 /* 新建的node类型为 MDF_TYPE_UNKNOWN */
 MDF* mdf_get_or_create_node(MDF *node, const char *path);
+MDF* mdf_insert_node(MDF *node, const char *path, int position);
 MDF* mdf_get_child(MDF *node, const char *path);
 
 MDF* mdf_node_next(MDF *node);

@@ -99,5 +99,6 @@ typedef enum {
 void MDF_RESTRICT();
 void _mdf_drop_child_node(MDF *pnode, MDF *cnode);
 void _mdf_append_child_node(MDF *pnode, MDF *newnode, int current_childnum);
+void _mdf_insert_child_node(MDF *pnode, MDF *newnode, int current_childnum, int position);
 
 #endif

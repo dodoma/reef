@@ -971,6 +971,22 @@ MERR* mdf_remove(MDF *node, const char *path)
     return MERR_OK;
 }
 
+MERR* mdf_remove_me(MDF *node)
+{
+    MDF *pnode;
+
+    MERR_NOT_NULLA(node);
+
+    pnode = node->parent;
+    if (node == pnode) {
+        mdf_destroy(&node);
+    } else {
+        _mdf_drop_child_node(pnode, node);
+    }
+
+    return MERR_OK;
+}
+
 
 MDF* mdf_get_node(MDF *node, const char *path)
 {
@@ -996,6 +1012,32 @@ MDF* mdf_get_or_create_node(MDF *node, const char *path)
     TRACE_NOK(err);
 
     return anode;
+}
+
+MDF* mdf_insert_node(MDF *node, const char *path, int position)
+{
+    MDF *anode;
+    MERR *err;
+
+    if (!node) return NULL;
+
+    err = _walk_mdf(node, path, false, &anode);
+    TRACE_NOK(err);
+
+    if (anode) {
+        static uint64_t insert_sn = 0;
+        char sname[PATH_MAX] = {0};
+        MDF *rnode;
+
+        snprintf(sname, sizeof(sname), "__moon_resolved_index__%llu", insert_sn++);
+        mdf_init(&rnode);
+        rnode->name = strdup(sname);
+        rnode->namelen = strlen(sname);
+
+        _mdf_insert_child_node(anode, rnode, -1, position);
+
+        return rnode;
+    } else return NULL;
 }
 
 MDF* mdf_get_child(MDF *node, const char *path)
