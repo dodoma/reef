@@ -88,9 +88,5 @@
 /*
  * other useful software headers
  */
-#include "mjs.h"
-#include "mjs_extension.h"
-
-#include "v7.h"
 
 #endif
