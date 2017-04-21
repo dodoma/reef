@@ -13,6 +13,8 @@
  */
 __BEGIN_DECLS
 
+#define MOS_MEM_OFFSET(i) ((char*)NULL+(i))
+
 #define mos_free(p)                             \
     do {                                        \
         if ((p) != NULL) {                      \

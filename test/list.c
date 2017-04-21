@@ -50,18 +50,35 @@ void test_basic()
     mlist_init(&alist, NULL);
 
     /*
-     * sizeof(int64_t) >= sizeof(void*)
+     * 有2种方式插入数字(建议使用2.方便移植)
+     * 1. 64位机器上 使用 int64_t 因为 sizeof(int64_t) >= sizeof(void*)
      */
-    for (int64_t i = 0; i < 10000; i++) {
-        mlist_append(alist, (void*)i);
+    //for (int64_t i = 0; i < 10000; i++) {
+    //    mlist_append(alist, (void*)i);
+    //}
+
+    /*
+     * 2. 使用 MOS_MEM_OFFSET()
+     */
+    for (int i = 0; i < 10000; i++) {
+        mlist_append(alist, MOS_MEM_OFFSET(i));
     }
 
-    int x;
-    for (int i = 9999; i >= 0; i--) {
-        mlist_pop(alist, (void**)&x);
+    int m = 1;
+    int *p = &m;
+    //int x;   // 无论哪种方式设置， 此时使用 x 而不是 y  会 coredump， 因为64位机器上 *(&x) 会越界给 p 赋值
+    int *y;
+    int *q = &m;
 
-        //printf("%d %d\n", x, i);
-        MTEST_ASSERT(x == i);
+    for (int i = 9999; i >= 0; i--) {
+        //mlist_pop(alist, (void**)&x);
+        //MTEST_ASSERT(x == i);
+
+        mlist_pop(alist, (void**)&y);
+        MTEST_ASSERT((int)y == i);
+
+        MTEST_ASSERT(*p == 1);
+        MTEST_ASSERT(*q == 1);
     }
 
     mlist_append(alist, (void*)"aaa");

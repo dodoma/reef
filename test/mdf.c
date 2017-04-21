@@ -142,7 +142,7 @@ void test_other_type()
     mdf_destroy(&node);
 }
 
-#define NODE_NUM 1000000
+#define NODE_NUM 100000
 
 void test_huge_nodes()
 {

@@ -46,7 +46,7 @@ found:
     return rnode;
 }
 
-static MDF* _walk_by_index(MDF *node, int index, bool create)
+static MDF* _walk_by_index(MDF *node, int32_t index, bool create)
 {
     char sname[PATH_MAX+1] = {0};
     MDF *cnode, *rnode;
@@ -98,11 +98,7 @@ static MERR* _walk_mdf(MDF *node, const char *path, bool create, MDF **rnode)
 {
     char *pos, *oldpos, *start, *end;
     MDF *xnode;
-#if __x86_64__
-    int64_t index;
-#else
-    int32_t index;
-#endif
+    int32_t arrayindex;
     MLIST *indexname_list;
     bool descend;
 
@@ -141,17 +137,17 @@ static MERR* _walk_mdf(MDF *node, const char *path, bool create, MDF **rnode)
                 }
 
                 oldpos = pos;
-                index = 0;
+                arrayindex = 0;
                 while (*pos >= '0' && *pos <= '9') {
-                    index = (index * 10) + (*pos - '0');
+                    arrayindex = (arrayindex * 10) + (*pos - '0');
 
                     pos++;
                 }
-                index = index * sign;
+                arrayindex = arrayindex * sign;
 
                 if (pos == oldpos) goto format_error;
 
-                mlist_append(indexname_list, (void*)index);
+                mlist_append(indexname_list, MOS_MEM_OFFSET(arrayindex));
             } else {
                 /* process RAW_NAME */
                 if (*(unsigned char*)pos == '_' || *(unsigned char*)pos == '$' ||
@@ -179,9 +175,10 @@ static MERR* _walk_mdf(MDF *node, const char *path, bool create, MDF **rnode)
         }
     }
 
-    MLIST_ITERATE(indexname_list, index) {
-        if (xnode) xnode = _walk_by_index(xnode, index, create);
-        else if (node) xnode = _walk_by_index(node, index, create);
+    int32_t *arrayindexp;
+    MLIST_ITERATE(indexname_list, arrayindexp) {
+        if (xnode) xnode = _walk_by_index(xnode, (int32_t)arrayindexp, create);
+        else if (node) xnode = _walk_by_index(node, (int32_t)arrayindexp, create);
 
         if (!xnode) break;
     }

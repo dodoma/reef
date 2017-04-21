@@ -43,6 +43,8 @@
  *      所以，我们在使用 mlist 排序、查找(mlist_in(), index(), search(), compare())的参数和返回
  *      需要使用二级指针。
  *      ( mlist_in, mlist_index 其实可以不用二级指针，为了保持和 mlist_search 一致而为之。)
+ *
+ *    3. 插入和取回数字比较特殊，请参考 test/list.c 用法
  */
 __BEGIN_DECLS
 
