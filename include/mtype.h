@@ -24,6 +24,13 @@ struct _MSTR {
 };
 typedef struct _MSTR MSTR;
 
+struct _MBUF {
+    char *buf;
+    size_t len;
+    size_t max;
+};
+typedef struct _MBUF MBUF;
+
 typedef enum {
     MERR_NOMEM = -30999,
     MERR_ASSERT,
@@ -78,6 +85,8 @@ typedef enum
     MMC_OP_INC,
     MMC_OP_DEC
 } MMC_OP;
+
+typedef struct _MRE MRE;
 
 __END_DECLS
 #endif

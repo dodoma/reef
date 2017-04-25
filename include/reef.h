@@ -70,6 +70,7 @@
 #include "mtrace_multithread_macro.h"
 
 #include "mstring.h"
+#include "mbuf.h"
 #include "mhttp.h"
 
 #include "mlist.h"
@@ -83,6 +84,8 @@
 #include "mdf_data.h"
 
 #include "mmemcache.h"
+
+#include "mregexp.h"
 
 
 /*
