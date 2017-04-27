@@ -54,6 +54,8 @@
 #include "mos_esp.h"
 #include "mos.h"
 
+#include "utf.h"
+
 #include "mcolor.h"
 #include "mbase64.h"
 

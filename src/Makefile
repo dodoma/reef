@@ -5,6 +5,7 @@ include $(BASEDIR)Make.env
 #LDFLAGS += -shared
 
 SOURCES = $(wildcard *.c)
+SOURCES := $(filter-out _mregexp_tok.c, $(SOURCES))
 OBJS	= $(patsubst %.c, %.o, $(SOURCES))
 DEPEND	= .depend
 

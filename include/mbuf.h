@@ -19,7 +19,7 @@ void mbuf_resize(MBUF *abuf, size_t new_size);
 /* Shrinks an Mbuf by resizing its `size` to `len`. */
 void mbuf_shrink(MBUF *abuf);
 
-void* mbuf_insert(MBUF *abuf, size_t offset, const void *data, size_t data_size);
-void* mbuf_append(MBUF *abuf, const void *data, size_t data_size);
+size_t mbuf_insert(MBUF *abuf, size_t offset, const void *data, size_t data_size);
+size_t mbuf_append(MBUF *abuf, const void *data, size_t data_size);
 
 #endif

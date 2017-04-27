@@ -45,27 +45,31 @@ void mbuf_remove(MBUF *abuf, size_t len)
     }
 }
 
-void* mbuf_insert(MBUF *abuf, size_t offset, const void *data, size_t len)
+size_t mbuf_insert(MBUF *abuf, size_t offset, const void *data, size_t len)
 {
-    if (!abuf) return NULL;
-    if (offset > abuf->len) return NULL;
+    if (!abuf) return 0;
+    if (offset > abuf->len) return 0;
+
+    size_t from = offset;
+    size_t to = offset + len;
+    size_t delta = abuf->len - offset;
 
     if (abuf->len + len <= abuf->max) {
-        memmove(abuf->buf + offset + len, abuf->buf + offset, abuf->len - offset);
+        memmove(abuf->buf + to, abuf->buf + from, delta);
     } else {
         size_t new_size = (size_t)((abuf->len + len) * 2);
         abuf->buf = mos_realloc(abuf->buf, new_size);
-        memmove(abuf->buf + offset + len, abuf->buf + offset, abuf->len - offset);
+        memmove(abuf->buf + to, abuf->buf + from, delta);
         abuf->max = new_size;
     }
 
     if (data) memcpy(abuf->buf + offset, data, len);
     abuf->len += len;
 
-    return (void*)(abuf->buf + offset);
+    return offset;
 }
 
-void* mbuf_append(MBUF *abuf, const void *data, size_t len)
+size_t mbuf_append(MBUF *abuf, const void *data, size_t len)
 {
     return mbuf_insert(abuf, abuf->len, data, len);
 }

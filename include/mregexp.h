@@ -12,9 +12,9 @@
  * ?       Match zero or once (non-greedy)
  * *       Match zero or more times (greedy)
  * +       Match one or more times (greedy)
- * {n}     Match exactly n times
- * {n,}    Match >= n times
- * {n,m}   Match >= n && <=m times
+ * {m}     Match exactly n times
+ * {m,}    Match >= n times
+ * {m,n}   Match >= n && <=m times
 
  * \meta   Match one of the meta character: ^$().[]*+?|\
  *
