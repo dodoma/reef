@@ -6,9 +6,9 @@ enum {
     TOK_OPEN_PAREN,             /* ( */
     TOK_BOL,                    /* ^ */
     TOK_EOL,                    /* $ */
-    TOK_ANY,                    /* any but \n */
-    TOK_CLASS,                  /* [] chractoer class */
-    TOK_NCLASS,                 /* [^] negative charactor class */
+    TOK_ANY,                    /* . any but \n */
+    TOK_CCLASS,                 /* [] chractoer class */
+    TOK_NCCLASS,                /* [^] negative character class */
     TOK_REPEAT,                 /* ? * + {m} {m,} {m,n} */
     TOK_NC,                     /* (? no capture */
     TOK_PLA,                    /* (?= positive lookahead */
@@ -34,8 +34,8 @@ enum {
 
 static bool _tok_long(MRE *reo, char a, char b)
 {
-    if (reo->pos[0] == a && reo->pos[1] == b) {
-        reo->pos += 2;
+    if (reo->tok.c == a && reo->pos[0] == b) {
+        reo->pos += 1;
         return true;
     }
     return false;
@@ -43,14 +43,14 @@ static bool _tok_long(MRE *reo, char a, char b)
 
 static bool _tok_long3(MRE *reo, char a, char b, char c)
 {
-    if (reo->pos[0] == a && reo->pos[1] == b && reo->pos[2] == c) {
-        reo->pos += 3;
+    if (reo->tok.c == a && reo->pos[0] == b && reo->pos[1] == c) {
+        reo->pos += 2;
         return true;
     }
     return false;
 }
 
-static uint8_t _tok_next(MRE *reo)
+static uint8_t _tok_next(MRE *reo, bool restr)
 {
     Token *t = &reo->tok;
 
@@ -74,8 +74,8 @@ static uint8_t _tok_next(MRE *reo)
         case 'S': t->type = TOK_R_NWHITESPACE; return t->type;
         case 'w': t->type = TOK_R_WORD; return t->type;
         case 'W': t->type = TOK_R_NWORD; return t->type;
-        case 'b': t->type = TOK_WORD; return t->type;
-        case 'B': t->type = TOK_NWORD; return t->type;
+        case 'b': t->c = 'b'; t->type = TOK_WORD; return t->type;
+        case 'B': t->c = 'B'; t->type = TOK_NWORD; return t->type;
         }
         if (strchr(ESCAPES, t->c)) {
             t->type = TOK_CHAR;
@@ -93,15 +93,18 @@ static uint8_t _tok_next(MRE *reo)
         return t->type;
     }
 
-    if (_tok_long(reo, '[', '^')) { t->type = TOK_NCLASS; return t->type; }
-    else if (_tok_long3(reo, '(', '?', '=')) { t->type = TOK_PLA; return t->type; }
-    else if (_tok_long3(reo, '(', '?', '!')) { t->type = TOK_NLA; return t->type; }
-    else if (_tok_long(reo, '(', '?')) { t->type = TOK_NC; return t->type; }
+    if (!restr) {
+        /* in non-restrict model(e.g. character class), do following */
+        if (_tok_long(reo, '[', '^')) { t->c = '['; t->type = TOK_NCCLASS; return t->type; }
+        else if (_tok_long3(reo, '(', '?', '=')) { t->c = '('; t->type = TOK_PLA; return t->type; }
+        else if (_tok_long3(reo, '(', '?', '!')) { t->c = '('; t->type = TOK_NLA; return t->type; }
+        else if (_tok_long(reo, '(', '?')) { t->c = '('; t->type = TOK_NC; return t->type; }
+    }
 
     switch (t->c) {
     case 0: t->type = TOK_EOF; return t->type;
     case '(': t->type = TOK_OPEN_PAREN; return t->type;
-    case '[': t->type = TOK_CLASS; return t->type;
+    case '[': t->type = TOK_CCLASS; return t->type;
     case '{':
     case '?':
     case '*':

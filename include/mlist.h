@@ -44,7 +44,7 @@
  *      需要使用二级指针。
  *      ( mlist_in, mlist_index 其实可以不用二级指针，为了保持和 mlist_search 一致而为之。)
  *
- *    3. 插入和取回数字比较特殊，请参考 test/list.c 用法
+ *    3. 插入和取回非指针（如数字和字符）比较特殊，请参考 test/list.c 用法
  */
 __BEGIN_DECLS
 
@@ -54,6 +54,7 @@ MERR* mlist_append(MLIST *alist, void *data);
 MERR* mlist_pop(MLIST *alist, void **data);
 MERR* mlist_insert(MLIST *alist, int x, void *data);
 MERR* mlist_delete(MLIST *alist, int x);
+void  mlist_free(void *alist);
 
 MERR* mlist_get(MLIST *alist, int x, void **data);
 MERR* mlist_set(MLIST *alist, int x, void *data);

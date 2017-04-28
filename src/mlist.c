@@ -217,6 +217,22 @@ void mlist_destroy(MLIST **alist)
     *alist = NULL;
 }
 
+void mlist_free(void *alist)
+{
+    if (!alist) return;
+
+    MLIST *o = alist;
+
+    if (o->free) {
+        for (int i = 0; i < o->num; i++) {
+            o->free(o->items[i]);
+        }
+    }
+
+    mos_free(o->items);
+    mos_free(o);
+}
+
 
 void mlist_sort(MLIST *alist, int __F(compare)(const void *, const void*))
 {
