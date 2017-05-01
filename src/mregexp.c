@@ -2,13 +2,14 @@
 
 #include <setjmp.h>
 
-#define MAX_SPLIT 10000
+#define MAX_SPLIT    10000
+#define INSTRUCT_LEN (sizeof(Instruct))
 
 enum {
     I_END,
 
     I_BOL, I_EOL, I_CHAR, I_ANY, I_ANYNL, I_LPAR, I_RPAR, I_CCLASS, I_NCCLASS,
-    I_SPLIT, I_INCREMENT, I_JUMP
+    I_SPLIT, I_JUMP_ABS, I_JUMP_REL
 };
 
 typedef struct {
@@ -19,8 +20,10 @@ typedef struct {
 typedef struct {
     uint8_t op_code;
     Rune c;                     /* character on I_CHAR */
-    uint32_t b;                 /* b location on I_SPLIT */
+    int32_t b;                  /* b location on I_SPLIT, JUMP... */
     MLIST *rlist;               /* character class ranges */
+    uint32_t repeat;            /* repeat times */
+    int32_t rrnum;
 } Instruct;
 
 typedef struct {
@@ -31,6 +34,7 @@ typedef struct {
 
 struct _MRE {
     MBUF bcode;
+    uint32_t icount;            /* instruct count */
 
     MLIST *cclist;              /* character class */
 
@@ -44,11 +48,6 @@ struct _MRE {
 	jmp_buf kaboom;
 };
 
-static bool _isnewline(Rune c)
-{
-	return c == 0xA || c == 0xD || c == 0x2028 || c == 0x2029;
-}
-
 static void _die(MRE *reo, const char *message)
 {
     reo->error = message;
@@ -56,152 +55,10 @@ static void _die(MRE *reo, const char *message)
 }
 
 #include "_mregexp_tok.c"
+#include "_mregexp_util.c"
+#include "_mregexp_instruct.c"
 
-static uint32_t _emit(MRE *reo, uint8_t op)
-{
-    Instruct inst;
-
-    memset(&inst, 0x0, sizeof(Instruct));
-
-    inst.op_code = op;
-    size_t pos = mbuf_append(&reo->bcode, &inst, sizeof(Instruct));
-
-    return pos / sizeof(Instruct);
-}
-
-static uint32_t _emit_char(MRE *reo, Rune c)
-{
-    Instruct inst;
-
-    memset(&inst, 0x0, sizeof(Instruct));
-
-    inst.op_code = I_CHAR;
-    inst.c = c;
-    size_t pos = mbuf_append(&reo->bcode, &inst, sizeof(Instruct));
-
-    return pos / sizeof(Instruct);
-}
-
-static uint32_t _emit_split(MRE *reo, uint32_t alen, uint32_t blen)
-{
-    Instruct inst;
-    size_t pos;
-
-    size_t len = reo->bcode.len;
-
-    if (blen > 0 && len > blen * sizeof(Instruct)) {
-        memset(&inst, 0x0, sizeof(Instruct));
-        inst.op_code = I_INCREMENT;
-        inst.b = blen + 1;
-        mbuf_insert(&reo->bcode, len - blen * sizeof(Instruct), &inst, sizeof(Instruct));
-    }
-
-    memset(&inst, 0x0, sizeof(Instruct));
-    inst.op_code = I_SPLIT;
-    inst.b = alen + 2;
-    pos = mbuf_insert(&reo->bcode, blen > 0 ? 4 * sizeof(Instruct) : 0, &inst, sizeof(Instruct));
-
-    return pos / sizeof(Instruct);
-}
-
-static uint32_t _emit_jump(MRE *reo, uint32_t b)
-{
-    Instruct inst;
-
-    memset(&inst, 0x0, sizeof(Instruct));
-
-    inst.op_code = I_JUMP;
-    inst.b = b;
-    size_t pos = mbuf_append(&reo->bcode, &inst, sizeof(Instruct));
-
-    return pos / sizeof(Instruct);
-}
-
-static uint32_t _emit_cclass(MRE *reo, MLIST *rlist, bool negative)
-{
-    Instruct inst;
-
-    memset(&inst, 0x0, sizeof(Instruct));
-
-    inst.op_code = negative ? I_NCCLASS : I_CCLASS;
-    inst.rlist = rlist;
-    size_t pos = mbuf_append(&reo->bcode, &inst, sizeof(Instruct));
-
-    return pos / sizeof(Instruct);
-}
-
-static bool _inrange(MLIST *rlist, Rune c)
-{
-    Rune *a, *b;
-
-    for (int i = 0; i < mlist_length(rlist); i += 2) {
-        mlist_get(rlist, i, (void**)&a);
-        mlist_get(rlist, i+1, (void**)&b);
-
-        if ((Rune)a <= c && c <= (Rune)b) return true;
-    }
-
-    return false;
-}
-
-static void _addrange(MRE *reo, MLIST *rlist, Rune a, Rune b)
-{
-    if (a > b) {
-        _die(reo, "invalid character class range");
-    }
-
-    mlist_append(rlist, MOS_MEM_OFFSET(a));
-    mlist_append(rlist, MOS_MEM_OFFSET(b));
-}
-
-static void _add_ranges_d(MRE *reo, MLIST *rlist)
-{
-    _addrange(reo, rlist, '0', '9');
-}
-
-static void _add_ranges_D(MRE *reo, MLIST *rlist)
-{
-	_addrange(reo, rlist, 0, '0'-1);
-	_addrange(reo, rlist, '9'+1, 0xFFFF);
-}
-
-static void _add_ranges_s(MRE *reo, MLIST *rlist)
-{
-	_addrange(reo, rlist, 0x9, 0xD);
-	_addrange(reo, rlist, 0x20, 0x20);
-	_addrange(reo, rlist, 0xA0, 0xA0);
-	_addrange(reo, rlist, 0x2028, 0x2029);
-	_addrange(reo, rlist, 0xFEFF, 0xFEFF);
-}
-
-static void _add_ranges_S(MRE *reo, MLIST *rlist)
-{
-	_addrange(reo, rlist, 0, 0x9-1);
-	_addrange(reo, rlist, 0xD+1, 0x20-1);
-	_addrange(reo, rlist, 0x20+1, 0xA0-1);
-	_addrange(reo, rlist, 0xA0+1, 0x2028-1);
-	_addrange(reo, rlist, 0x2029+1, 0xFEFF-1);
-	_addrange(reo, rlist, 0xFEFF+1, 0xFFFF);
-}
-
-static void _add_ranges_w(MRE *reo, MLIST *rlist)
-{
-	_addrange(reo, rlist, '0', '9');
-	_addrange(reo, rlist, 'A', 'Z');
-	_addrange(reo, rlist, '_', '_');
-	_addrange(reo, rlist, 'a', 'z');
-}
-
-static void _add_ranges_W(MRE *reo, MLIST *rlist)
-{
-	_addrange(reo, rlist, 0, '0'-1);
-	_addrange(reo, rlist, '9'+1, 'A'-1);
-	_addrange(reo, rlist, 'Z'+1, '_'-1);
-	_addrange(reo, rlist, '_'+1, 'a'-1);
-	_addrange(reo, rlist, 'z'+1, 0xFFFF);
-}
-
-static void _parse_cclass(MRE *reo, bool negative)
+static uint32_t _parse_cclass(MRE *reo, bool negative)
 {
     uint8_t tok = TOK_EOF;
     Rune prevc = 0;
@@ -252,33 +109,82 @@ static void _parse_cclass(MRE *reo, bool negative)
 
     mlist_append(reo->cclist, rlist);
 
-    _emit_cclass(reo, rlist, negative);
+    return _emit_cclass(reo, rlist, negative);
+}
+
+static uint32_t _parse_repeat(MRE *reo)
+{
+    uint8_t tok = TOK_EOF;
+    int min, max;
+    bool greedy = true;
+
+    min = max = 0;
+
+    switch (reo->tok.c) {
+    case '?': min = 0, max = 1; break;
+    case '*': min = 0, max = INT_MAX; break;
+    case '+': min = 1, max = INT_MAX; break;
+    case '{':
+    {
+        int numx = 0;
+        bool comma = false;
+        while ((tok = _tok_next(reo, false)) == TOK_CHAR) {
+            if (reo->tok.c >= '0' && reo->tok.c <= '9') {
+                numx = numx * 10 + reo->tok.c - '0';
+            } else if (reo->tok.c == ',') {
+                comma = true;
+                min = numx;
+                numx = 0;
+            }
+        }
+        if (tok != TOK_CLOSE_CURLY) _die(reo, "unmatch repeat");
+
+        if (!comma) {
+            min = max = numx;
+        } else {
+            if (numx > 0 && min >= numx) _die(reo, "invalid repeat range");
+            if (numx == 0) max = INT_MAX;
+            else max = numx;
+        }
+        break;
+    }
+    default:
+        return 0;
+    }
+
+    if (max > INT_MAX) max = INT_MAX;
+
+    if (_accept(reo, '?')) greedy = false;
+
+    return _emit_repeat(reo, min, max, greedy);
 }
 
 static uint32_t _parse_statement(MRE *reo)
 {
     uint8_t tok = TOK_EOF;
-    uint32_t count = 0;
+    uint32_t icount = 0;
+    Instruct *pc;
 
     while ((tok = _tok_next(reo, false)) != TOK_OR && tok != TOK_EOF) {
         switch (tok) {
-        case TOK_BOL: _emit(reo, I_BOL); break;
-        case TOK_EOL: _emit(reo, I_EOL); break;
-        case TOK_CHAR: _emit_char(reo, reo->tok.c); break;
-        case TOK_ANY: _emit(reo, I_ANY); break;
-        case TOK_CCLASS: _parse_cclass(reo, false); break;
-        case TOK_NCCLASS: _parse_cclass(reo, true); break;
+        case TOK_BOL:  icount += _emit(reo, I_BOL, NULL); break;
+        case TOK_EOL:  icount += _emit(reo, I_EOL, NULL); break;
+        case TOK_CHAR: icount +=  _emit(reo, I_CHAR, &pc); pc->c = reo->tok.c; break;
+        case TOK_ANY:  icount += _emit(reo, I_ANY, NULL); break;
+        case TOK_CCLASS:  icount += _parse_cclass(reo, false); break;
+        case TOK_NCCLASS: icount += _parse_cclass(reo, true); break;
+        case TOK_REPEAT:  icount += _parse_repeat(reo); break;
         default: _die(reo, "unexpect token");
         }
-
-        count++;
     }
 
-    return count;
+    return icount;
 }
 
 static MERR* _compile(MRE *reo, const char *pattern)
 {
+    Instruct *pc;
+
     MERR_NOT_NULLB(reo, pattern);
 
     reo->pos = reo->source = pattern;
@@ -287,32 +193,57 @@ static MERR* _compile(MRE *reo, const char *pattern)
         return merr_raise(MERR_ASSERT, "%s on %ld %s", reo->error, reo->pos - reo->source, reo->pos - 1);
     }
 
-    _emit(reo, I_ANYNL);
-    _emit_jump(reo, 0);
-    _emit_split(reo, 1, 0);
-    _emit(reo, I_LPAR);
+    reo->icount = _emit(reo, I_SPLIT, &pc);
+    pc->b = 3;
+    reo->icount += _emit(reo, I_ANYNL, NULL);
+    reo->icount += _emit(reo, I_JUMP_ABS, &pc);
+    pc->b = 0;
+    reo->icount += _emit(reo, I_LPAR, NULL);
 
     uint32_t alen, blen;
     alen = _parse_statement(reo);
     while (reo->tok.type == TOK_OR) {
         blen = _parse_statement(reo);
 
-        _emit_split(reo, alen, blen);
+        reo->icount += _emit_split(reo, alen, blen);
 
         alen += blen;
-        alen += 2;              /* for split And jump */
     }
 
-    _emit(reo, I_RPAR);
-    _emit(reo, I_END);
+    reo->icount += alen;
+
+    reo->icount += _emit(reo, I_RPAR, NULL);
+    reo->icount += _emit(reo, I_END, NULL);
+
+    if (reo->icount * INSTRUCT_LEN != reo->bcode.len) {
+        //printf("%d %d \n", reo->icount, reo->bcode.len / INSTRUCT_LEN);
+        _die(reo, "instruct counter error");
+    }
 
     return MERR_OK;
 }
 
-static void _newroad(Road *t, Instruct *pc, uint32_t pos, const char *sp)
+static void _reset_rrnum(MRE *reo)
 {
+    Instruct *pc = (Instruct *)reo->bcode.buf;
+
+    for (uint32_t i = 0; i < reo->icount; i++) {
+        if (pc->op_code == I_JUMP_REL) {
+            pc->rrnum = pc->repeat;
+        }
+        pc += 1;
+    }
+}
+
+static void _newroad(MRE *reo, Road *t, Instruct *pc, int32_t pos, const char *sp)
+{
+    Instruct *istart = (Instruct *)reo->bcode.buf;
+    Instruct *iend = (Instruct *)(reo->bcode.buf + reo->bcode.len);
+
     t->pc = pc + pos;
     t->sp = sp;
+
+    if (t->pc < istart || t->pc >= iend) _die(reo, "instruct overflow!!");
 }
 
 static bool _execute(MRE *reo, const char *string)
@@ -328,8 +259,10 @@ static bool _execute(MRE *reo, const char *string)
     reo->nmatch = string;
     reset_pc = (Instruct *)reo->bcode.buf;
 
+    _reset_rrnum(reo);
+
     memset(roads, 0x0, sizeof(roads));
-    _newroad(&roads[0], reset_pc, 0, sp);
+    _newroad(reo, &roads[0], reset_pc, 0, sp);
     nroad = 1;
 
     /*
@@ -396,16 +329,19 @@ static bool _execute(MRE *reo, const char *string)
                 }
             case I_SPLIT:
                 if (nroad >= MAX_SPLIT) _die(reo, "backtrace overflow!");
-
-                _newroad(&roads[nroad], pc, pc->b, sp);
-                nroad++;
+                _newroad(reo, &roads[nroad++], pc, pc->b, sp);
                 pc = pc + 1;
                 continue;
-            case I_INCREMENT:
-                pc = pc + pc->b;
+            case I_JUMP_REL:
+                if (pc->rrnum >= 0) {
+                    pc->rrnum -= 1;
+                    pc = _pc_relative(reo, pc, pc->b);
+                } else {
+                    pc = pc + 1;
+                }
                 continue;
-            case I_JUMP:
-                pc = reset_pc + pc->b;
+            case I_JUMP_ABS:
+                pc = _pc_absolute(reo, pc->b);
                 continue;
             default:
                 goto river;
@@ -417,7 +353,7 @@ static bool _execute(MRE *reo, const char *string)
 
     /* all roads don't reach I_END */
     reo->nmatch = sp - 1;
-    printf("%ld %s dont match\n", sp - string, reo->nmatch);
+    printf("%ld %s don't match\n", sp - string, reo->nmatch);
 
     return false;
 }
@@ -429,6 +365,8 @@ MRE* mre_init()
     mbuf_init(&reo->bcode, 0);
     mlist_init(&reo->cclist, mlist_free);
 
+    reo->icount = 0;
+    reo->error = NULL;
     reo->nmatch = NULL;
 
     return reo;
@@ -444,6 +382,7 @@ MERR* mre_compile(MRE *reo, const char *pattern)
     mlist_destroy(&reo->cclist);
     mlist_init(&reo->cclist, mlist_free);
 
+    reo->icount = 0;
     reo->error = NULL;
     reo->nmatch = NULL;
 
@@ -463,13 +402,13 @@ void mre_dump(MRE *reo)
     Instruct *pc = (Instruct *)reo->bcode.buf;
     size_t len = reo->bcode.len;
     int padnum = 0;
-    size_t counter = 0;
+    size_t icount = 0;
 
     /*
      * *instructs* 2
      */
     while (len > 0) {
-        printf("% 5ld: ", counter);
+        printf("% 5ld: ", icount);
         for (int i = 0; i < padnum; i++) printf("    ");
         switch (pc->op_code) {
         case I_END: puts("end"); break;
@@ -482,14 +421,14 @@ void mre_dump(MRE *reo)
         case I_RPAR: puts("rpar"); break;
         case I_CCLASS: puts("cclass"); break;
         case I_NCCLASS: puts("ncclass"); break;
-        case I_SPLIT: printf("split %lu\n", pc->b + counter); padnum++; break;
-        case I_INCREMENT: printf("split jump %lu\n", pc->b + counter); padnum--; break;
-        case I_JUMP: printf("jump %u\n", pc->b); padnum--; break;
+        case I_SPLIT: printf("split %lu\n", pc->b + icount); padnum++; break;
+        case I_JUMP_REL: printf("jump relative %lu %d\n", pc->b + icount, pc->repeat); if (padnum > 0) padnum--; break;
+        case I_JUMP_ABS: printf("jump absolute %u\n", pc->b); if (padnum > 0) padnum--; break;
         }
 
-        counter++; /* pc - (Instruct *)reo->bcode.buf */
+        icount++; /* pc - (Instruct *)reo->bcode.buf */
         pc++;
-        len -= sizeof(Instruct);
+        len -= INSTRUCT_LEN;
     }
 
 }
