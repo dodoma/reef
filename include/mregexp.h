@@ -40,7 +40,7 @@ __BEGIN_DECLS
 
 MRE*  mre_init();
 MERR* mre_compile(MRE *reo, const char *pattern);
-bool  mre_match(MRE *reo, const char *string);
+bool  mre_match(MRE *reo, const char *string, bool igcase);
 void  mre_destroy(MRE **reo);
 
 /* 获取匹配`(...)`的个数 */

@@ -322,7 +322,7 @@ static void _newroad(MRE *reo, Road *t, Instruct *pc, int32_t pos, const char *s
     if (t->pc < istart || t->pc >= iend) DIE(reo, "instruct overflow!!");
 }
 
-static bool _execute(MRE *reo, Instruct *start_pc, const char *string)
+static bool _execute(MRE *reo, Instruct *start_pc, const char *string, bool igcase)
 {
     Road roads[MAX_SPLIT];
     int nroad;
@@ -357,20 +357,37 @@ static bool _execute(MRE *reo, Instruct *start_pc, const char *string)
                 if (sp == bol) {
                     pc = pc + 1;
                     continue;
+                } else if (sp > bol && _isnewline(*sp)) {
+                    sp += 1;
+                    pc = pc + 1;
+                    continue;
                 }
+                goto river;
             case I_EOL:
                 if (*sp == 0) {
+                    pc = pc + 1;
+                    continue;
+                } else if (_isnewline(*sp)) {
+                    sp += 1;
                     pc = pc + 1;
                     continue;
                 }
                 goto river;
             case I_CHAR:
+            {
+                Rune d;
                 sp += chartorune(&c, sp);
-                if (c == pc->c) {
+                if (igcase) {
+                    c = _canon(c);
+                    d = _canon(pc->c);
+                } else d = pc->c;
+
+                if (c == d) {
                     pc = pc + 1;
                     continue;
                 }
                 goto river;
+            }
             case I_ANY:
                 sp += chartorune(&c, sp);
                 if (c && !_isnewline(c)) {
@@ -398,13 +415,13 @@ static bool _execute(MRE *reo, Instruct *start_pc, const char *string)
                 continue;
             case I_CCLASS:
                 sp += chartorune(&c, sp);
-                if (c && _inrange(pc->rlist, c)) {
+                if (c && _inrange(pc->rlist, c, igcase)) {
                     pc = pc + 1;
                     continue;
                 } else goto river;
             case I_NCCLASS:
                 sp += chartorune(&c, sp);
-                if (c == 0 || _inrange(pc->rlist, c)) {
+                if (c == 0 || _inrange(pc->rlist, c, igcase)) {
                     goto river;
                 } else {
                     pc = pc + 1;
@@ -438,21 +455,21 @@ static bool _execute(MRE *reo, Instruct *start_pc, const char *string)
 
                 int i = pe - ps;
                 if (i > 0) {
-                    if (strncmp(sp, ps, i)) goto river;
+                    if (_strequal(sp, ps, i, igcase)) goto river;
                     sp += i;
                     pc = pc + 1;
                     continue;
                 } else goto river;
             }
             case I_PLA:
-                if (!_execute(reo, pc + 1, sp)) {
+                if (!_execute(reo, pc + 1, sp, igcase)) {
                     goto river;
                 } else {
                     pc = _pc_relative(reo, pc, pc->b);
                     continue;
                 }
             case I_NLA:
-                if (_execute(reo, pc + 1, sp)) {
+                if (_execute(reo, pc + 1, sp, igcase)) {
                     goto river;
                 } else {
                     pc = _pc_relative(reo, pc, pc->b);
@@ -556,13 +573,13 @@ void mre_dump(MRE *reo)
 
 }
 
-bool mre_match(MRE *reo, const char *string)
+bool mre_match(MRE *reo, const char *string, bool igcase)
 {
     if (!reo || !string || reo->bcode.len <= 0) return false;
 
     reo->nmatch = string;
 
-    return _execute(reo, NULL, string);
+    return _execute(reo, NULL, string, igcase);
 }
 
 uint32_t mre_sub_count(MRE *reo)

@@ -1,3 +1,11 @@
+static Rune _canon(Rune c)
+{
+	Rune u = toupperrune(c);
+	if (c >= 128 && u < 128)
+		return c;
+	return u;
+}
+
 static bool _isnewline(Rune c)
 {
 	return c == 0xA || c == 0xD || c == 0x2028 || c == 0x2029;
@@ -40,18 +48,43 @@ static Instruct* _pc_absolute(MRE *reo, int32_t pos)
     return pos >= 0 ? istart + pos : iend + pos;
 }
 
-static bool _inrange(MLIST *rlist, Rune c)
+static bool _inrange(MLIST *rlist, Rune c, bool igcase)
 {
     Rune *a, *b;
+    Rune ra, rb;
 
     for (int i = 0; i < mlist_length(rlist); i += 2) {
         mlist_get(rlist, i, (void**)&a);
         mlist_get(rlist, i+1, (void**)&b);
+        ra = (Rune)a;
+        rb = (Rune)b;
 
-        if ((Rune)a <= c && c <= (Rune)b) return true;
+        if (igcase) {
+            for (Rune p = ra; p <= rb; ++p) {
+                if (_canon(c) == _canon(p)) return true;
+            }
+        } else if (ra <= c && c <= rb) return true;
     }
 
     return false;
+}
+
+static int _strequal(const char *a, const char *b, int i, bool igcase)
+{
+    Rune ra, rb;
+    int c;
+
+    if (igcase) {
+        while (i--) {
+            if (!*a) return -1;
+            if (!*b) return 1;
+            a += chartorune(&ra, a);
+            b += chartorune(&rb, b);
+            c = _canon(ra) - _canon(rb);
+            if (c) return c;
+        }
+        return 0;
+    } else return strncmp(a, b, i);
 }
 
 static void _addrange(MRE *reo, MLIST *rlist, Rune a, Rune b)
