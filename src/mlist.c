@@ -198,6 +198,19 @@ int mlist_index(MLIST *alist, const void *key,
     return -1;
 }
 
+void mlist_clear(MLIST *alist)
+{
+    if (!alist) return;
+
+    if (alist->free) {
+        for (int i = 0; i < alist->num; i++) {
+            alist->free(alist->items[i]);
+        }
+    }
+
+    alist->num = 0;
+    alist->sorted = true;
+}
 
 void mlist_destroy(MLIST **alist)
 {
