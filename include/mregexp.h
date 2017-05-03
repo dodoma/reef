@@ -38,10 +38,15 @@
  */
 __BEGIN_DECLS
 
-MRE* mre_init();
+MRE*  mre_init();
 MERR* mre_compile(MRE *reo, const char *pattern);
-bool mre_match(MRE *reo, const char *string);
-void mre_destroy(MRE **reo);
+bool  mre_match(MRE *reo, const char *string);
+void  mre_destroy(MRE **reo);
+
+/* 获取匹配`(...)`的个数 */
+uint32_t mre_sub_count(MRE *reo);
+/* 获取第几个匹配, index 传 0 取第一个 match sub */
+bool mre_sub_get(MRE *reo, uint32_t index, const char **sp, const char **ep);
 
 __END_DECLS
 #endif

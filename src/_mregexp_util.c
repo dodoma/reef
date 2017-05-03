@@ -11,6 +11,11 @@ static bool _accept(MRE *reo, char c)
     } else return false;
 }
 
+static uint32_t _instruct_count(MRE *reo)
+{
+    return reo->bcode.len / INSTRUCT_LEN;
+}
+
 static Instruct* _pc_relative(MRE *reo, Instruct *pc, int32_t pos)
 {
     Instruct *istart = (Instruct *)reo->bcode.buf;
@@ -18,7 +23,7 @@ static Instruct* _pc_relative(MRE *reo, Instruct *pc, int32_t pos)
 
     pc = pc + pos;
 
-    if (pc < istart || pc >= iend) _die(reo, "instruct overflow!");
+    if (pc < istart || pc >= iend) DIE(reo, "instruct overflow!");
 
     return pc;
 }
@@ -26,10 +31,13 @@ static Instruct* _pc_relative(MRE *reo, Instruct *pc, int32_t pos)
 static Instruct* _pc_absolute(MRE *reo, int32_t pos)
 {
     Instruct *istart = (Instruct *)reo->bcode.buf;
+    Instruct *iend = (Instruct *)(reo->bcode.buf + reo->bcode.len);
 
-    if (pos < 0 || pos > reo->bcode.len / INSTRUCT_LEN) _die(reo, "instruct overflow");
+    if ((pos >= 0 && pos > reo->bcode.len / INSTRUCT_LEN) ||
+        (pos < 0 && -pos > reo->bcode.len / INSTRUCT_LEN))
+        DIE(reo, "instruct overflow");
 
-    return istart + pos;
+    return pos >= 0 ? istart + pos : iend + pos;
 }
 
 static bool _inrange(MLIST *rlist, Rune c)
@@ -49,7 +57,7 @@ static bool _inrange(MLIST *rlist, Rune c)
 static void _addrange(MRE *reo, MLIST *rlist, Rune a, Rune b)
 {
     if (a > b) {
-        _die(reo, "invalid character class range");
+        DIE(reo, "invalid character class range");
     }
 
     mlist_append(rlist, MOS_MEM_OFFSET(a));
