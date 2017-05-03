@@ -55,11 +55,11 @@ size_t mbuf_insert(MBUF *abuf, size_t offset, const void *data, size_t len)
     size_t delta = abuf->len - offset;
 
     if (abuf->len + len <= abuf->max) {
-        memmove(abuf->buf + to, abuf->buf + from, delta);
+        if (delta > 0) memmove(abuf->buf + to, abuf->buf + from, delta);
     } else {
         size_t new_size = (size_t)((abuf->len + len) * 2);
         abuf->buf = mos_realloc(abuf->buf, new_size);
-        memmove(abuf->buf + to, abuf->buf + from, delta);
+        if (delta > 0) memmove(abuf->buf + to, abuf->buf + from, delta);
         abuf->max = new_size;
     }
 
