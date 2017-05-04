@@ -2,21 +2,27 @@
 #define __MRE_H__
 
 /*
+ * mregexp, 一个试验版的正则表达式解析匹配器(练手为主)，支持以下功能：
  * ^       Match beginning of a buffer
  * $       Match end of a buffer
- * ()      Grouping and substring capturing
+ * ()      Grouping and substring capturing, include:
+ *         (?:)    no capture
+ *         (?=)    positive lookahead
+ *         (?!)    negative lookahead
  * |       Or
- * .       any charactor except '\n'
+ * .       any charactor except newline
  * [...]   Match any character from set. Ranges like [a-z] are supported
  * [^...]  Match any character but ones from set
- * ?       Match zero or once (non-greedy)
- * *       Match zero or more times (greedy)
- * +       Match one or more times (greedy)
+ * ?       Match zero or once
+ * *       Match zero or more times, *? for non-greedy
+ * +       Match one or more times, +? for non-greedy
  * {m}     Match exactly n times
- * {m,}    Match >= n times
- * {m,n}   Match >= n && <=m times
-
- * \meta   Match one of the meta character: ^$().[]*+?|\
+ * {m,}    Match >= n times, {m,}? for non-greedy
+ * {m,n}   Match >= n && <=m times, {m,n}? for non-greedy
+ *
+ * \b      Match word terminal
+ * \B      Match non-word terminal
+ * \1,2... Back reference
  *
  * \d      Match decimal digit equal to [0-9]
  * \D      Match non-decimal digit equal to [^0-9]
@@ -24,18 +30,20 @@
  * \S      Match non-whitespacep equal to [^\f\n\r\t\v]
  * \w      Match any word charactor, equal to [A-Za-z0-9_]
  * \W      Match any non-word charactor, equal to [^A-Za-z0-9_]
- * \b      Match word terminal
- * \B      Match non-word terminal
- *
  * \n      Match new line character
  * \r      Match line feed character
  * \f      Match form feed character
  * \v      Match vertical tab character
  * \t      Match horizontal tab character
+ * \meta   Match one of the meta character: ^$().[]*+?|\
  *
- * \xHH    Match byte with hex value 0xHH, e.g. \x4a
- *
+ * many thanks to:
+ * 1. mujs
+ * 2. mjs
+ * 3. clearsilver
+ * 4. [正则表达式-教程](http://www.runoob.com/regexp/regexp-tutorial.html)
  */
+
 __BEGIN_DECLS
 
 MRE*  mre_init();
