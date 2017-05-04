@@ -11,6 +11,11 @@ static bool _isnewline(Rune c)
 	return c == 0xA || c == 0xD || c == 0x2028 || c == 0x2029;
 }
 
+static bool _iswordchar(Rune c)
+{
+	return c == '_' ||	(c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9');
+}
+
 static bool _accept(MRE *reo, char c)
 {
     if (*reo->pos == c) {

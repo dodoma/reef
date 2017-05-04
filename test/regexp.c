@@ -107,7 +107,20 @@ void test_basic()
         }
     }
 #endif
+
+    err = mre_compile(reo, "\\bis\\b.*is\\b");
+    TRACE_NOK(err);
+    //mtc_dbg(" ");
+    //mre_dump(reo);
+    MTEST_ASSERT(mre_match(reo, "he is his history", false) == true);
+
+    err = mre_compile(reo, "\\Bis\\B.*");
+    TRACE_NOK(err);
+    //mtc_dbg(" ");
+    //mre_dump(reo);
+    MTEST_ASSERT(mre_match(reo, "he is his history", false) == true);
 #endif
+
 
     mre_destroy(&reo);
 }

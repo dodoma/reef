@@ -16,7 +16,7 @@ enum {
     I_END,
 
     I_BOL, I_EOL, I_CHAR, I_ANY, I_ANYNL, I_LPAR, I_RPAR, I_CCLASS, I_NCCLASS,
-    I_SPLIT, I_JUMP_ABS, I_JUMP_REL, I_REF, I_PLA, I_NLA
+    I_SPLIT, I_JUMP_ABS, I_JUMP_REL, I_REF, I_PLA, I_NLA, I_WORD, I_NWORD
 };
 
 typedef struct {
@@ -249,6 +249,8 @@ static uint32_t _parse_statement(MRE *reo)
         case TOK_NCCLASS: lastcount = _parse_cclass(reo, true); break;
         case TOK_REPEAT:  lastcount = _parse_repeat(reo, lastcount); break;
         case TOK_REF: lastcount = _emit(reo, I_REF, &pc); pc->unum = reo->tok.c; break;
+        case TOK_WORD: lastcount = _emit(reo, I_WORD, NULL); break;
+        case TOK_NWORD: lastcount = _emit(reo, I_NWORD, NULL); break;
         case TOK_OPEN_PAREN:
         case TOK_NC:
         case TOK_PLA:
@@ -505,6 +507,22 @@ static bool _execute(MRE *reo, Instruct *start_pc, const char *string, bool igca
                     pc = _pc_relative(reo, pc, pc->b);
                     continue;
                 }
+            case I_WORD:
+            {
+                int i = sp > bol && _iswordchar(sp[-1]);
+                i ^= _iswordchar(sp[0]);
+                if (!i) goto river;
+                pc = pc + 1;
+                continue;
+            }
+            case I_NWORD:
+            {
+                int i = sp > bol && _iswordchar(sp[-1]);
+                i ^= _iswordchar(sp[0]);
+                if (i) goto river;
+                pc = pc + 1;
+                continue;
+            }
             default:
                 goto river;
             }
@@ -595,6 +613,8 @@ void mre_dump(MRE *reo)
             printf("pla %lu\n", pc->b + icount);
             padnum++; break;
         case I_NLA: printf("nla %lu\n", pc->b + icount); padnum++; break;
+        case I_WORD: puts("word"); break;
+        case I_NWORD: puts("noword"); break;
         }
 
         icount++; /* pc - (Instruct *)reo->bcode.buf */
