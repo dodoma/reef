@@ -45,7 +45,7 @@ void  mre_destroy(MRE **reo);
 
 /* 获取匹配`(...)`的个数 */
 uint32_t mre_sub_count(MRE *reo);
-/* 获取第几个匹配, index 传 0 取第一个 match sub */
+/* 获取第几个匹配, index 传 1 取第一个 match sub(0 为整个 match sub string) */
 bool mre_sub_get(MRE *reo, uint32_t index, const char **sp, const char **ep);
 
 __END_DECLS

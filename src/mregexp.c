@@ -38,6 +38,11 @@ typedef struct {
     const char *sp;
 } Road;
 
+typedef struct {
+    const char *sp;
+    const char *ep;
+} Resub;
+
 
 struct _MRE {
     MBUF bcode;
@@ -208,9 +213,12 @@ static uint32_t _parse_lpar(MRE *reo, uint8_t tok)
 
     switch (tok) {
     case TOK_OPEN_PAREN:
+    {
+        Instruct *oldpc = _pc_absolute(reo, pos);
         icount += _emit(reo, I_RPAR, &pc);
-        pc->unum = 1;
+        pc->unum = oldpc->unum;
         break;
+    }
     case TOK_NC:
         icount += _emit(reo, I_RPAR, NULL);
         break;
@@ -402,17 +410,43 @@ static bool _execute(MRE *reo, Instruct *start_pc, const char *string, bool igca
                     continue;
                 } else goto river;
             case I_LPAR:
-                if (pc->unum > 0) {
-                    mlist_append(reo->sublist, (void*)sp);
+            {
+                int len = mlist_length(reo->sublist);
+                if (len > pc->unum) {
+                    Resub *sub;
+                    mlist_get(reo->sublist, pc->unum, (void**)&sub);
+                    if (!sub) {
+                        sub = mos_calloc(1, sizeof(Resub));
+                        mlist_set(reo->sublist, pc->unum, sub);
+                    }
+                    sub->sp = sp;
+                    sub->ep = NULL;
+                    goto lpardone;
+                } else if (len < pc->unum) {
+                    for (int i = len; i < pc->unum; i++) {
+                        mlist_append(reo->sublist, NULL);
+                    }
                 }
+                Resub *sub = mos_calloc(1, sizeof(Resub));
+                sub->sp = sp;
+                sub->ep = NULL;
+                mlist_append(reo->sublist, (void*)sub);
+
+            lpardone:
                 pc = pc + 1;
                 continue;
+            }
             case I_RPAR:
-                if (pc->unum > 0) {
-                    mlist_append(reo->sublist, (void*)sp);
-                }
+            {
+                Resub *sub;
+                MERR *err;
+                err = mlist_get(reo->sublist, pc->unum, (void**)&sub);
+                JUMP_NOK(err, river);
+                sub->ep = sp;
+
                 pc = pc + 1;
                 continue;
+            }
             case I_CCLASS:
                 sp += chartorune(&c, sp);
                 if (c && _inrange(pc->rlist, c, igcase)) {
@@ -445,17 +479,13 @@ static bool _execute(MRE *reo, Instruct *start_pc, const char *string, bool igca
                 continue;
             case I_REF:
             {
-                MERR *err;
-                char *ps, *pe;
+                const char *ps, *pe;
 
-                err = mlist_get(reo->sublist, (pc->unum * 2) - 2, (void**)&ps);
-                JUMP_NOK(err, river);
-                err = mlist_get(reo->sublist, (pc->unum * 2) - 1, (void**)&pe);
-                JUMP_NOK(err, river);
+                if (!mre_sub_get(reo, pc->unum, &ps, &pe)) goto river;
 
                 int i = pe - ps;
                 if (i > 0) {
-                    if (_strequal(sp, ps, i, igcase)) goto river;
+                    if (_strcompare(sp, ps, i, igcase)) goto river;
                     sp += i;
                     pc = pc + 1;
                     continue;
@@ -496,7 +526,7 @@ MRE* mre_init()
 
     mbuf_init(&reo->bcode, 0);
     mlist_init(&reo->cclist, mlist_free);
-    mlist_init(&reo->sublist, NULL);
+    mlist_init(&reo->sublist, free);
 
     reo->icount = 0;
     reo->nsub = 1;
@@ -544,6 +574,7 @@ void mre_dump(MRE *reo)
      */
     while (len > 0) {
         printf("% 5ld: ", icount);
+        if (pc->op_code == I_RPAR) padnum--;
         for (int i = 0; i < padnum; i++) printf("    ");
         switch (pc->op_code) {
         case I_END: puts("end"); if (padnum > 0) padnum--; break;
@@ -552,7 +583,7 @@ void mre_dump(MRE *reo)
         case I_CHAR: printf(pc->c >= 32 && pc->c < 127 ? "char '%c'\n" : "char U+%04X\n", pc->c); break;
         case I_ANY: puts("any"); break;
         case I_ANYNL: puts("anynl"); break;
-        case I_LPAR: printf("lpar %d\n", pc->unum); break;
+        case I_LPAR: printf("lpar %d\n", pc->unum); padnum++; break;
         case I_RPAR: printf("rpar %d\n", pc->unum); break;
         case I_CCLASS: puts("cclass"); break;
         case I_NCCLASS: puts("ncclass"); break;
@@ -586,7 +617,7 @@ uint32_t mre_sub_count(MRE *reo)
 {
     if (!reo || !reo->sublist) return 0;
 
-    return mlist_length(reo->sublist) / 2;
+    return mlist_length(reo->sublist);
 }
 
 bool mre_sub_get(MRE *reo, uint32_t index, const char **sp, const char **ep)
@@ -595,14 +626,16 @@ bool mre_sub_get(MRE *reo, uint32_t index, const char **sp, const char **ep)
 
     if (!reo || !reo->sublist) return false;
 
-    if (mlist_length(reo->sublist) / 2 < index + 1) return false;
+    if (mlist_length(reo->sublist) < index + 1) return false;
 
-    err = mlist_get(reo->sublist, ((index + 1) * 2) - 2, (void**)sp);
-    JUMP_NOK(err, error);
-    err = mlist_get(reo->sublist, ((index + 1) * 2) - 1, (void**)ep);
+    Resub *sub;
+    err = mlist_get(reo->sublist, index, (void**)&sub);
     JUMP_NOK(err, error);
 
-    if (*ep <= *sp) return false;
+    if (sub->ep <= sub->sp) return false;
+
+    *sp = sub->sp;
+    *ep = sub->ep;
 
     return true;
 

@@ -78,17 +78,6 @@ void test_basic()
     //mtc_dbg(" ");
     //mre_dump(reo);
     MTEST_ASSERT(mre_match(reo, "foogood | red good red", false) == true);
-#if 0
-    for (int i = 0; i < mre_sub_count(reo); i ++) {
-        const char *sp, *ep;
-
-        if (mre_sub_get(reo, i, &sp, &ep)) {
-            printf("%d match: %.*s\n", i, (int)(ep - sp), sp);
-        } else {
-            printf("sub get error %d\n", i);
-        }
-    }
-#endif
 
     err = mre_compile(reo, "foo(?=bad|good)");
     TRACE_NOK(err);
@@ -101,8 +90,24 @@ void test_basic()
     //mtc_dbg(" ");
     //mre_dump(reo);
     MTEST_ASSERT(mre_match(reo, "fooBaD \nnewline", true) == true);
-#endif
 
+    err = mre_compile(reo, "foo(good)(fine) (goo(gle)) \\1 \\2 \\3 \\4");
+    TRACE_NOK(err);
+    //mtc_dbg(" ");
+    //mre_dump(reo);
+    MTEST_ASSERT(mre_match(reo, "womane shif dvfoogoodfine google good fine google gle sdoeoX", true) == true);
+#if 0
+    for (int i = 0; i < mre_sub_count(reo); i ++) {
+        const char *sp, *ep;
+
+        if (mre_sub_get(reo, i, &sp, &ep)) {
+            printf("%d match: %.*s\n", i, (int)(ep - sp), sp);
+        } else {
+            printf("sub get error %d\n", i);
+        }
+    }
+#endif
+#endif
 
     mre_destroy(&reo);
 }

@@ -69,7 +69,7 @@ static bool _inrange(MLIST *rlist, Rune c, bool igcase)
     return false;
 }
 
-static int _strequal(const char *a, const char *b, int i, bool igcase)
+static int _strcompare(const char *a, const char *b, int i, bool igcase)
 {
     Rune ra, rb;
     int c;
