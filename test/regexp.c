@@ -1,5 +1,18 @@
 #include "reef.h"
 
+static void _dump_res(MRE *reo)
+{
+    for (int i = 0; i < mre_sub_count(reo); i ++) {
+        const char *sp, *ep;
+
+        if (mre_sub_get(reo, i, &sp, &ep)) {
+            printf("%d match: %.*s\n", i, (int)(ep - sp), sp);
+        } else {
+            printf("sub %d don't match\n", i);
+        }
+    }
+}
+
 void test_basic()
 {
     MERR *err;
@@ -96,17 +109,7 @@ void test_basic()
     //mtc_dbg(" ");
     //mre_dump(reo);
     MTEST_ASSERT(mre_match(reo, "womane shif dvfoogoodfine google good fine google gle sdoeoX", true) == true);
-#if 0
-    for (int i = 0; i < mre_sub_count(reo); i ++) {
-        const char *sp, *ep;
-
-        if (mre_sub_get(reo, i, &sp, &ep)) {
-            printf("%d match: %.*s\n", i, (int)(ep - sp), sp);
-        } else {
-            printf("sub get error %d\n", i);
-        }
-    }
-#endif
+    //_dump_res(reo);
 
     err = mre_compile(reo, "\\bis\\b.*is\\b");
     TRACE_NOK(err);
@@ -125,9 +128,77 @@ void test_basic()
     mre_destroy(&reo);
 }
 
+void test_example()
+{
+    MERR *err;
+
+    MRE *reo = mre_init();
+
+#if 1
+    err = mre_compile(reo, "\\b([a-z]+) \\1\\b");
+    //mtc_dbg(" ");
+    //mre_dump(reo);
+    TRACE_NOK(err);
+    MTEST_ASSERT(mre_match(reo, "when i believe believe  you are are my sunsine.", true) == true);
+    //_dump_res(reo);
+
+    err = mre_compile(reo, "(\\w+)://([^/:]+)(:\\d*)?([^# ]*)");
+    //mtc_dbg(" ");
+    //mre_dump(reo);
+    TRACE_NOK(err);
+    MTEST_ASSERT(mre_match(reo, "http://www.google.com:8080/unexit", true) == true);
+    //_dump_res(reo);
+
+    err = mre_compile(reo, "^(?:Chapter|Section) [1-9][0-9]{0,1}$");
+    //mtc_dbg(" ");
+    //mre_dump(reo);
+    TRACE_NOK(err);
+    MTEST_ASSERT(mre_match(reo, "chapter 1", true) == true);
+    //_dump_res(reo);
+
+    err = mre_compile(reo, "Windows(?=95|98|NT).* power");
+    //mtc_dbg(" ");
+    //mre_dump(reo);
+    TRACE_NOK(err);
+    MTEST_ASSERT(mre_match(reo, "Windows98 power", false) == true);
+    //_dump_res(reo);
+
+    err = mre_compile(reo, "^\\s*$");
+    //mtc_dbg(" ");
+    //mre_dump(reo);
+    TRACE_NOK(err);
+    MTEST_ASSERT(mre_match(reo, "   \t", false) == true);
+    //_dump_res(reo);
+
+    err = mre_compile(reo, "\\d{2}-\\d{5}");
+    //mtc_dbg(" ");
+    //mre_dump(reo);
+    TRACE_NOK(err);
+    MTEST_ASSERT(mre_match(reo, "My Id: 39-50598", false) == true);
+    //_dump_res(reo);
+
+    /*
+     * greedy match
+     */
+    //err = mre_compile(reo, "<\\s*(\\S+)(\\s[^>]*)?>([\\s\\S]*)<\\s*/\\1\\s*>");
+    /*
+     * non-greddy match
+     */
+    err = mre_compile(reo, "<\\s*(\\S+)(\\s[^>]*)?>([\\s\\S]*?)<\\s*/\\1\\s*>");
+    //mtc_dbg(" ");
+    //mre_dump(reo);
+    TRACE_NOK(err);
+    MTEST_ASSERT(mre_match(reo, "aa<div>test1</div>bb<div>test2</div>cc", false) == true);
+    _dump_res(reo);
+#endif
+
+    mre_destroy(&reo);
+}
+
 void suite_basic()
 {
     mtest_add_test(test_basic, "basic");
+    mtest_add_test(test_example, "example");
 }
 
 int main()

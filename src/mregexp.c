@@ -18,7 +18,7 @@ enum {
     I_BOL, I_EOL, I_CHAR, I_ANY, I_ANYNL = 5,
     I_LPAR, I_RPAR, I_CCLASS, I_NCCLASS, I_SPLIT = 10,
     I_JUMP_ABS, I_JUMP_REL, I_REF, I_PLA, I_NLA = 15,
-    I_WORD, I_NWORD
+    I_WORD, I_NWORD, I_SPLITO
 };
 
 typedef struct {
@@ -487,6 +487,11 @@ static bool _execute(MRE *reo, Instruct *start_pc, const char *string, bool igca
                 _newroad(reo, &roads[nroad++], pc, pc->b, sp);
                 pc = pc + 1;
                 continue;
+            case I_SPLITO:
+                if (nroad >= MAX_SPLIT) DIE(reo, "backtrace overflow!");
+                _newroad(reo, &roads[nroad++], pc, 1, sp);
+                pc = pc + pc->b;
+                continue;
             case I_JUMP_REL:
                 if (pc->rrnum >= 0) {
                     if (*sp == 0 && pc->b < 0) {
@@ -630,6 +635,7 @@ void mre_dump(MRE *reo)
         case I_CCLASS: puts("cclass"); break;
         case I_NCCLASS: puts("ncclass"); break;
         case I_SPLIT: printf("split %lu\n", pc->b + icount); padnum++; break;
+        case I_SPLITO: printf("splito %lu\n", pc->b + icount); padnum++; break;
         case I_JUMP_REL: printf("jump relative %lu %d\n", pc->b + icount, pc->unum); if (padnum > 0) padnum--; break;
         case I_JUMP_ABS: printf("jump absolute %u\n", pc->b); if (padnum > 0) padnum--; break;
         case I_REF: printf("ref %d\n", pc->unum); break;

@@ -80,7 +80,7 @@ static uint32_t _emit_repeat(MRE *reo, int min, int max, uint32_t lastcount, boo
 
         /* REPEAT SPLIT */
         memset(&inst, 0x0, INSTRUCT_LEN);
-        inst.op_code = I_SPLIT;
+        inst.op_code = greedy ? I_SPLIT : I_SPLITO;
         inst.b = 2 + lastcount;
         mbuf_append(&reo->bcode, &inst, INSTRUCT_LEN);
         icount++;
@@ -109,7 +109,7 @@ static uint32_t _emit_repeat(MRE *reo, int min, int max, uint32_t lastcount, boo
 
     if (min == 0) {
         /* 上一个组件可以不执行 */
-        inst.op_code = I_SPLIT;
+        inst.op_code = greedy ? I_SPLIT : I_SPLITO;
         inst.b = icount + lastcount + 1;
         mbuf_insert(&reo->bcode, reo->bcode.len - (icount + lastcount) * INSTRUCT_LEN, &inst, INSTRUCT_LEN);
         icount++;
