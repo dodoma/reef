@@ -24,6 +24,7 @@ static uint32_t _emit_split(MRE *reo, uint32_t alen, uint32_t blen)
     memset(&inst, 0x0, INSTRUCT_LEN);
     inst.op_code = I_JUMP_REL;
     inst.b = blen + 1;
+    inst.unum = INT_MAX;        /* may be repeat many times */
     mbuf_insert(&reo->bcode, reo->bcode.len - ((blen) * INSTRUCT_LEN), &inst, INSTRUCT_LEN);
     icount++;
 

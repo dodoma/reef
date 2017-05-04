@@ -15,8 +15,10 @@
 enum {
     I_END,
 
-    I_BOL, I_EOL, I_CHAR, I_ANY, I_ANYNL, I_LPAR, I_RPAR, I_CCLASS, I_NCCLASS,
-    I_SPLIT, I_JUMP_ABS, I_JUMP_REL, I_REF, I_PLA, I_NLA, I_WORD, I_NWORD
+    I_BOL, I_EOL, I_CHAR, I_ANY, I_ANYNL = 5,
+    I_LPAR, I_RPAR, I_CCLASS, I_NCCLASS, I_SPLIT = 10,
+    I_JUMP_ABS, I_JUMP_REL, I_REF, I_PLA, I_NLA = 15,
+    I_WORD, I_NWORD
 };
 
 typedef struct {
@@ -238,13 +240,23 @@ static uint32_t _parse_statement(MRE *reo)
     uint8_t tok = TOK_EOF;
     uint32_t icount = 0, lastcount = 0;
     Instruct *pc;
+    MLIST *rlist;
 
     while ((tok = _tok_next(reo, false)) != TOK_OR && tok != TOK_EOF && tok != TOK_CLOSE_PAREN) {
+        mlist_init(&rlist, NULL);
         switch (tok) {
         case TOK_BOL:  lastcount = _emit(reo, I_BOL, NULL); break;
         case TOK_EOL:  lastcount = _emit(reo, I_EOL, NULL); break;
         case TOK_CHAR: lastcount =  _emit(reo, I_CHAR, &pc); pc->c = reo->tok.c; break;
         case TOK_ANY:  lastcount = _emit(reo, I_ANY, NULL); break;
+
+        case TOK_R_DICIMAL: _add_ranges_d(reo, rlist); break;
+        case TOK_R_NDICIMAL: _add_ranges_D(reo, rlist); break;
+        case TOK_R_WHITESPACE: _add_ranges_s(reo, rlist); break;
+        case TOK_R_NWHITESPACE: _add_ranges_S(reo, rlist); break;
+        case TOK_R_WORD: _add_ranges_w(reo, rlist); break;
+        case TOK_R_NWORD: _add_ranges_W(reo, rlist); break;
+
         case TOK_CCLASS:  lastcount = _parse_cclass(reo, false); break;
         case TOK_NCCLASS: lastcount = _parse_cclass(reo, true); break;
         case TOK_REPEAT:  lastcount = _parse_repeat(reo, lastcount); break;
@@ -259,6 +271,11 @@ static uint32_t _parse_statement(MRE *reo)
             break;
         default: DIE(reo, "unexpect token");
         }
+
+        if (mlist_length(rlist) > 0) {
+            mlist_append(reo->cclist, rlist);
+            lastcount = _emit_cclass(reo, rlist, false);
+        } else mlist_destroy(&rlist);
 
         icount += lastcount;
     }
@@ -278,11 +295,7 @@ static MERR* _compile(MRE *reo, const char *pattern)
         return merr_pass(reo->error);
     }
 
-    reo->icount = _emit(reo, I_SPLIT, &pc);
-    pc->b = 3;
-    reo->icount += _emit(reo, I_ANYNL, NULL);
-    reo->icount += _emit(reo, I_JUMP_ABS, &pc);
-    pc->b = 0;
+    reo->icount = _emit(reo, I_SPLIT, NULL);
     reo->icount += _emit(reo, I_LPAR, NULL);
 
     uint32_t alen, blen;
@@ -300,6 +313,12 @@ static MERR* _compile(MRE *reo, const char *pattern)
 
     reo->icount += _emit(reo, I_RPAR, NULL);
     reo->icount += _emit(reo, I_END, NULL);
+    pc = _pc_absolute(reo, 0);
+    pc->b = reo->icount;
+
+    reo->icount += _emit(reo, I_ANYNL, NULL);
+    reo->icount += _emit(reo, I_JUMP_ABS, &pc);
+    pc->b = 0;
 
     if (reo->icount * INSTRUCT_LEN != reo->bcode.len) {
         //printf("%d %d \n", reo->icount, reo->bcode.len / INSTRUCT_LEN);
@@ -470,6 +489,11 @@ static bool _execute(MRE *reo, Instruct *start_pc, const char *string, bool igca
                 continue;
             case I_JUMP_REL:
                 if (pc->rrnum >= 0) {
+                    if (*sp == 0 && pc->b < 0) {
+                        /* don't REPEAT_BACK on EOL */
+                        pc = pc + 1;
+                        continue;
+                    }
                     pc->rrnum -= 1;
                     pc = _pc_relative(reo, pc, pc->b);
                 } else {
