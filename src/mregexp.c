@@ -55,8 +55,8 @@ struct _MRE {
     MLIST *sublist;
 
     const char *source;         /* Nul-terminated source code buffer */
-    const char *pos;            /* Current position */
-    const char *nmatch;
+    const char *pos;            /* Current source position */
+    const char *pend;           /* Current match end */
 
     Token tok;
 
@@ -328,6 +328,19 @@ static MERR* _compile(MRE *reo, const char *pattern)
     return MERR_OK;
 }
 
+static bool _sub_get(MLIST *slist, uint32_t index, const char **sp, const char **ep)
+{
+    Resub *sub;
+    mlist_get(slist, index, (void**)&sub);
+
+    if (sub->ep <= sub->sp) return false;
+
+    *sp = sub->sp;
+    *ep = sub->ep;
+
+    return true;
+}
+
 static void _reset_rrnum(MRE *reo)
 {
     Instruct *pc = (Instruct *)reo->bcode.buf;
@@ -360,7 +373,10 @@ static bool _execute(MRE *reo, Instruct *start_pc, const char *string, bool igca
     Instruct *pc, *pc0;           /* program counter */
     const char *sp = string;      /* string pointer */
     const char *bol = string;
+    MLIST *slist;
 
+    reo->pend = string;
+    mlist_init(&slist, free);
 
     if (!start_pc) pc0 = (Instruct *)reo->bcode.buf;
     else pc0 = start_pc;
@@ -381,13 +397,14 @@ static bool _execute(MRE *reo, Instruct *start_pc, const char *string, bool igca
         while (1) {
             switch (pc->op_code) {
             case I_END:
+                reo->pend = sp;
+                mlist_append(reo->sublist, slist);
                 return true;
             case I_BOL:
                 if (sp == bol) {
                     pc = pc + 1;
                     continue;
-                } else if (sp > bol && _isnewline(*sp)) {
-                    sp += 1;
+                } else if (sp > bol && _isnewline(sp[-1])) {
                     pc = pc + 1;
                     continue;
                 }
@@ -422,8 +439,7 @@ static bool _execute(MRE *reo, Instruct *start_pc, const char *string, bool igca
                 if (c && !_isnewline(c)) {
                     pc = pc + 1;
                     continue;
-                }
-                goto river;
+                } else goto river;
             case I_ANYNL:
                 sp += chartorune(&c, sp);
                 if (c) {
@@ -432,26 +448,26 @@ static bool _execute(MRE *reo, Instruct *start_pc, const char *string, bool igca
                 } else goto river;
             case I_LPAR:
             {
-                int len = mlist_length(reo->sublist);
+                int len = mlist_length(slist);
                 if (len > pc->unum) {
                     Resub *sub;
-                    mlist_get(reo->sublist, pc->unum, (void**)&sub);
+                    mlist_get(slist, pc->unum, (void**)&sub);
                     if (!sub) {
                         sub = mos_calloc(1, sizeof(Resub));
-                        mlist_set(reo->sublist, pc->unum, sub);
+                        mlist_set(slist, pc->unum, sub);
                     }
                     sub->sp = sp;
                     sub->ep = NULL;
                     goto lpardone;
                 } else if (len < pc->unum) {
                     for (int i = len; i < pc->unum; i++) {
-                        mlist_append(reo->sublist, NULL);
+                        mlist_append(slist, NULL);
                     }
                 }
                 Resub *sub = mos_calloc(1, sizeof(Resub));
                 sub->sp = sp;
                 sub->ep = NULL;
-                mlist_append(reo->sublist, (void*)sub);
+                mlist_append(slist, (void*)sub);
 
             lpardone:
                 pc = pc + 1;
@@ -461,7 +477,7 @@ static bool _execute(MRE *reo, Instruct *start_pc, const char *string, bool igca
             {
                 Resub *sub;
                 MERR *err;
-                err = mlist_get(reo->sublist, pc->unum, (void**)&sub);
+                err = mlist_get(slist, pc->unum, (void**)&sub);
                 JUMP_NOK(err, river);
                 sub->ep = sp;
 
@@ -512,7 +528,7 @@ static bool _execute(MRE *reo, Instruct *start_pc, const char *string, bool igca
             {
                 const char *ps, *pe;
 
-                if (!mre_sub_get(reo, pc->unum, &ps, &pe)) goto river;
+                if (!_sub_get(slist, pc->unum, &ps, &pe)) goto river;
 
                 int i = pe - ps;
                 if (i > 0) {
@@ -556,14 +572,16 @@ static bool _execute(MRE *reo, Instruct *start_pc, const char *string, bool igca
                 goto river;
             }
         }
+
     river:
-        ;
+        if (!start_pc) _reset_rrnum(reo);
     }
 
     /* all roads don't reach I_END */
-    reo->nmatch = sp - 1;
+    //reo->nmatch = sp - 1;
     //printf("%ld %s don't match\n", sp - string, reo->nmatch);
 
+    mlist_destroy(&slist);
     return false;
 }
 
@@ -573,12 +591,11 @@ MRE* mre_init()
 
     mbuf_init(&reo->bcode, 0);
     mlist_init(&reo->cclist, mlist_free);
-    mlist_init(&reo->sublist, free);
+    mlist_init(&reo->sublist, mlist_free);
 
     reo->icount = 0;
     reo->nsub = 1;
     merr_destroy(&reo->error);
-    reo->nmatch = NULL;
 
     return reo;
 }
@@ -596,7 +613,6 @@ MERR* mre_compile(MRE *reo, const char *pattern)
     reo->icount = 0;
     reo->nsub = 1;
     merr_destroy(&reo->error);
-    reo->nmatch = NULL;
 
     err = _compile(reo, pattern);
     if (err) return merr_pass(err);
@@ -656,41 +672,56 @@ void mre_dump(MRE *reo)
 
 bool mre_match(MRE *reo, const char *string, bool igcase)
 {
-    if (!reo || !string || reo->bcode.len <= 0) return false;
-
-    reo->nmatch = string;
+    if (!reo || !string || *string == 0 || reo->bcode.len <= 0) return false;
 
     return _execute(reo, NULL, string, igcase);
 }
 
-uint32_t mre_sub_count(MRE *reo)
+uint32_t mre_match_all(MRE *reo, const char *string, bool igcase)
+{
+    if (!reo || !string || *string == 0 || reo->bcode.len <= 0) return 0;
+
+    uint32_t count = 0;
+
+    reo->pend = string;
+    while (_execute(reo, NULL, reo->pend, igcase)) {
+        count++;
+    }
+
+    return count;
+}
+
+uint32_t mre_match_count(MRE *reo)
 {
     if (!reo || !reo->sublist) return 0;
 
     return mlist_length(reo->sublist);
 }
 
-bool mre_sub_get(MRE *reo, uint32_t index, const char **sp, const char **ep)
+uint32_t mre_sub_count(MRE *reo, uint32_t matchsn)
 {
+    if (mre_match_count(reo) < matchsn + 1) return 0;
+
+    MLIST *slist;
     MERR *err;
 
-    if (!reo || !reo->sublist) return false;
-
-    if (mlist_length(reo->sublist) < index + 1) return false;
-
-    Resub *sub;
-    err = mlist_get(reo->sublist, index, (void**)&sub);
+    err = mlist_get(reo->sublist, matchsn, (void**)&slist);
     JUMP_NOK(err, error);
 
-    if (sub->ep <= sub->sp) return false;
-
-    *sp = sub->sp;
-    *ep = sub->ep;
-
-    return true;
+    return mlist_length(slist);
 
 error:
-    return false;
+    return 0;
+}
+
+bool mre_sub_get(MRE *reo, uint32_t matchsn, uint32_t index, const char **sp, const char **ep)
+{
+    if (mre_sub_count(reo, matchsn) < index + 1) return false;
+
+    MLIST *slist;
+    mlist_get(reo->sublist, matchsn, (void**)&slist);
+
+    return _sub_get(slist, index, sp, ep);
 }
 
 void mre_destroy(MRE **reo)

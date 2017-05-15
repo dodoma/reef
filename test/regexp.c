@@ -1,14 +1,16 @@
 #include "reef.h"
 
-static void _dump_res(MRE *reo)
+static void _dump_res(MRE *reo, const char *string)
 {
-    for (int i = 0; i < mre_sub_count(reo); i ++) {
-        const char *sp, *ep;
+    for (int i = 0; i < mre_match_count(reo); i++) {
+        for (int j = 0; j < mre_sub_count(reo, i); j++) {
+            const char *sp, *ep;
 
-        if (mre_sub_get(reo, i, &sp, &ep)) {
-            printf("%d match: %.*s\n", i, (int)(ep - sp), sp);
-        } else {
-            printf("sub %d don't match\n", i);
+            if (mre_sub_get(reo, i, j, &sp, &ep)) {
+                printf("%d's %d match: %d %.*s\n", i, j, (int)(sp - string), (int)(ep - sp), sp);
+            } else {
+                printf("%d's sub %d don't match\n", i, j);
+            }
         }
     }
 }
@@ -98,18 +100,19 @@ void test_basic()
     //mre_dump(reo);
     MTEST_ASSERT(mre_match(reo, "fooBaD", true) == true);
 
-    err = mre_compile(reo, "foo(?=bad|good).* ^newline");
+    err = mre_compile(reo, "foo(?=bad|good).* \n^newline");
     TRACE_NOK(err);
     //mtc_dbg(" ");
     //mre_dump(reo);
-    MTEST_ASSERT(mre_match(reo, "fooBaD \nnewline", true) == true);
+    MTEST_ASSERT(mre_match(reo, "fooBaD all stuff \nnewline", true) == true);
 
     err = mre_compile(reo, "foo(good)(fine) (goo(gle)) \\1 \\2 \\3 \\4");
     TRACE_NOK(err);
     //mtc_dbg(" ");
     //mre_dump(reo);
-    MTEST_ASSERT(mre_match(reo, "womane shif dvfoogoodfine google good fine google gle sdoeoX", true) == true);
-    //_dump_res(reo);
+    const char *string = "womane shif dvfoogoodfine google good fine google gle sdoeoX";
+    MTEST_ASSERT(mre_match(reo, string, true) == true);
+    //_dump_res(reo, string);
 
     err = mre_compile(reo, "\\bis\\b.*is\\b");
     TRACE_NOK(err);
@@ -133,14 +136,16 @@ void test_example()
     MERR *err;
 
     MRE *reo = mre_init();
+    const char *string;
 
 #if 1
     err = mre_compile(reo, "\\b([a-z]+) \\1\\b");
+    string = "when i believe believe  you are are my sunsine.";
     //mtc_dbg(" ");
     //mre_dump(reo);
     TRACE_NOK(err);
-    MTEST_ASSERT(mre_match(reo, "when i believe believe  you are are my sunsine.", true) == true);
-    //_dump_res(reo);
+    MTEST_ASSERT(mre_match_all(reo, string, true) == 2);
+    //_dump_res(reo, string);
 
     err = mre_compile(reo, "(\\w+)://([^/:]+)(:\\d*)?([^# ]*)");
     //mtc_dbg(" ");
@@ -185,11 +190,12 @@ void test_example()
      * non-greddy match
      */
     err = mre_compile(reo, "<\\s*(\\S+)(\\s[^>]*)?>([\\s\\S]*?)<\\s*/\\1\\s*>");
+    string = "aa<div>test1</div>bb<div>test2</div>cc";
     //mtc_dbg(" ");
     //mre_dump(reo);
     TRACE_NOK(err);
-    MTEST_ASSERT(mre_match(reo, "aa<div>test1</div>bb<div>test2</div>cc", false) == true);
-    _dump_res(reo);
+    MTEST_ASSERT(mre_match(reo, string, false) == true);
+    _dump_res(reo, string);
 #endif
 
     mre_destroy(&reo);

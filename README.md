@@ -8,17 +8,17 @@
 
 ### 环境
 
-reef 用标准C99编写，运行于 GNU/Linux 系统, 使用了\_GNU_SOURCE扩展功能， 在X86、ARM 架构硬件下完成测试。
-暂不支持Solaris, FreeBSD, Mac OS X...下运行
+reef 用标准C99编写，运行于 GNU/Linux 系统, 使用了\_GNU_SOURCE扩展功能， 在X86 Linux、OSX、和某些 ARM Linux上完成测试。
+不保证Solaris, FreeBSD, Windows...下顺利运行。
 
 
 ### 目的
 
 c 很难用，她只给了我们基础，而非全部，reef 是这个全部的开始。
 
-reef 定义了：
+reef 包括：
 
-* 字符串、列表、哈希、字典（mdf）
+* 字符串、列表、二进制内存块、哈希、字典（mdf）
 
 * 单元测试框架
 
@@ -28,18 +28,26 @@ reef 定义了：
 
 * 错误返回(MERR)
 
+* json 数据解析
+
+* message pack 打包、解包
+
+* 一个写着好玩的正则表达式工具
+
+* 一个常见网络服务 的客户端API封装(memcache)
+
 
 ### 为何返回 MERR* 而非 int
 
 函数返回整型，0为正常，其它异常。
 
-reef 没有遵守这个约定，因为我们想在程序运行异常时快速定位是谁调用了谁，在第几行调用了谁，
-是什么鬼与预期不符。 MERR* 可以，虽然使用起来稍显麻烦。
+reef 没有遵守这个约定，因为我想在程序运行异常时快速定位是谁在第几行调用了谁，是什么鬼与预期不符。
+MERR* 可以，虽然使用起来稍显麻烦。
 
 
 ### MDF 适合干嘛
 
-mdf 类似 Python 中的 dict, Javascript 中的 object。可以用来保存 web 开发 90% 左右的数据。
+mdf 类似 Python 中的 dict, Javascript 中的 object。有丰富的操作函数。可以用来保存 web 开发 90% 左右的数据。
 
 
 ### 出了问题怎么办

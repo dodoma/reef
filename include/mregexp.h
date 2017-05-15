@@ -38,23 +38,31 @@
  * \meta   Match one of the meta character: ^$().[]*+?|\
  *
  * many thanks to:
- * 1. mujs
- * 2. mjs
- * 3. clearsilver
+ * 1. [mujs](https://mujs.com/)
+ * 2. [mjs](https://github.com/cesanta/mjs)
+ * 3. [clearsilver](http://www.clearsilver.net/)
  * 4. [正则表达式-教程](http://www.runoob.com/regexp/regexp-tutorial.html)
  */
 
 __BEGIN_DECLS
 
-MRE*  mre_init();
-MERR* mre_compile(MRE *reo, const char *pattern);
-bool  mre_match(MRE *reo, const char *string, bool igcase);
+MRE*     mre_init();
+MERR*    mre_compile(MRE *reo, const char *pattern);
+bool     mre_match(MRE *reo, const char *string, bool igcase);
+uint32_t mre_match_all(MRE *reo, const char *string, bool igcase);
 void  mre_destroy(MRE **reo);
 
-/* 获取匹配`(...)`的个数 */
-uint32_t mre_sub_count(MRE *reo);
-/* 获取第几个匹配, index 传 1 取第一个 match sub(0 为整个 match sub string) */
-bool mre_sub_get(MRE *reo, uint32_t index, const char **sp, const char **ep);
+/* 获取总的匹配次数 */
+uint32_t mre_match_count(MRE *reo);
+
+/* 获取第几次匹配`(...)`的个数 */
+uint32_t mre_sub_count(MRE *reo, uint32_t matchsn);
+
+/* 获取第几个匹配
+ * matchsn 传 0 取第一次match
+ * index 传 1 取第一个 match sub(0 为整个 match sub string)
+ */
+bool mre_sub_get(MRE *reo, uint32_t matchsn, uint32_t index, const char **sp, const char **ep);
 
 __END_DECLS
 #endif
