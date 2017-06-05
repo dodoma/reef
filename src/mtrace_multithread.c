@@ -161,6 +161,11 @@ MERR* mtc_mt_init(const char *fn, MTC_LEVEL level)
     return MERR_OK;
 }
 
+void mtc_mt_set_level(MTC_LEVEL level)
+{
+    if (level <= MTC_MAX) m_cur_level = level;
+}
+
 bool mtc_mt_msg(const char *func, const char *file, long line, MTC_LEVEL level,
                 const char *fmt, ...)
 {

@@ -3,8 +3,8 @@
 
 /*
  * mregexp, 一个试验版的正则表达式解析匹配器(练手为主)，支持以下功能：
- * ^       Match beginning of a buffer
- * $       Match end of a buffer
+ * ^       Match beginning of a line
+ * $       Match end of a line
  * ()      Grouping and substring capturing, include:
  *         (?:)    no capture
  *         (?=)    positive lookahead
