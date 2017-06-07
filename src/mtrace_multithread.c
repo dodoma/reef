@@ -182,8 +182,13 @@ bool mtc_mt_msg(const char *func, const char *file, long line, MTC_LEVEL level,
     gettimeofday(&tv, NULL);
     tm = localtime(&tv.tv_sec);
 
+#if defined(RELEASE)
     strftime(timestr, 25, "%Y-%m-%d %H:%M:%S", tm);
     timestr[24] = '\0';
+#else
+    strftime(timestr, 25, "%H:%M:%S", tm);
+    timestr[8] = '\0';
+#endif
 
     fprintf(e->fp, "[%s.%06u]", timestr, (unsigned)tv.tv_usec);
 
@@ -203,7 +208,7 @@ bool mtc_mt_msg(const char *func, const char *file, long line, MTC_LEVEL level,
     default:
         break;
     }
-    fprintf(e->fp, "[%s] %s", m_levels[level], MCOLOR_RESET);
+    fprintf(e->fp, "[%s]%s", m_levels[level], MCOLOR_RESET);
 
     fprintf(e->fp, "[%s:%li %s] ", file, line, func);
 
