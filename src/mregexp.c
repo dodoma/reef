@@ -8,7 +8,7 @@
 #define DIE(reo, message)                                               \
     do {                                                                \
         (reo)->error = merr_raise(MERR_ASSERT, "%s on %d %s",           \
-                                  (message), (reo)->pos - (reo)->source, (reo)->pos - 1); \
+                                  (message), (int)((reo)->pos - (reo)->source), (reo)->pos - 1); \
         longjmp((reo)->kaboom, 1);                                      \
     } while (0)
 
