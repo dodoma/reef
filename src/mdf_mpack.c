@@ -432,7 +432,8 @@ size_t mdf_mpack_serialize(MDF *node, unsigned char *buf, size_t len)
         }
         mylen = 1;
         break;
-    case MDF_TYPE_BINARY:
+    case MDF_TYPE_BINARY_A:
+    case MDF_TYPE_BINARY_B:
         if (node->valuelen < 0xFF) {
             *pos = 0xC4;
             *(uint8_t*)(pos+1) = node->valuelen;
@@ -561,7 +562,8 @@ size_t mdf_mpack_len(MDF *node)
     case MDF_TYPE_BOOL:
         mylen = 1;
         break;
-    case MDF_TYPE_BINARY:
+    case MDF_TYPE_BINARY_A:
+    case MDF_TYPE_BINARY_B:
         if (node->valuelen < 0xFF) {
             mylen = 2 + node->valuelen;
         } else if (node->valuelen < 0xFFFF) {
@@ -692,7 +694,7 @@ size_t mdf_mpack_deserialize(MDF *node, const unsigned char *buf, size_t len)
         case F_BIN_8:
         case F_BIN_16:
         case F_BIN_32:
-            nodetype = MDF_TYPE_BINARY;
+            nodetype = MDF_TYPE_BINARY_A;
             valueb = (char*)_mpack_get_binary(pos, &step, &valuelen);
             valued_time++;
             break;
@@ -801,7 +803,7 @@ size_t mdf_mpack_deserialize(MDF *node, const unsigned char *buf, size_t len)
                     xnode->val.f = valuef;
                 } else if (nodetype == MDF_TYPE_BOOL) {
                     xnode->val.n = valuen;
-                } else if (nodetype == MDF_TYPE_BINARY) {
+                } else if (nodetype == MDF_TYPE_BINARY_A) {
                     xnode->val.s = mos_calloc(1, valuelen);
                     memcpy(xnode->val.s, valueb, valuelen);
                     xnode->valuelen = valuelen;
@@ -831,7 +833,7 @@ size_t mdf_mpack_deserialize(MDF *node, const unsigned char *buf, size_t len)
                     xnode->val.f = valuef;
                 } else if (nodetype == MDF_TYPE_BOOL) {
                     xnode->val.n = valuen;
-                } else if (nodetype == MDF_TYPE_BINARY) {
+                } else if (nodetype == MDF_TYPE_BINARY_A) {
                     xnode->val.s = mos_calloc(1, valuelen);
                     memcpy(xnode->val.s, valueb, valuelen);
                     xnode->valuelen = valuelen;
