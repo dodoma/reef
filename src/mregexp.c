@@ -7,7 +7,7 @@
 
 #define DIE(reo, message)                                               \
     do {                                                                \
-        (reo)->error = merr_raise(MERR_ASSERT, "%s on %ld %s",          \
+        (reo)->error = merr_raise(MERR_ASSERT, "%s on %d %s",           \
                                   (message), (reo)->pos - (reo)->source, (reo)->pos - 1); \
         longjmp((reo)->kaboom, 1);                                      \
     } while (0)
@@ -636,7 +636,7 @@ void mre_dump(MRE *reo)
      * *instructs* 2
      */
     while (len > 0) {
-        printf("% 5ld: ", icount);
+        printf("% 5zd: ", icount);
         if (pc->op_code == I_RPAR) padnum--;
         for (int i = 0; i < padnum; i++) printf("    ");
         switch (pc->op_code) {
@@ -650,15 +650,15 @@ void mre_dump(MRE *reo)
         case I_RPAR: printf("rpar %d\n", pc->unum); break;
         case I_CCLASS: puts("cclass"); break;
         case I_NCCLASS: puts("ncclass"); break;
-        case I_SPLIT: printf("split %lu\n", pc->b + icount); padnum++; break;
-        case I_SPLITO: printf("splito %lu\n", pc->b + icount); padnum++; break;
-        case I_JUMP_REL: printf("jump relative %lu %d\n", pc->b + icount, pc->unum); if (padnum > 0) padnum--; break;
+        case I_SPLIT: printf("split %zu\n", pc->b + icount); padnum++; break;
+        case I_SPLITO: printf("splito %zu\n", pc->b + icount); padnum++; break;
+        case I_JUMP_REL: printf("jump relative %zu %d\n", pc->b + icount, pc->unum); if (padnum > 0) padnum--; break;
         case I_JUMP_ABS: printf("jump absolute %u\n", pc->b); if (padnum > 0) padnum--; break;
         case I_REF: printf("ref %d\n", pc->unum); break;
         case I_PLA:
-            printf("pla %lu\n", pc->b + icount);
+            printf("pla %zu\n", pc->b + icount);
             padnum++; break;
-        case I_NLA: printf("nla %lu\n", pc->b + icount); padnum++; break;
+        case I_NLA: printf("nla %zu\n", pc->b + icount); padnum++; break;
         case I_WORD: puts("word"); break;
         case I_NWORD: puts("noword"); break;
         }
