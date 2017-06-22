@@ -37,6 +37,27 @@ __BEGIN_DECLS
         goto label;                             \
     }
 
+#define TRACE_NOK_MT(err)                       \
+    if (err != MERR_OK) {                       \
+        MSTR _moon_str;                         \
+        mstr_init(&_moon_str);                  \
+        merr_traceback(err, &_moon_str);        \
+        mtc_mt_err("%s", _moon_str.buf);        \
+        mstr_clear(&_moon_str);                 \
+        merr_destroy(&err);                     \
+    }
+
+#define JUMP_NOK_MT(err, label)                 \
+    if (err != MERR_OK) {                       \
+        MSTR _moon_str;                         \
+        mstr_init(&_moon_str);                  \
+        merr_traceback(err, &_moon_str);        \
+        mtc_mt_err("%s", _moon_str.buf);        \
+        mstr_clear(&_moon_str);                 \
+        merr_destroy(&err);                     \
+        goto label;                             \
+    }
+
 #define DIE_NOK(err)                            \
     if (err != MERR_OK) {                       \
         MSTR _moon_str;                         \
