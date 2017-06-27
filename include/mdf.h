@@ -70,6 +70,7 @@ MERR* mdf_set_binary_noalloc(MDF *node, const char *path, unsigned char *buf, si
 int     mdf_add_int_value(MDF *node, const char *path, int val);
 int64_t mdf_add_int64_value(MDF *node, const char *path, int64_t val);
 float   mdf_add_float_value(MDF *node, const char *path, float val);
+MERR*   mdf_make_int_clamp(MDF *node, const char *path, int min, int max);
 char*   mdf_append_string_value(MDF *node, const char *path, char *str);
 char*   mdf_preppend_string_value(MDF *node, const char *path, char *str);
 

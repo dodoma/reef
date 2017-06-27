@@ -624,6 +624,21 @@ float mdf_add_float_value(MDF *node, const char *path, float val)
     return ov + val;
 }
 
+MERR* mdf_make_int_clamp(MDF *node, const char *path, int min, int max)
+{
+    MERR_NOT_NULLA(node);
+
+    if (min > max) return merr_raise(MERR_ASSERT, "%d > %d", min, max);
+
+    if (mdf_get_type(node, path) != MDF_TYPE_INT) return MERR_OK;
+
+    int val = mdf_get_int_value(node, path, 0);
+    if (val < min) mdf_set_int_value(node, path, min);
+    else if (val > max) mdf_set_int_value(node, path, max);
+
+    return MERR_OK;
+}
+
 char* mdf_append_string_value(MDF *node, const char *path, char *str)
 {
     if (!node) return NULL;
