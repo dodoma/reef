@@ -18,6 +18,7 @@ MERR* merr_raisef(const char *func, const char *file, int lineno,
 MERR* merr_pass_raw(const char *func, const char *file, int lineno, MERR *error);
 
 uint32_t merr_meanful_code(MERR *error);
+char* merr_meanful_desc(MERR *error);
 bool merr_match(MERR *error, MERR_CODE code);
 void merr_traceback(MERR *error, MSTR *astr);
 void merr_destroy(MERR **error);

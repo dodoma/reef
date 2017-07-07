@@ -67,6 +67,22 @@ uint32_t merr_meanful_code(MERR *error)
     return 0;
 }
 
+char* merr_meanful_desc(MERR *error)
+{
+    MERR *err;
+
+    if (!error) return NULL;
+
+    err = error;
+    while (err) {
+        if (err->code != MERR_PASS) return err->desc;
+
+        err = err->next;
+    }
+
+    return NULL;
+}
+
 bool merr_match(MERR *error, MERR_CODE code)
 {
     MERR *err;
