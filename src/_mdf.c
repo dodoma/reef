@@ -7,16 +7,18 @@ void _mdf_drop_child_node(MDF *pnode, MDF *cnode)
 {
     if (cnode->parent != pnode) return;
 
-    if (cnode->prev == NULL) {
-        pnode->child = cnode->next;
-        if (pnode->child) pnode->child->prev = NULL;
-    } else {
-        cnode->prev->next = cnode->next;
-        if (cnode->next) cnode->next->prev = cnode->prev;
-    }
+    MDF *prev = cnode->prev, *next = cnode->next;
 
-    if (cnode->next == NULL) {
-        pnode->last_child = NULL;
+    if (prev == NULL) {
+        pnode->child = next;
+
+        if (next) next->prev = NULL;
+        else pnode->last_child = NULL;
+    } else {
+        prev->next = next;
+
+        if (next) next->prev = prev;
+        else pnode->last_child = prev;
     }
 
     mhash_remove(pnode->table, cnode->name);
