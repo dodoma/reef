@@ -150,8 +150,13 @@ static MERR* _walk_mdf(MDF *node, const char *path, bool create, MDF **rnode)
                 mlist_append(indexname_list, MOS_MEM_OFFSET(arrayindex));
             } else {
                 /* process RAW_NAME */
-                if (*(unsigned char*)pos == '_' || *(unsigned char*)pos == '$' ||
-                    isalnum(*(unsigned char*)pos) || *(unsigned char*)pos > 127) {
+                if (isalnum(*(unsigned char*)pos) || *(unsigned char*)pos > 127 ||
+                    *(unsigned char*)pos == '_' || *(unsigned char*)pos == '-' ||
+                    *(unsigned char*)pos == '$' || *(unsigned char*)pos == '^' ||
+                    *(unsigned char*)pos == '@' || *(unsigned char*)pos == '#' ||
+                    *(unsigned char*)pos == '+' || *(unsigned char*)pos == '/' ||
+                    *(unsigned char*)pos == '(' || *(unsigned char*)pos == ')' ||
+                    *(unsigned char*)pos == '{' || *(unsigned char*)pos == '}') {
                     if (mlist_length(indexname_list) > 0) goto format_error;
 
                     if (!start) start = pos;
@@ -766,7 +771,8 @@ void mdf_object_2_array(MDF *node, const char *path)
     err = _walk_mdf(node, path, false, &anode);
     TRACE_NOK(err);
 
-    if (!anode || anode->type != MDF_TYPE_OBJECT) return;
+    if (!anode || (anode->type != MDF_TYPE_OBJECT && anode->type != MDF_TYPE_UNKNOWN)) return;
+
 
     anode->type = MDF_TYPE_ARRAY;
 }
@@ -781,7 +787,7 @@ void mdf_array_2_object(MDF *node, const char *path)
     err = _walk_mdf(node, path, false, &anode);
     TRACE_NOK(err);
 
-    if (!anode || anode->type != MDF_TYPE_ARRAY) return;
+    if (!anode || (anode->type != MDF_TYPE_ARRAY && anode->type != MDF_TYPE_UNKNOWN)) return;
 
     anode->type = MDF_TYPE_OBJECT;
 }

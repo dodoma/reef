@@ -77,7 +77,7 @@ char*   mdf_preppend_string_value(MDF *node, const char *path, char *str);
 /*
  * 类型转换
  */
-/* 将字符串类型节点 转换成 其他类型 */
+/* 将字符串类型（或新建）节点 转换成 其他类型 */
 void mdf_set_type(MDF *node, const char *path, MDF_TYPE type);
 /* 数字类型节点在数字类型间转换 */
 void mdf_set_digit_type(MDF *node, const char *path, MDF_TYPE type);
