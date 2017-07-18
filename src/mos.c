@@ -2,6 +2,10 @@
 
 void* mos_malloc(size_t size)
 {
+    if (size > 1000 * 1048576) {
+        size++;                       /* for debug */
+    }
+
     void *p = malloc(size);
     if (!p) {
         fprintf(stderr, "malloc %zd out of memory, exit!!!\n", size);
@@ -13,6 +17,10 @@ void* mos_malloc(size_t size)
 
 void* mos_calloc(size_t nmemb, size_t size)
 {
+    if (size * nmemb > 1000 * 1048576) {
+        size++;                       /* for debug */
+    }
+
     void *p = calloc(nmemb, size);
     if (!p) {
         fprintf(stderr, "calloc %zd %zd out of memory, exit!!!\n", nmemb, size);
@@ -24,6 +32,10 @@ void* mos_calloc(size_t nmemb, size_t size)
 
 void* mos_realloc(void *ptr, size_t size)
 {
+    if (size > 1000 * 1048576) {
+        size++;                       /* for debug */
+    }
+
     void *p = realloc(ptr, size);
     if (!p) {
         fprintf(stderr, "realloc %zd out of memory, exit!!!\n", size);
