@@ -45,6 +45,8 @@
  * }
  *
  * 具体用法请参考 test/mdf_data.c
+ *
+ * 注：目前仅支持目标根节点为对象的数据渲染。
  */
 void mdf_data_rend(MDF *confignode, MDF *datanode, MDF *outnode);
 

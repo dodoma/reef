@@ -1,7 +1,7 @@
 #include "reef.h"
 #include "_mdf.h"
 
-typedef void (*CALLBACK_FUNC)(MDF *anode, MDF *bnode, MDF *outnode, MDF *vnode, char *name, int x, int y, int z);
+typedef void (*CALLBACK_FUNC)(MDF *anode, MDF *vnode, MDF *outnode, char *name, int x, int y, int z);
 
 CALLBACK_FUNC m_cube[2][5][6];
 
@@ -27,7 +27,7 @@ enum {
     AXIS_Z_OUTPUT
 };
 
-static void _c_empty_string(MDF *anode, MDF *bnode, MDF *outnode, MDF *vnode, char *name, int x, int y, int z)
+static void _c_empty_string(MDF *anode, MDF *vnode, MDF *outnode, char *name, int x, int y, int z)
 {
     MDF *cnode = mdf_get_or_create_node(outnode, name);
 
@@ -53,7 +53,7 @@ static void _c_empty_string(MDF *anode, MDF *bnode, MDF *outnode, MDF *vnode, ch
     }
 }
 
-static void _c_1_0(MDF *anode, MDF *bnode, MDF *outnode, MDF *vnode, char *name, int x, int y, int z)
+static void _c_1_0(MDF *anode, MDF *vnode, MDF *outnode, char *name, int x, int y, int z)
 {
     switch (x) {
     case AXIS_X_NULL:
@@ -71,7 +71,7 @@ static void _c_1_0(MDF *anode, MDF *bnode, MDF *outnode, MDF *vnode, char *name,
     }
 }
 
-static void _c_2_0(MDF *anode, MDF *bnode, MDF *outnode, MDF *vnode, char *name, int x, int y, int z)
+static void _c_2_0(MDF *anode, MDF *vnode, MDF *outnode, char *name, int x, int y, int z)
 {
    switch (x) {
     case AXIS_X_NULL:
@@ -86,7 +86,7 @@ static void _c_2_0(MDF *anode, MDF *bnode, MDF *outnode, MDF *vnode, char *name,
     }
 }
 
-static void _c_3_0(MDF *anode, MDF *bnode, MDF *outnode, MDF *vnode, char *name, int x, int y, int z)
+static void _c_3_0(MDF *anode, MDF *vnode, MDF *outnode, char *name, int x, int y, int z)
 {
     switch (x) {
     case AXIS_X_NULL:
@@ -114,7 +114,7 @@ static void _c_3_0(MDF *anode, MDF *bnode, MDF *outnode, MDF *vnode, char *name,
     }
 }
 
-static void _c_4_0(MDF *anode, MDF *bnode, MDF *outnode, MDF *vnode, char *name, int x, int y, int z)
+static void _c_4_0(MDF *anode, MDF *vnode, MDF *outnode, char *name, int x, int y, int z)
 {
     switch (x) {
     case AXIS_X_NULL:
@@ -141,14 +141,14 @@ static void _c_4_0(MDF *anode, MDF *bnode, MDF *outnode, MDF *vnode, char *name,
     }
 }
 
-static void _c_0_1(MDF *anode, MDF *bnode, MDF *outnode, MDF *vnode, char *name, int x, int y, int z)
+static void _c_0_1(MDF *anode, MDF *vnode, MDF *outnode, char *name, int x, int y, int z)
 {
     MDF *cnode  = mdf_get_or_create_node(outnode, name);
 
-    return mdf_data_rend(anode, bnode, cnode);
+    return mdf_data_rend(anode, vnode, cnode);
 }
 
-static void _c_1_1(MDF *anode, MDF *bnode, MDF *outnode, MDF *vnode, char *name, int x, int y, int z)
+static void _c_1_1(MDF *anode, MDF *vnode, MDF *outnode, char *name, int x, int y, int z)
 {
     switch (x) {
     case AXIS_X_NULL:
@@ -165,7 +165,7 @@ static void _c_1_1(MDF *anode, MDF *bnode, MDF *outnode, MDF *vnode, char *name,
     }
 }
 
-static void _c_2_1(MDF *anode, MDF *bnode, MDF *outnode, MDF *vnode, char *name, int x, int y, int z)
+static void _c_2_1(MDF *anode, MDF *vnode, MDF *outnode, char *name, int x, int y, int z)
 {
     int count;
     MDF *cnode;
@@ -177,13 +177,15 @@ static void _c_2_1(MDF *anode, MDF *bnode, MDF *outnode, MDF *vnode, char *name,
     case AXIS_X_NULL:
     case AXIS_X_ARRAY:
         count = 0;
+        MDF *xnode = mdf_get_or_create_node(outnode, name);
         cnode = mdf_node_child(vnode);
         while (cnode) {
-            MDF *xnode = mdf_get_or_create_nodef(outnode, "%s[%d]", name, count++);
-            mdf_data_rend(confignode, cnode, xnode);
+            MDF *ynode = mdf_get_or_create_nodef(xnode, "%d", count++);
+            mdf_data_rend(confignode, cnode, ynode);
 
             cnode = mdf_node_next(cnode);
         }
+        mdf_object_2_array(outnode, name);
         break;
     case AXIS_X_BOOL:
         mdf_set_bool_value(outnode, name, true);
@@ -192,7 +194,7 @@ static void _c_2_1(MDF *anode, MDF *bnode, MDF *outnode, MDF *vnode, char *name,
     }
 }
 
-static void _c_output_r(MDF *anode, MDF *bnode, MDF *outnode, MDF *vnode, char *name, int x, int y, int z)
+static void _c_output_r(MDF *anode, MDF *vnode, MDF *outnode, char *name, int x, int y, int z)
 {
     MDF *cnode  = mdf_get_or_create_node(outnode, name);
 
@@ -395,6 +397,9 @@ void mdf_data_rend(MDF *config_node, MDF *data_node, MDF *outnode)
     if (!config_node || !outnode) return;
 
     MDF *anode, *bnode, *vnode;
+    void (*cube_callback)(MDF *anode, MDF *vnode, MDF *outnode, char *name, int x, int y, int z);
+    /* x: 输出节点的类型, y: 数据节点的类型, z: 有无数据输出 */
+    int x = AXIS_X_NULL, y = AXIS_Y_NULL, z = AXIS_Z_CLEAN;
 
     anode = config_node;
     bnode = data_node;
@@ -414,12 +419,11 @@ void mdf_data_rend(MDF *config_node, MDF *data_node, MDF *outnode)
         if (!key_value) key_value = _key_from_value(cnode);
 
         if (key_value) vnode = mdf_get_node(bnode, key_value);
-        else vnode = NULL;
-        int x = 0, y = 0;
+        else vnode = bnode;
 
         if (_is_config_key(cnode->name, cnode->namelen)) goto nextnode;
 
-        if (!key_value || !mdf_path_exist(bnode, key_value)) y = AXIS_Y_NULL;
+        if (!vnode || mdf_get_type(vnode, NULL) == MDF_TYPE_UNKNOWN) y = AXIS_Y_NULL;
         else if (mdf_get_type(vnode, NULL) == MDF_TYPE_OBJECT) y = AXIS_Y_OBJECT;
         else if (mdf_get_type(vnode, NULL) == MDF_TYPE_ARRAY) y = AXIS_Y_ARRAY;
         else if (mdf_get_type(vnode, NULL) == MDF_TYPE_STRING) y = AXIS_Y_STRING;
@@ -458,20 +462,22 @@ void mdf_data_rend(MDF *config_node, MDF *data_node, MDF *outnode)
             /*
              * A. cnode 为值节点，直接赋值
              */
-            mdf_copy(outnode, name, vnode ? vnode: cnode, true);
+            if (key_value) {
+                /* 通过_key_from_value()指定了值，有则拷贝值，无则生成空字符串 */
+                if (vnode) mdf_copy(outnode, name, vnode, true);
+                else mdf_set_value(outnode, name, "");
+            } else {
+                /* 没有指定值，直接拷贝配置节点 */
+                mdf_copy(outnode, name, cnode, true);
+            }
         } else {
             /*
              * B. cnode 为对象节点，使用条件魔方
              */
-            int z = AXIS_Z_CLEAN;
             if (_node_output_count(cnode) > 0) z = AXIS_Z_OUTPUT;
 
-            void (*cube_callback)(MDF *anode, MDF *bnode, MDF *outnode, MDF *vnode,
-                                  char *name, int x, int y, int z);
-
             cube_callback = m_cube[z][y][x];
-
-            if (cube_callback) cube_callback(cnode, bnode, outnode, vnode, name, x, y, z);
+            if (cube_callback) cube_callback(cnode, vnode, outnode, name, x, y, z);
         }
 
     nextnode:

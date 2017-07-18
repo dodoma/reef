@@ -1,0 +1,28 @@
+[
+  {
+    "name": "intent-5",
+    "sn": 5,
+    "draw": true,
+    "type": "rectangle",
+    "method": "fill",
+    "path": {
+      "x": 258,
+      "y": 226,
+      "w": 187,
+      "h": 116
+    }
+  },
+  {
+    "name": "intent-6",
+    "sn": 6,
+    "draw": true,
+    "type": "rectangle",
+    "method": "fill",
+    "path": {
+      "x": 56,
+      "y": 195,
+      "w": 101,
+      "h": 105
+    }
+  }
+]

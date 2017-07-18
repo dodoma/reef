@@ -2,19 +2,9 @@
   "a": {
     "aa": 100
   },
-  "b": {
-    "bb": "datas"
-  },
-  "c": {
-    "cc": "hello mdf"
-  },
-  "d": {
-    "dd": [
-      1,
-      2,
-      3
-    ]
-  },
+  "b": [
+    "datas"
+  ],
   "e": {
     "ee": [
       1,
@@ -29,7 +19,7 @@
         "ffff": 10,
         "ffff2": "hello mdf",
         "ffff3": true,
-        "ffff4": false
+        "ffff4": true
       }
     }
   }

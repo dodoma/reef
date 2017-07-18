@@ -3,7 +3,7 @@
         aa: 100
     },
     b: {
-        bb: "datas",
+        __arraynode__: "datas",
         __type__: "array"
     },
     c: {
@@ -23,7 +23,7 @@
             __value__: "dataarray",
             __type__: "array"
         },
-        __type__: "float"
+        //__type__: "float"
     },
     f: {
         ff: "datas",

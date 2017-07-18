@@ -238,6 +238,25 @@ void test_reserve()
     //mdf_json_export_file(outnode, "-");
     MTEST_ASSERT(mdf_equal(cnode, outnode) == true);
 
+
+    /* array2 */
+    mdf_clear(anode);
+    mdf_clear(bnode);
+    mdf_clear(outnode);
+    mdf_clear(cnode);
+
+    err = mdf_json_import_file(anode, "data/config_array2.json");
+    TRACE_NOK(err);
+    err = mdf_json_import_file(bnode, "data/data_array2.json");
+    TRACE_NOK(err);
+    err = mdf_json_import_file(outnode, "data/out_array2.json");
+    TRACE_NOK(err);
+
+    mdf_data_rend(anode, bnode, cnode);
+    //mdf_json_export_file(cnode, "-");
+    //mdf_json_export_file(outnode, "-");
+    MTEST_ASSERT(mdf_equal(cnode, outnode) == true);
+
     mdf_destroy(&anode);
     mdf_destroy(&bnode);
     mdf_destroy(&cnode);

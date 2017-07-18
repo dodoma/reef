@@ -1,0 +1,16 @@
+{
+    "mtool": {
+        "__type__": "array",
+        "__arraynode__": {
+            "name": "__mr__name",
+            "sn": "__mr__sn",
+            "draw": "__mr__draw",
+            "type": "__mr__type",
+            "method": "__mr__method",
+            "path": {
+                "__value__": "path"
+            },
+            "newkey": "newvalue"
+        }
+    }
+}
