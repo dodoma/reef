@@ -6,11 +6,11 @@
  */
 __BEGIN_DECLS
 
-#define MERR_NOT_NULLA(pa) \
+#define MERR_NOT_NULLA(pa)                                      \
     if (!(pa)) return merr_raise(MERR_ASSERT, "paramter null");
-#define MERR_NOT_NULLB(pa, pb) \
+#define MERR_NOT_NULLB(pa, pb)                                          \
     if (!(pa) || !(pb)) return merr_raise(MERR_ASSERT, "paramter null");
-#define MERR_NOT_NULLC(pa, pb, pc) \
+#define MERR_NOT_NULLC(pa, pb, pc)                                      \
     if (!(pa) || !(pb) || !(pc)) return merr_raise(MERR_ASSERT, "paramter null");
 #define MERR_NOT_NULLD(pa, pb, pc, pd)                                  \
     if (!(pa) || !(pb) || !(pc) || (!pd)) return merr_raise(MERR_ASSERT, "paramter null");
@@ -56,6 +56,28 @@ __BEGIN_DECLS
         mstr_clear(&_moon_str);                 \
         merr_destroy(&err);                     \
         goto label;                             \
+    }
+
+#define RETURN_NOK(err)                         \
+    if (err != MERR_OK) {                       \
+        MSTR _moon_str;                         \
+        mstr_init(&_moon_str);                  \
+        merr_traceback(err, &_moon_str);        \
+        mtc_mt_err("%s", _moon_str.buf);        \
+        mstr_clear(&_moon_str);                 \
+        merr_destroy(&err);                     \
+        return;                                 \
+    }
+
+#define RETURN_V_NOK(err, v)                    \
+    if (err != MERR_OK) {                       \
+        MSTR _moon_str;                         \
+        mstr_init(&_moon_str);                  \
+        merr_traceback(err, &_moon_str);        \
+        mtc_mt_err("%s", _moon_str.buf);        \
+        mstr_clear(&_moon_str);                 \
+        merr_destroy(&err);                     \
+        return (v);                             \
     }
 
 #define DIE_NOK(err)                            \
