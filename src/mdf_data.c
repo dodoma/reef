@@ -463,9 +463,9 @@ void mdf_data_rend(MDF *config_node, MDF *data_node, MDF *outnode)
              * A. cnode 为值节点，直接赋值
              */
             if (key_value) {
-                /* 通过_key_from_value()指定了值，有则拷贝值，无则生成空字符串 */
+                /* 通过_key_from_value()指定了值，有则拷贝值，无则不做任何操作 */
                 if (vnode) mdf_copy(outnode, name, vnode, true);
-                else mdf_set_value(outnode, name, "");
+                //else mdf_set_value(outnode, name, "");
             } else {
                 /* 没有指定值，直接拷贝配置节点 */
                 mdf_copy(outnode, name, cnode, true);
@@ -475,6 +475,7 @@ void mdf_data_rend(MDF *config_node, MDF *data_node, MDF *outnode)
              * B. cnode 为对象节点，使用条件魔方
              */
             if (_node_output_count(cnode) > 0) z = AXIS_Z_OUTPUT;
+            else z = AXIS_Z_CLEAN;
 
             cube_callback = m_cube[z][y][x];
             if (cube_callback) cube_callback(cnode, vnode, outnode, name, x, y, z);

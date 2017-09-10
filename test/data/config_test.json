@@ -1,0 +1,13 @@
+{
+    resolution: {
+        __value__: "resolution",
+        width: {
+            __value__: "width",
+            __type__: "int"
+        }
+    },
+    delay: {
+        __value__: "delay",
+        __type__: "int"
+    }
+}
