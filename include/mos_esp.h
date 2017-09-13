@@ -3,6 +3,9 @@
 
 #ifdef MOS_ESP
 #include "esp_common.h"
+
+#define FMT_INT64  "%jd"
+#define FMT_UINT64 "%ju"
 #endif
 
 #endif
