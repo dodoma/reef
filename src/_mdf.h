@@ -25,7 +25,7 @@ struct _MDF {
 
 typedef enum {
     A_BAD = 0,
-    A_LOOP, A_NEWLINE,
+    A_LOOP, A_ESCAPE, A_NEWLINE,
 
 
     A_OBJECT,

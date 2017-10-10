@@ -46,6 +46,7 @@ MERR* mdf_removef(MDF *node, const char *fmt, ...) ATTRIBUTE_PRINTF(2, 3);
 bool  mdf_path_existf(MDF *node, const char *fmt, ...) ATTRIBUTE_PRINTF(2,3);
 int   mdf_child_countf(MDF *node, const char *fmt, ...) ATTRIBUTE_PRINTF(2,3);
 MDF*  mdf_get_nodef(MDF *node, const char *fmt, ...) ATTRIBUTE_PRINTF(2,3);
+MDF*  mdf_get_childf(MDF *node, const char *fmt, ...) ATTRIBUTE_PRINTF(2,3);
 MDF*  mdf_get_or_create_nodef(MDF *node, const char *fmt, ...) ATTRIBUTE_PRINTF(2,3);
 MERR* mdf_json_import_filef(MDF *node, const char *fmt, ...) ATTRIBUTE_PRINTF(2, 3);
 MERR* mdf_json_export_filef(MDF *node, const char *fmt, ...) ATTRIBUTE_PRINTF(2, 3);

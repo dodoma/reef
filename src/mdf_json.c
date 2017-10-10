@@ -121,6 +121,7 @@ static void _json_machine_init()
     GO_UTF8_SET(go_pair_l_quote);
     go_pair_l_quote['"'] = A_UNPAIR_L_QUOTE;
     go_pair_l_quote['\''] = A_UNPAIR_L_QUOTE;
+    go_pair_l_quote['\\'] = A_ESCAPE;
 
     GO_WHITESPACE_LOOP(go_unpair_l);
     go_unpair_l[':'] = A_PAIR;
@@ -145,6 +146,7 @@ static void _json_machine_init()
     GO_UTF8_SET(go_pair_r_quote);
     go_pair_r_quote['"'] = A_UNPAIR_R_QUOTE;
     go_pair_r_quote['\''] = A_UNPAIR_R_QUOTE;
+    go_pair_r_quote['\\'] = A_ESCAPE;
 
     GO_DIGIT_SET(go_pair_r_number, A_LOOP);
     go_pair_r_number['.'] = A_PAIR_R_FLOAT;
@@ -184,6 +186,7 @@ static void _json_machine_init()
     GO_UTF8_SET(go_value_quote);
     go_value_quote['"'] = A_UNVALUE_QUOTE;
     go_value_quote['\''] = A_UNVALUE_QUOTE;
+    go_value_quote['\\'] = A_ESCAPE;
 
     GO_DIGIT_SET(go_value_number, A_LOOP);
     go_value_number['.'] = A_VALUE_FLOAT;
@@ -393,6 +396,9 @@ static MERR* _import_json(MDF *node, const char *str,
     while (*pos != '\0') {
         switch (go[*(const uint8_t*)pos]) {
         case A_LOOP:
+            break;
+        case A_ESCAPE:
+            pos++;
             break;
         case A_NEWLINE:
             *lineno = *lineno + 1;

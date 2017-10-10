@@ -304,6 +304,18 @@ MDF* mdf_get_nodef(MDF *node, const char *fmt, ...)
     return mdf_get_node(node, key);
 }
 
+MDF* mdf_get_childf(MDF *node, const char *fmt, ...)
+{
+    char key[1024];
+    va_list ap;
+
+    va_start(ap, fmt);
+    vsnprintf(key, sizeof(key), fmt, ap);
+    va_end(ap);
+
+    return mdf_get_child(node, key);
+}
+
 MDF* mdf_get_or_create_nodef(MDF *node, const char *fmt, ...)
 {
     char key[1024];

@@ -296,7 +296,7 @@ MERR* mdf_init(MDF **node)
 
     *node = lnode;
 
-    MDF_RESTRICT();
+    //MDF_RESTRICT();
 
     return MERR_OK;
 }
