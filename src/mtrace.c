@@ -83,6 +83,35 @@ void mtc_set_level(MTC_LEVEL level)
     if (level <= MTC_MAX) m_cur_level = level;
 }
 
+int mtc_level_str2int(const char *level)
+{
+    switch (*level) {
+    case 'f':
+    case 'F':
+        return MTC_FOO;
+    case 'e':
+    case 'E':
+        return MTC_ERROR;
+    case 'w':
+    case 'W':
+        return MTC_WARNING;
+    case 'i':
+    case 'I':
+        return MTC_INFO;
+    case 'd':
+    case 'D':
+        return MTC_DEBUG;
+    case 'n':
+    case 'N':
+        return MTC_NOISE;
+    case 'm':
+    case 'M':
+        return MTC_MAX;
+    default:
+        return MTC_DEBUG;
+    }
+}
+
 bool mtc_msg(const char *func, const char *file, long line, MTC_LEVEL level,
              const char *fmt, ...)
 {

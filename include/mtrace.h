@@ -18,9 +18,10 @@ typedef enum {
 } MTC_LEVEL;
 
 MERR* mtc_init(const char *fn, MTC_LEVEL level);
-void mtc_set_level(MTC_LEVEL level);
-bool mtc_msg(const char *func, const char *file, long line, MTC_LEVEL level,
-             const char *fmt, ...) ATTRIBUTE_PRINTF(5, 6);
+void  mtc_set_level(MTC_LEVEL level);
+int   mtc_level_str2int(const char *level);
+bool  mtc_msg(const char *func, const char *file, long line, MTC_LEVEL level,
+              const char *fmt, ...) ATTRIBUTE_PRINTF(5, 6);
 
 __END_DECLS
 #endif
