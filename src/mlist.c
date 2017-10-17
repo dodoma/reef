@@ -103,8 +103,8 @@ MERR* mlist_delete(MLIST *alist, int x)
     if (x < 0 || x >= alist->num)
         return merr_raise(MERR_ASSERT, "%d out of range [0 ~ %d)", x, alist->num);
 
+    alist->free(alist->items[x]);
     start = &(alist->items[x]);
-
     memmove(start, start + 1, sizeof(void*) * (alist->num - x - 1));
 
     alist->num--;

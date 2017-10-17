@@ -6,6 +6,9 @@
  */
 __BEGIN_DECLS
 
+/*
+ * QJYQ(奇技淫巧) 如果在循环列表的过程中想删掉该元素，只需在循环最后加上 _moon_i--;
+ */
 #define MLIST_ITERATE(alist, item)                                      \
     for (int _moon_i = 0;                                               \
          _moon_i < mlist_length(alist) &&                               \
