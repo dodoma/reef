@@ -147,7 +147,7 @@ static uint32_t _parse_repeat(MRE *reo, uint32_t lastcount)
                 comma = true;
                 min = numx;
                 numx = 0;
-            }
+            } else DIE(reo, "unknown repeat");
         }
         if (tok != TOK_CLOSE_CURLY) DIE(reo, "unmatch repeat");
 
