@@ -18,7 +18,7 @@ __BEGIN_DECLS
 #define mos_free(p)                             \
     do {                                        \
         if ((p) != NULL) {                      \
-            free(p);                            \
+            free((void*)(p));                   \
             (p) = NULL;                         \
         }                                       \
     } while (0)
