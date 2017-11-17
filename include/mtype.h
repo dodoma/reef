@@ -66,8 +66,8 @@ typedef enum {
     MDF_TYPE_FLOAT,             /* 5 */
 
     MDF_TYPE_BOOL,              /* 6 */
-    MDF_TYPE_BINARY_A,          /* 7 */
-    MDF_TYPE_BINARY_B,          /* 8 */
+    MDF_TYPE_BINARY_A,          /* 7 由 mdf 申请和释放的二进制数据 */
+    MDF_TYPE_BINARY_B,          /* 8 由 业务 管理的二进制数据 */
 
     MDF_TYPE_NULL               /* 9 */
 } MDF_TYPE;

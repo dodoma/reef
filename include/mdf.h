@@ -64,7 +64,15 @@ MERR* mdf_set_int_value(MDF *node, const char *path, int value);
 MERR* mdf_set_int64_value(MDF *node, const char *path, int64_t value);
 MERR* mdf_set_float_value(MDF *node, const char *path, float value);
 MERR* mdf_set_bool_value(MDF *node, const char *path, bool value);
+/*
+ * 新申请 len 字节内存，并拷贝buf内容
+ * destroy 时自动释放新申请的内存（但不释放buf）
+ */
 MERR* mdf_set_binary(MDF *node, const char *path, const unsigned char *buf, size_t len);
+/*
+ * 使用业务提供的 len 字节内存
+ * destroy 时不会自动释放 buf
+ */
 MERR* mdf_set_binary_noalloc(MDF *node, const char *path, unsigned char *buf, size_t len);
 
 int     mdf_add_int_value(MDF *node, const char *path, int val);
