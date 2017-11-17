@@ -78,6 +78,18 @@ MERR* mtc_init(const char *fn, MTC_LEVEL level)
     return MERR_OK;
 }
 
+MERR* mtc_initf(MTC_LEVEL level, const char *fmt, ...)
+{
+    char fname[PATH_MAX];
+    va_list ap;
+
+    va_start(ap, fmt);
+    vsnprintf(fname, sizeof(fname), fmt, ap);
+    va_end(ap);
+
+    return mtc_init(fname, level);
+}
+
 void mtc_set_level(MTC_LEVEL level)
 {
     if (level <= MTC_MAX) m_cur_level = level;

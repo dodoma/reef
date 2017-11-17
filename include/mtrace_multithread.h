@@ -9,7 +9,7 @@
 __BEGIN_DECLS
 
 FILE* mtc_mt_file();
-MERR* mtc_mt_init(const char *fn, MTC_LEVEL level);
+MERR* mtc_mt_init(const char *fn, const char *modulename, MTC_LEVEL level);
 void  mtc_mt_set_level(MTC_LEVEL level);
 bool  mtc_mt_msg(const char *func, const char *file, long line, MTC_LEVEL level,
                  const char *fmt, ...) ATTRIBUTE_PRINTF(5, 6);

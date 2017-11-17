@@ -6,6 +6,9 @@
  */
 __BEGIN_DECLS
 
+MERR* mtc_initf(MTC_LEVEL level, const char *fmt, ...) ATTRIBUTE_PRINTF(2, 3);
+
+
 /*
  * not c++, we don't use __PRETTY_FUNCTION__
  */

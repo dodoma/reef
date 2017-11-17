@@ -20,6 +20,7 @@ static char *m_levels[MTC_MAX] = {"DIE", "MESSAGE", "ERROR",
 
 struct _entry {
     uint32_t tid;
+    char modulename[256];
     char filename[PATH_MAX];
     char linebuf[2096];
     FILE *fp;
@@ -79,6 +80,7 @@ static void _leave()
         struct _entry *e = m_logs[i];
 
         memset(e->filename, 0x0, sizeof(e->filename));
+        memset(e->modulename, 0x0, sizeof(e->modulename));
         if (e->fp) fclose(e->fp);
         e->fp = NULL;
         mos_free(e);
@@ -115,9 +117,9 @@ static inline void _shift_file(struct _entry *e)
     setvbuf(e->fp, e->linebuf, _IOLBF, 2096);
 }
 
-MERR* mtc_mt_init(const char *fn, MTC_LEVEL level)
+MERR* mtc_mt_init(const char *fn, const char *modulename, MTC_LEVEL level)
 {
-    if (!fn) return merr_raise(MERR_ASSERT, "paramter null");
+    if (!fn || !modulename) return merr_raise(MERR_ASSERT, "paramter null");
 
     if (level <= MTC_MAX) m_cur_level = level;
 
@@ -144,6 +146,7 @@ MERR* mtc_mt_init(const char *fn, MTC_LEVEL level)
 
     e->tid = tid;
     strncpy(e->filename, fn, sizeof(e->filename));
+    strncpy(e->modulename, modulename, sizeof(e->modulename));
     if (!strcmp(e->filename, "-")) e->fp = stdout;
     else e->fp = fopen(e->filename, "a+");
     if (!e->fp) {
@@ -159,6 +162,18 @@ MERR* mtc_mt_init(const char *fn, MTC_LEVEL level)
     pthread_mutex_unlock(&m_lock);
 
     return MERR_OK;
+}
+
+MERR* mtc_mt_initf(const char *modulename, MTC_LEVEL level, const char *fmt, ...)
+{
+    char fname[PATH_MAX];
+    va_list ap;
+
+    va_start(ap, fmt);
+    vsnprintf(fname, sizeof(fname), fmt, ap);
+    va_end(ap);
+
+    return mtc_mt_init(fname, modulename, level);
 }
 
 void mtc_mt_set_level(MTC_LEVEL level)
@@ -191,6 +206,10 @@ bool mtc_mt_msg(const char *func, const char *file, long line, MTC_LEVEL level,
 #endif
 
     fprintf(e->fp, "[%s.%06u]", timestr, (unsigned)tv.tv_usec);
+
+    if (e->filename[0] == '-' && e->filename[1] == '\0') {
+        fprintf(e->fp, "[%s]", e->modulename);
+    }
 
     switch (level) {
     case MTC_WARNING:
