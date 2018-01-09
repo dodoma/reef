@@ -74,6 +74,7 @@ MERR* mdf_set_binary(MDF *node, const char *path, const unsigned char *buf, size
  * destroy 时不会自动释放 buf
  */
 MERR* mdf_set_binary_noalloc(MDF *node, const char *path, unsigned char *buf, size_t len);
+MERR* mdf_set_pointer(MDF *node, const char *path, void *p);
 
 int     mdf_add_int_value(MDF *node, const char *path, int val);
 int64_t mdf_add_int64_value(MDF *node, const char *path, int64_t val);
@@ -103,6 +104,7 @@ int64_t mdf_get_int64_value(MDF *node, const char *path, int64_t dftvalue);
 float   mdf_get_float_value(MDF *node, const char *path, float dftvalue);
 bool    mdf_get_bool_value(MDF *node, const char *path, bool dftvalue);
 unsigned char* mdf_get_binary(MDF *node, const char *path, size_t *len);
+void*   mdf_get_pointer(MDF *node, const char *path);
 /* 返回节点的值（以字符串的方式），返回内容为新申请内存，使用后请自行释放。*/
 char* mdf_get_value_stringfy(MDF *node, const char *path, char *dftvalue);
 

@@ -37,6 +37,20 @@ char* mstr_strip(char *s, char n)
     return s;
 }
 
+char* mstr_strip_space(char *s)
+{
+    int x;
+
+    if (!s) return NULL;
+
+    x = strlen(s) - 1;
+    while (x>=0 && isspace(s[x])) s[x--] = '\0';
+
+    while (*s && isspace(*s)) s++;
+
+    return s;
+}
+
 char* mstr_ndup(const char *s, size_t n)
 {
     if (!s || n == 0) return NULL;
@@ -186,6 +200,21 @@ void mstr_rand_string_fixlen(char *s, size_t len)
     }
     s[x] = '\0';
 }
+
+void mstr_rand_hexstring(char *s, size_t len)
+{
+    size_t x;
+
+    if (!s) return;
+
+    for (x = 0; x < len; x++) {
+        int v = mos_rand(16);
+        if (v < 10) s[x] = (char)('0' + v);
+        else s[x] = (char)('a' + v - 10);
+    }
+    s[x] = '\0';
+}
+
 
 MERR* mstr_array_split(MLIST **alist, const char *sin, const char *sep, int max)
 {

@@ -15,6 +15,7 @@ __BEGIN_DECLS
  */
 /* strip will modify input string. make sure s is modifiable (not const) */
 char* mstr_strip(char *s, char n);
+char* mstr_strip_space(char *s);
 char* mstr_ndup(const char *s, size_t n);
 
 
@@ -49,6 +50,7 @@ void mstr_rand_string(char *s, size_t maxlen);
  * 调用者需确保 s 的内存长度 >= len + 1
  */
 void mstr_rand_string_fixlen(char *s, size_t len);
+void mstr_rand_hexstring(char *s, size_t len);
 
 /*
  * 以 sep 为分割符，将 str 分割为最多为 max 个元素的列表。

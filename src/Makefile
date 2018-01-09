@@ -8,6 +8,9 @@ SOURCES = $(wildcard *.c)
 SOURCES := $(filter-out _mregexp_util.c, $(SOURCES))
 SOURCES := $(filter-out _mregexp_tok.c, $(SOURCES))
 SOURCES := $(filter-out _mregexp_instruct.c, $(SOURCES))
+SOURCES := $(filter-out _http_parse.c, $(SOURCES))
+SOURCES := $(filter-out _cgi_parse.c, $(SOURCES))
+SOURCES := $(filter-out _rfc2388.c, $(SOURCES))
 OBJS	= $(patsubst %.c, %.o, $(SOURCES))
 DEPEND	= .depend
 

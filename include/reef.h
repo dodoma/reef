@@ -73,7 +73,6 @@
 
 #include "mstring.h"
 #include "mbuf.h"
-#include "mhttp.h"
 
 #include "mlist.h"
 #include "mlist_macro.h"
@@ -88,6 +87,9 @@
 #include "mmemcache.h"
 
 #include "mregexp.h"
+
+#include "mhttp.h"
+#include "mcgi.h"
 
 
 /*

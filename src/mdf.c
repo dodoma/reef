@@ -599,6 +599,29 @@ MERR* mdf_set_binary_noalloc(MDF *node, const char *path, unsigned char *buf, si
     return MERR_OK;
 }
 
+MERR* mdf_set_pointer(MDF *node, const char *path, void *p)
+{
+    MDF *anode;
+    MERR *err;
+
+    MERR_NOT_NULLA(node);
+
+    err = _walk_mdf(node, path, true, &anode);
+    if (err) return merr_pass(err);
+
+    if (anode->type == MDF_TYPE_STRING || anode->type == MDF_TYPE_BINARY_A)
+        mos_free(anode->val.s);
+    if (anode->type == MDF_TYPE_OBJECT || anode->type == MDF_TYPE_ARRAY) {
+        mdf_destroy(&anode->child);
+        anode->last_child = NULL;
+    }
+    anode->type = MDF_TYPE_BINARY_B;
+    anode->val.s = (char*)p;
+    anode->valuelen = sizeof(void*);
+
+    return MERR_OK;
+}
+
 int mdf_add_int_value(MDF *node, const char *path, int val)
 {
     if (!node) return 0;
@@ -920,6 +943,23 @@ unsigned char* mdf_get_binary(MDF *node, const char *path, size_t *len)
         return (unsigned char*)anode->val.s;
     } else {
         *len = 0;
+        return NULL;
+    }
+}
+
+void* mdf_get_pointer(MDF *node, const char *path)
+{
+    MDF *anode;
+    MERR *err;
+
+    if (!node) return NULL;
+
+    err = _walk_mdf(node, path, false, &anode);
+    TRACE_NOK(err);
+
+    if (anode && anode->type == MDF_TYPE_BINARY_B) {
+        return (void*)anode->val.s;
+    } else {
         return NULL;
     }
 }

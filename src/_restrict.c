@@ -3,32 +3,10 @@
 
 #ifdef MOS_LINUX
 #include <bsd/stdlib.h>         /* getprogname */
-#include <net/if.h>             /* struct ifreq */
-#include <sys/ioctl.h>          /* ioctl */
 #endif
 
 #if defined(MOS_LINUX) || defined(MOS_OSX)
-#include <errno.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <ifaddrs.h>            /* getifaddrs */
-#include <netdb.h>              /* getnameinfo */
 static pthread_mutex_t m_lock = PTHREAD_MUTEX_INITIALIZER;
-#elif defined(MOS_ESP)
-#include "lwip/sockets.h"
-#if LWIP_IPV6
-#define inet_ntop(af,src,dst,size) \
-    (((af) == AF_INET6) ? ip6addr_ntoa_r((const ip6_addr_t *)(src),(dst),(size)) \
-     : (((af) == AF_INET) ? ipaddr_ntoa_r((const ip_addr_t *)(src),(dst),(size)) : NULL))
-#define inet_pton(af,src,dst) \
-    (((af) == AF_INET6) ? inet6_aton((src),(const ip6_addr_t *)(dst)) \
-     : (((af) == AF_INET) ? inet_aton((src),(const ip_addr_t *)(dst)) : 0))
-#else /* LWIP_IPV6 */
-#define inet_ntop(af,src,dst,size) \
-    (((af) == AF_INET) ? ipaddr_ntoa_r((src),(dst),(size)) : NULL)
-#define inet_pton(af,src,dst) \
-    (((af) == AF_INET) ? inet_aton((src),(dst)) : 0)
-#endif /* LWIP_IPV6 */
 #endif
 
 void _get_net_info(MDF *inode)

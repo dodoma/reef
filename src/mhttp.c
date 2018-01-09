@@ -1,5 +1,128 @@
 #include "reef.h"
 
+#define MAX_BUF_LEN  524288      /* 接收http回包缓冲 */
+#define MAX_BODY_LEN 10485760    /* http 回包内容长度限制 */
+
+static MERR* _connect_to(const char *host, int hostlen, int port, int *rfd)
+{
+    int fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (fd < 0) return merr_raise(MERR_ASSERT, "socket() failure");
+
+    *rfd = fd;
+
+    char lhost[256] = {0};
+    snprintf(lhost, sizeof(lhost), "%.*s", hostlen, host);
+    struct in_addr ia;
+    int rv = inet_pton(AF_INET, lhost, &ia);
+    if (rv <= 0) {
+        struct hostent *he = gethostbyname(lhost);
+        if (!he) return merr_raise(MERR_ASSERT, "gethostbyname %s failure", lhost);
+        ia.s_addr = *( (in_addr_t *) (he->h_addr_list[0]) );
+    }
+
+    struct sockaddr_in srvsa;
+    srvsa.sin_family = AF_INET;
+    srvsa.sin_port = htons(port);
+    srvsa.sin_addr.s_addr = ia.s_addr;
+
+    /* 限时连接 */
+    fd_set fdset;
+    long arg = fcntl(fd, F_GETFL, 0);
+    if (fcntl(fd, F_SETFL, arg | O_NONBLOCK) != 0) return merr_raise(MERR_ASSERT, "set NONBLOCK failure");
+
+    struct timeval tv;
+    tv.tv_sec = MHTTP_TIMEOUT;
+    tv.tv_usec = 0;
+    rv = connect(fd, (struct sockaddr *)&srvsa, sizeof(srvsa));
+    if (rv < 0) {
+        if (errno == EINPROGRESS) {
+            FD_ZERO(&fdset);
+            FD_SET(fd, &fdset);
+            if (select(fd + 1, NULL, &fdset, NULL, &tv) > 0) {
+                int valopt;
+                socklen_t slen = sizeof(int);
+                getsockopt(fd, SOL_SOCKET, SO_ERROR, (void*)&valopt, &slen);
+                if (valopt != 0) return merr_raise(MERR_ASSERT, "connect %s failure", lhost);
+            } else return merr_raise(MERR_ASSERT, "connect %s failure", lhost);
+        } else return merr_raise(MERR_ASSERT, "connect %s failure", lhost);
+    }
+
+    fcntl(fd, F_SETFL, arg);
+    setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char*)&tv, sizeof(tv));
+    setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (char*)&tv, sizeof(tv));
+
+    return MERR_OK;
+}
+
+static MERR* _send_to(int fd, const unsigned char *buf, size_t len)
+{
+    MSG_DUMP("send:", buf, len);
+
+    size_t c = 0;
+    while (c < len) {
+        int rv = send(fd, buf + c, len - c, MSG_NOSIGNAL);
+        if (rv <= 0) return merr_raise(MERR_ASSERT, "send() return %d %s", rv, strerror(errno));
+
+        c += rv;
+    }
+
+    return MERR_OK;
+}
+
+bool mhttp_parse_url(const char *url,
+                     char **host, int *hostlen, int *port,
+                     char **scriptname, int *scriptlen,
+                     char **requesturi)
+{
+    if (!url) return false;
+
+    char *s = (char*)url;
+    int len = strlen(s), lport = 80, hlen = 0, slen = 0;
+    if (len < 7 ||
+        s[0] != 'h' || s[1] != 't' || s[2] != 't' || s[3] != 'p' ||
+        s[4] != ':' || s[5] != '/' || s[6] != '/')
+        return false;
+
+    s += 7;
+    while (*s == '/') s++;
+
+    /* host */
+    if (host) *host = s;
+    while (*s && *s != '/' && *s != ':') {
+        hlen++;
+        s++;
+    }
+
+    /* port */
+    if (*s == ':') {
+        lport = 0;
+        s++;
+
+        while (*s && *s >= '0' && *s <= '9') {
+            lport = lport * 10 + (*s - '0');
+            s++;
+        }
+    }
+
+    /* request uri */
+    while (*s == '/') s++;
+
+    if (scriptname) *scriptname = s;
+    if (requesturi) *requesturi = s;
+
+    /* script length */
+    while (*s && *s != '?') {
+        slen++;
+        s++;
+    }
+
+    if (port) *port = lport;
+    if (hostlen) *hostlen = hlen;
+    if (scriptlen) *scriptlen = slen;
+
+    return true;
+}
+
 char* mhttp_url_unescape(char *s, size_t buflen, char esc_char)
 {
     size_t i = 0, o = 0;
@@ -24,49 +147,479 @@ char* mhttp_url_unescape(char *s, size_t buflen, char esc_char)
     return s;
 }
 
+#include "_http_parse.c"
 
-#if 0
-void mhttp_parse_url()
+MERR* mhttp_get(const char *url, MDF *rnode, MHTTP_ONBODY_FUNC body_callback, void *arg)
 {
-    /*
-     * JOIN
-     */
-    unsigned char cid[16];
-    mb64_decode(key, 24, cid, 16);
-    mstr_bin2hexstr(cid, 16, client->clientid);
+    MERR *err;
 
-    /* some thing special, on client connected */
-    MDF *nodein;
-    char *p, *u, *k, *v;
+    MERR_NOT_NULLB(url, rnode);
 
-    mdf_init(&nodein);
-    mlist_get(alist, 0, (void**)&p);
-    u = k = v = NULL;
-    while (*p != '\0') {
-        if (*p == '/' && !u) {
-            u = p + 1;
-        } else if (*p == '?' && u) {
-            *p = '\0';
-            k = p + 1;
-            v = NULL;
-        } else if (*p == '=' && k && !v) {
-            *p = '\0';
-            v = p + 1;
-        } else if (*p == '&') {
-            *p = '\0';
-            if (k && v) mdf_set_value(nodein, k, (char*)mhttp_url_unescape(v, strlen(v), '%'));
-            k = p + 1;
-            v = NULL;
-        } else if (*p == ' ') {
-            *p = '\0';
-            if (u && !mdf_get_value(nodein, "_url", NULL)) mdf_set_value(nodein, "_url", u);
-            if (k && v) mdf_set_value(nodein, k, (char*)mhttp_url_unescape(v, strlen(v), '%'));
-        }
+    mdf_clear(rnode);
+    mdf_set_pointer(rnode, "_tmp.callback_arg", arg);
 
-        p++;
+    char *host, *scriptname, *requesturi;
+    int port, hostlen, scriptlen;
+
+    if (!mhttp_parse_url(url, &host, &hostlen, &port, &scriptname, &scriptlen, &requesturi))
+        return merr_raise(MERR_ASSERT, "not http url %s", url);
+
+    int fd = 0;
+    MSTR str; mstr_init(&str);
+    mstr_appendf(&str,
+                 "GET /%s HTTP/1.1\r\n"
+                 "HOST: %.*s\r\n"
+                 "User-Agent: reef\r\n"
+                 "Accept: */*\r\n\r\n",
+                 requesturi, hostlen, host);
+
+#define RETURN(ret)                             \
+    do {                                        \
+        if (fd > 0) close(fd);                  \
+        mstr_clear(&str);                       \
+        return (ret);                           \
+    } while (0)
+
+    err = _connect_to(host, hostlen, port, &fd);
+    if (err) RETURN(merr_pass(err));
+
+    err = _send_to(fd, (unsigned char*)str.buf, str.len);
+    if (err) RETURN(merr_pass(err));
+
+    unsigned char buf[MAX_BUF_LEN];
+    memset(buf, 0x0, MAX_BUF_LEN);
+    int rv = 0, len = 0;
+    bool end = false;
+    while ((rv = recv(fd, buf + len, MAX_BUF_LEN - len, MSG_NOSIGNAL)) > 0) {
+        mtc_mt_dbg("received %d bytes", rv);
+        //MSG_DUMP("receive:", buf + len, rv);
+
+        buf[len + rv] = '\0';
+        err = _parse_response(buf, len + rv, &len, &end, rnode, body_callback);
+        if (err) RETURN(merr_pass(err));
+
+        if (end) RETURN(MERR_OK);
+
+        memset(buf + len, 0x0, MAX_BUF_LEN - len);
     }
 
-    _broadcast_event(MOC_CMD_CONNECT, client->clientid, client->fd, nodein);
-    mdf_destroy(&nodein);
+    if (rv <= 0) RETURN(merr_raise(MERR_ASSERT, "receive failure"));
+
+    mtc_mt_warn("never reach here");
+    RETURN(MERR_OK);
+
+#undef RETURN
 }
-#endif
+
+MERR* mhttp_post(const char *url, const char *content_type, const char *payload,
+                 MDF *rnode, MHTTP_ONBODY_FUNC body_callback, void *arg)
+{
+    MERR *err;
+
+    MERR_NOT_NULLB(url, rnode);
+
+    mdf_clear(rnode);
+    mdf_set_pointer(rnode, "_tmp.callback_arg", arg);
+
+    char *host, *scriptname, *requesturi;
+    int port, hostlen, scriptlen;
+
+    if (!mhttp_parse_url(url, &host, &hostlen, &port, &scriptname, &scriptlen, &requesturi))
+        return merr_raise(MERR_ASSERT, "not http url %s", url);
+
+    if (!content_type) content_type = "application/x-www-form-urlencoded";
+
+    int fd = 0;
+    MSTR str; mstr_init(&str);
+    mstr_appendf(&str,
+                 "POST /%s HTTP/1.1\r\n"
+                 "HOST: %.*s\r\n"
+                 "User-Agent: reef\r\n"
+                 "Accept: */*\r\n"
+                 "Content-Type: %s\r\n"
+                 "Content-Length: %zd\r\n\r\n"
+                 "%s",
+                 requesturi, hostlen, host, content_type, strlen(payload), payload);
+
+#define RETURN(ret)                             \
+    do {                                        \
+        if (fd > 0) close(fd);                  \
+        mstr_clear(&str);                       \
+        return (ret);                           \
+    } while (0)
+
+    err = _connect_to(host, hostlen, port, &fd);
+    if (err) RETURN(merr_pass(err));
+
+    err = _send_to(fd, (unsigned char*)str.buf, str.len);
+    if (err) RETURN(merr_pass(err));
+
+    unsigned char buf[MAX_BUF_LEN];
+    memset(buf, 0x0, MAX_BUF_LEN);
+    int rv = 0, len = 0;
+    bool end = false;
+    while ((rv = recv(fd, buf + len, MAX_BUF_LEN - len, MSG_NOSIGNAL)) > 0) {
+        mtc_mt_dbg("received %d bytes", rv);
+        //MSG_DUMP("receive:", buf + len, rv);
+
+        buf[len + rv] = '\0';
+        err = _parse_response(buf, len + rv, &len, &end, rnode, body_callback);
+        if (err) RETURN(merr_pass(err));
+
+        if (end) RETURN(MERR_OK);
+
+        memset(buf + len, 0x0, MAX_BUF_LEN - len);
+    }
+
+    if (rv <= 0) RETURN(merr_raise(MERR_ASSERT, "receive failure"));
+
+    mtc_mt_warn("never reach here");
+    RETURN(MERR_OK);
+
+#undef RETURN
+}
+
+/*
+--------------------------63e31c
+ccefa02565..Content-Disposition:
+ form-data; name="aaaa"....bbbb.
+.--------------------------63e31
+cccefa02565..Content-Disposition
+: form-data; name="nnn"; filenam
+e="EveningReflections.jpg"..Cont
+ent-Type: image/jpeg....
+*/
+static size_t _formdata_kv_length(char *key, char *val, int boundary_length)
+{
+    size_t len = 0;
+
+    if (!key || !val) return 0;
+
+    if (val[0] != '@') {
+        len += 2 + boundary_length + 2; /* --boundary\r\n */
+        len += strlen("Content-Disposition: form-data; name=");
+        len += 2 + strlen(key) + 4;     /* "key"\r\n\r\n */
+
+        len += strlen(val) + 2;         /* val\r\n */
+    } else {
+        /* TODO JPEG, PNG, DAT, BMP... */
+
+        val++;              /* skip @ */
+
+        struct stat fs;
+        if (stat(val, &fs) == -1) {
+            mtc_mt_warn("can't open file %s", val+1);
+            return 0;
+        }
+
+        char *filename = strrchr(val, '/');
+        if (filename) filename++;
+        else filename = val;
+
+        len += 2 + boundary_length + 2;
+        len += strlen("Content-Disposition: form-data; name=");
+        len += 2 + strlen(key) + strlen("; filename=");
+        len += 2 + strlen(filename) + 2;                /* "filename"\r\n */
+        len += strlen("Content-Type: image/jpeg") + 4;  /* Content-Type: image/jpeg\r\n\r\n */
+
+        len += fs.st_size + 2;                          /* fileconent\r\n */
+    }
+
+    return len;
+}
+
+static MERR* _formdata_kv_send(int fd, char *key, char *val, const char *boundary)
+{
+    if (!key || !val) return MERR_OK;
+
+    MSTR str; mstr_init(&str);
+    MERR *err;
+
+    unsigned char buf[MAX_BUF_LEN];
+    memset(buf, 0x0, MAX_BUF_LEN);
+
+#define RETURN(ret)                             \
+    do {                                        \
+        mstr_clear(&str);                       \
+        return (ret);                           \
+    } while (0)
+
+    if (val[0] != '@') {
+        mstr_appendf(&str, "--%s\r\n", boundary);
+        mstr_appendf(&str, "Content-Disposition: form-data; name=\"%s\"\r\n\r\n", key);
+        mstr_appendf(&str, "%s\r\n", val);
+        err = _send_to(fd, (unsigned char*)str.buf, str.len);
+        if (err) RETURN(merr_pass(err));
+    } else {
+        /* TODO JPEG, PNG, DAT, BMP... */
+
+        val++;              /* skip @ */
+
+        char *filename = strrchr(val, '/');
+        if (filename) filename++;
+        else filename = val;
+
+        mstr_appendf(&str, "--%s\r\n", boundary);
+        mstr_appendf(&str, "Content-Disposition: form-data; name=\"%s\"; filename=\"%s\"\r\n",
+                     key, filename);
+        mstr_appendf(&str, "Content-Type: image/jpeg\r\n\r\n");
+        err = _send_to(fd, (unsigned char*)str.buf, str.len);
+        if (err) RETURN(merr_pass(err));
+
+        FILE *fp = fopen(val, "r");
+        if (fp) {
+            size_t len = 0;
+            while ((len = fread(buf, 1, MAX_BUF_LEN, fp)) > 0) {
+                err = _send_to(fd, buf, len);
+                if (err) RETURN(merr_pass(err));
+            }
+        } else return merr_raise(MERR_ASSERT, "unable to open %s", val);
+
+        fclose(fp);
+
+        _send_to(fd, (unsigned char*)"\r\n", 2);
+    }
+
+    RETURN(MERR_OK);
+
+#undef RETURN
+}
+
+static size_t _payload_length_mdf(MDF *node, int boundary_length)
+{
+    size_t len = 0;
+
+    MDF *cnode = mdf_node_child(node);
+    while (cnode) {
+        char *key = mdf_get_name(cnode, NULL);
+        char *val = mdf_get_value(cnode, NULL, NULL);
+
+        len += _formdata_kv_length(key, val, boundary_length);
+
+        cnode = mdf_node_next(cnode);
+    }
+
+    len += 2 + boundary_length + 2 + 2; /* --boundary--\r\n */
+
+    return len;
+}
+
+static size_t _payload_lengthvf(int variable_count, va_list ap, int boundary_length)
+{
+    size_t len = 0;
+
+    for (int i = 0; i < variable_count; i++) {
+        char *key = va_arg(ap, char*);
+        char *val = va_arg(ap, char*);
+
+        len += _formdata_kv_length(key, val, boundary_length);
+    }
+
+    len += 2 + boundary_length + 2 + 2; /* --boundary--\r\n */
+
+    return len;
+}
+
+static MERR* _send_payload_mdf(int fd, const char *boundary, MDF *node)
+{
+    MERR *err;
+
+    MDF *cnode = mdf_node_child(node);
+    while (cnode) {
+        char *key = mdf_get_name(cnode, NULL);
+        char *val = mdf_get_value(cnode, NULL, NULL);
+
+        err = _formdata_kv_send(fd, key, val, boundary);
+        if (err) return merr_pass(err);
+
+        cnode = mdf_node_next(cnode);
+    }
+
+    MSTR str; mstr_init(&str);
+    mstr_appendf(&str, "--%s--\r\n", boundary);
+    err = _send_to(fd, (unsigned char*)str.buf, str.len);
+    mstr_clear(&str);
+
+    return merr_pass(err);
+}
+
+static MERR* _send_payloadvf(int fd, const char *boundary, int variable_count, va_list ap)
+{
+    MERR *err;
+
+    for (int i = 0; i < variable_count; i++) {
+        char *key = va_arg(ap, char*);
+        char *val = va_arg(ap, char*);
+
+        err = _formdata_kv_send(fd, key, val, boundary);
+        if (err) return merr_pass(err);
+    }
+
+    MSTR str; mstr_init(&str);
+    mstr_appendf(&str, "--%s--\r\n", boundary);
+    err = _send_to(fd, (unsigned char*)str.buf, str.len);
+    mstr_clear(&str);
+
+    return merr_pass(err);
+}
+
+MERR* mhttp_post_with_file(const char *url, MDF *dnode, MDF *rnode,
+                           MHTTP_ONBODY_FUNC body_callback, void *arg)
+{
+    MERR *err;
+
+    MERR_NOT_NULLC(url, dnode, rnode);
+
+    char boundary[41];
+    memset(boundary, '-', sizeof(boundary));
+    mstr_rand_hexstring(boundary+24, 16);
+    boundary[40] = '\0';
+
+    mdf_clear(rnode);
+    mdf_set_pointer(rnode, "_tmp.callback_arg", arg);
+
+    char *host, *scriptname, *requesturi;
+    int port, hostlen, scriptlen;
+
+    if (!mhttp_parse_url(url, &host, &hostlen, &port, &scriptname, &scriptlen, &requesturi))
+        return merr_raise(MERR_ASSERT, "not http url %s", url);
+
+    int fd = 0;
+    MSTR str; mstr_init(&str);
+    mstr_appendf(&str,
+                 "POST /%s HTTP/1.1\r\n"
+                 "HOST: %.*s\r\n"
+                 "User-Agent: reef\r\n"
+                 "Accept: */*\r\n"
+                 "Content-Length: %zd\r\n"
+                 //"Expect: 100-continue\r\n"
+                 "Content-Type: multipart/form-data; boundary=%s\r\n\r\n",
+                 requesturi, hostlen, host, _payload_length_mdf(dnode, strlen(boundary)), boundary);
+
+#define RETURN(ret)                             \
+    do {                                        \
+        if (fd > 0) close(fd);                  \
+        mstr_clear(&str);                       \
+        return (ret);                           \
+    } while (0)
+
+    err = _connect_to(host, hostlen, port, &fd);
+    if (err) RETURN(merr_pass(err));
+
+    err = _send_to(fd, (unsigned char*)str.buf, str.len);
+    if (err) RETURN(merr_pass(err));
+
+    //rv = recv(fd, buf, MAX_BUF_LEN, MSG_NOSIGNAL);
+
+    err = _send_payload_mdf(fd, boundary, dnode);
+    if (err) RETURN(merr_pass(err));
+
+    unsigned char buf[MAX_BUF_LEN];
+    memset(buf, 0x0, MAX_BUF_LEN);
+    int rv = 0, len = 0;
+    bool end = false;
+    while ((rv = recv(fd, buf + len, MAX_BUF_LEN - len, MSG_NOSIGNAL)) > 0) {
+        mtc_mt_dbg("received %d bytes", rv);
+        //MSG_DUMP("receive:", buf + len, rv);
+
+        buf[len + rv] = '\0';
+        err = _parse_response(buf, len + rv, &len, &end, rnode, body_callback);
+        if (err) RETURN(merr_pass(err));
+
+        if (end) RETURN(MERR_OK);
+
+        memset(buf + len, 0x0, MAX_BUF_LEN - len);
+    }
+
+    if (rv <= 0) RETURN(merr_raise(MERR_ASSERT, "receive failure"));
+
+    mtc_mt_warn("never reach here");
+    RETURN(MERR_OK);
+
+#undef RETURN
+}
+
+MERR* mhttp_post_with_filef(const char *url, MDF *rnode, MHTTP_ONBODY_FUNC body_callback, void *arg,
+                            int variable_count, ...)
+{
+    MERR *err;
+
+    MERR_NOT_NULLB(url, rnode);
+
+    if (variable_count <= 0) return merr_raise(MERR_ASSERT, "variable count %d error", variable_count);
+
+    char boundary[41];
+    memset(boundary, '-', sizeof(boundary));
+    mstr_rand_hexstring(boundary+24, 16);
+    boundary[40] = '\0';
+
+    mdf_clear(rnode);
+    mdf_set_pointer(rnode, "_tmp.callback_arg", arg);
+
+    char *host, *scriptname, *requesturi;
+    int port, hostlen, scriptlen;
+
+    if (!mhttp_parse_url(url, &host, &hostlen, &port, &scriptname, &scriptlen, &requesturi))
+        return merr_raise(MERR_ASSERT, "not http url %s", url);
+
+    va_list apa, apb;
+    va_start(apa, variable_count);
+    va_copy(apb, apa);
+
+    int fd = 0;
+    MSTR str; mstr_init(&str);
+    mstr_appendf(&str,
+                 "POST /%s HTTP/1.1\r\n"
+                 "HOST: %.*s\r\n"
+                 "User-Agent: reef\r\n"
+                 "Accept: */*\r\n"
+                 "Content-Length: %zd\r\n"
+                 //"Expect: 100-continue\r\n"
+                 "Content-Type: multipart/form-data; boundary=%s\r\n\r\n",
+                 requesturi, hostlen, host,
+                 _payload_lengthvf(variable_count, apa, strlen(boundary)),
+                 boundary);
+
+#define RETURN(ret)                             \
+    do {                                        \
+        va_end(apa);                            \
+        if (fd > 0) close(fd);                  \
+        mstr_clear(&str);                       \
+        return (ret);                           \
+    } while (0)
+
+    err = _connect_to(host, hostlen, port, &fd);
+    if (err) RETURN(merr_pass(err));
+
+    err = _send_to(fd, (unsigned char*)str.buf, str.len);
+    if (err) RETURN(merr_pass(err));
+
+    //rv = recv(fd, buf, MAX_BUF_LEN, MSG_NOSIGNAL);
+
+    err = _send_payloadvf(fd, boundary, variable_count, apb);
+    if (err) RETURN(merr_pass(err));
+
+    unsigned char buf[MAX_BUF_LEN];
+    memset(buf, 0x0, MAX_BUF_LEN);
+    int rv = 0, len = 0;
+    bool end = false;
+    while ((rv = recv(fd, buf + len, MAX_BUF_LEN - len, MSG_NOSIGNAL)) > 0) {
+        mtc_mt_dbg("received %d bytes", rv);
+        //MSG_DUMP("receive:", buf + len, rv);
+
+        buf[len + rv] = '\0';
+        err = _parse_response(buf, len + rv, &len, &end, rnode, body_callback);
+        if (err) RETURN(merr_pass(err));
+
+        if (end) RETURN(MERR_OK);
+
+        memset(buf + len, 0x0, MAX_BUF_LEN - len);
+    }
+
+    if (rv <= 0) RETURN(merr_raise(MERR_ASSERT, "receive failure"));
+
+    mtc_mt_warn("never reach here");
+    RETURN(MERR_OK);
+
+#undef RETURN
+}

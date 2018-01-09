@@ -89,5 +89,23 @@ typedef enum
 
 typedef struct _MRE MRE;
 
+typedef void (*MHTTP_ONBODY_FUNC)(unsigned char *pos, size_t len, const char *bodytype, void *arg);
+
+enum {
+    MCGI_METHOD_UNKNOWN = 0,
+    MCGI_METHOD_GET,
+    MCGI_METHOD_POST,
+    MCGI_METHOD_PUT
+};
+
+enum {
+    MCGI_REQ_UNKNOWN  = 0,
+    MCGI_REQ_HTML,
+    MCGI_REQ_JSON,
+    MCGI_REQ_IMAGE
+};
+
+typedef struct _MCGI MCGI;
+
 __END_DECLS
 #endif

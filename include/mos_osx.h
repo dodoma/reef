@@ -3,6 +3,13 @@
 
 #ifdef MOS_OSX
 #include <pthread.h>
+#include <fcntl.h>
+
+#include <errno.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <ifaddrs.h>            /* getifaddrs */
+#include <netdb.h>              /* getnameinfo */
 
 #include <mach/clock.h>
 #include <mach/mach.h>
