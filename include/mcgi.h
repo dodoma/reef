@@ -17,6 +17,8 @@ MERR* mcgi_parse_payload(MCGI *ses);
 int   mcgi_req_type(MCGI *ses);
 void  mcgi_destroy(MCGI **ses);
 
+MDF*  mcgi_get_data(MCGI *ses);
+
 void  mcgi_redirect(MCGI *ses, const char *url);
 MERR* mcgi_cookie_set(MCGI *ses, const char *name, const char *value,
                       const char *path, const char *domain, int duration);

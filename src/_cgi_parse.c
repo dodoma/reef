@@ -84,7 +84,7 @@ MERR* _parse_env(MCGI *ses)
     while (_env_vars[x]) {
         char *s = getenv(_env_vars[x]);
 
-        mtc_mt_dbg("enviorment %s %s", _env_vars[x], s);
+        mtc_mt_noise("enviorment %s %s", _env_vars[x], s);
 
         mdf_set_valuef(node, "CGI.%s=%s", _env_vars[x], s);
 
@@ -113,7 +113,7 @@ MERR* _parse_http_headers(MCGI *ses, char **envp)
         char *s = strdup(*envp);
         char *k, *v;
 
-        mtc_mt_dbg("parse %s", s);
+        mtc_mt_noise("parse %s", s);
 
         k = s;
         v = strchr(s, '=');
@@ -141,7 +141,7 @@ MERR* _parse_cookie(MCGI *ses)
 
     if (!cookie) return MERR_OK;
 
-    mtc_mt_dbg("parse cookie %s", cookie);
+    mtc_mt_noise("parse cookie %s", cookie);
 
     MLIST *alist;
     err = mstr_array_split(&alist, cookie, ";", MAX_TOKEN);
@@ -166,7 +166,7 @@ MERR* _parse_content_type(MCGI *ses)
 
     if (!contenttype) return MERR_OK;
 
-    mtc_mt_dbg("parse contenttype %s", contenttype);
+    mtc_mt_noise("parse contenttype %s", contenttype);
 
     MLIST *alist;
     err = mstr_array_split(&alist, contenttype, ";", MAX_TOKEN);
@@ -192,7 +192,7 @@ MERR* _parse_query(MCGI *ses)
 
     if (!query) return MERR_OK;
 
-    mtc_mt_dbg("parse query %s", query);
+    mtc_mt_noise("parse query %s", query);
 
     MLIST *alist;
     err = mstr_array_split(&alist, query, "&", MAX_TOKEN);
@@ -247,7 +247,7 @@ MERR* _parse_payload_post_form(MCGI *ses)
 
     if (readed != len) RETURN(merr_raise(MERR_ASSERT, "Short readed on CGI POST input %zu %d", readed, len));
 
-    mtc_mt_dbg("parse post form %d %s", len, buf);
+    mtc_mt_noise("parse post form %d %s", len, buf);
 
     MLIST *alist;
     err = mstr_array_split(&alist, buf, "&", MAX_TOKEN);
@@ -280,7 +280,7 @@ MERR* _parse_payload_rfc2388(MCGI *ses)
 
     if (total_to_get <= 0 || !boundary) return MERR_OK;
 
-    mtc_mt_dbg("parse payload rfc2388 %s", boundary);
+    mtc_mt_noise("parse payload rfc2388 %s", boundary);
 
     r->buf = mos_calloc(1, MAX_BUF_LEN);
     r->remain = 0;
@@ -345,7 +345,7 @@ MERR* _parse_payload_json(MCGI *ses)
     if (readed != len) RETURN(merr_raise(MERR_ASSERT, "Short readed on CGI POST input %zu %d", readed, len));
 
     //buf = mhttp_url_unescape(buf, len, '%');
-    mtc_mt_dbg("parse payload json %d", len);
+    mtc_mt_noise("parse payload json %d", len);
 
     MDF *onode = mdf_get_or_create_node(node, "QUERY");
     err = mdf_json_import_string(onode, buf);

@@ -110,6 +110,13 @@ void mcgi_destroy(MCGI **ses)
     *ses = NULL;
 }
 
+MDF* mcgi_get_data(MCGI *ses)
+{
+    if (!ses) return NULL;
+
+    return ses->data;
+}
+
 MERR* mcgi_parse_payload(MCGI *ses)
 {
     MERR *err;
@@ -164,4 +171,5 @@ MERR* mcgi_cookie_clear(MCGI *ses, const char *name, const char *domain, const c
 
 FILE* mcgi_file(MCGI *ses, const char *name)
 {
+    return NULL;
 }
