@@ -271,7 +271,7 @@ MERR* mhttp_post(const char *url, const char *content_type, const char *payload,
         memset(buf + len, 0x0, MAX_BUF_LEN - len);
     }
 
-    if (rv <= 0) RETURN(merr_raise(MERR_ASSERT, "receive failure"));
+    if (rv <= 0) RETURN(merr_raise(MERR_ASSERT, "receive failure %d %s", rv, strerror(errno)));
 
     mtc_mt_warn("never reach here");
     RETURN(MERR_OK);

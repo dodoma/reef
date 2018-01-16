@@ -28,6 +28,8 @@ int      mhash_int_comp(const void *a, const void *b);
 void mhash_md5_buf(unsigned char *in, size_t len, unsigned char out[16]);
 /* 7d726587934dc8f29e2e42b88a0756be1c47fa64 */
 void mhash_sha1_buf(unsigned char *in, size_t len, unsigned char out[20]);
+/* ecab4881ee80ad3d76bb1da68387428ca752eb885e52621a3129dcf4d9bc4fd4 */
+void mhash_sha256_buf(unsigned char *in, size_t len, unsigned char out[32]);
 
 __END_DECLS
 #endif

@@ -1,6 +1,7 @@
 #include "reef.h"
 #include "_md5.h"
 #include "_sha1.h"
+#include "_sha256.h"
 
 struct node {
     uint32_t hashv;
@@ -336,4 +337,9 @@ void mhash_sha1_buf(unsigned char *in, size_t len, unsigned char out[20])
         SHA1Update(&contex, in + ii, 1);
     }
     SHA1Final(out, &contex);
+}
+
+void mhash_sha256_buf(unsigned char *in, size_t len, unsigned char out[32])
+{
+    return sha256_hash(out, in, len);
 }

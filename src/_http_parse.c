@@ -210,9 +210,10 @@ static MERR* _parse_response(unsigned char *buf, size_t len, int *rlen, bool *en
 
     if (!strncmp(content_type, "application/json", 16) ||
         !strncmp(content_type, "text/html", 9) ||
-        !strncmp(content_type, "text/xml", 8)) {
+        !strncmp(content_type, "text/xml", 8) ||
+        !strncmp(content_type, "text/json", 9)) {
         return merr_pass(_process_text(node, pos, remain, end, body_callback));
     }
 
-    return MERR_OK;
+    return merr_raise(MERR_ASSERT, "content_type %s not support", content_type);
 }
