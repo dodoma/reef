@@ -22,7 +22,7 @@ __BEGIN_DECLS
 #endif
 
 /*
- * url: http://anothersite.com:8080/cgi/viki?aaaa=bbbb
+ * url: https://anothersite.com:8080/cgi/viki?aaaa=bbbb
  * OUTPUT:
  *     host: anothersite.com:8080/cgi/viki?aaaa=bbbb
  *     hostlen: 15
@@ -31,7 +31,7 @@ __BEGIN_DECLS
  *     scriptlen: 8
  *     requesturi: cgi/viki?aaaa=bbbb
  */
-bool mhttp_parse_url(const char *url,
+bool mhttp_parse_url(const char *url, bool *secure,
                      char **host, int *hostlen, int *port,
                      char **scriptname, int *scriptlen,
                      char **requesturi);

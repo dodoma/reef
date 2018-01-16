@@ -3,7 +3,9 @@
 #define MAX_BUF_LEN  524288      /* 接收http回包缓冲 */
 #define MAX_BODY_LEN 10485760    /* http 回包内容长度限制 */
 
-static MERR* _connect_to(const char *host, int hostlen, int port, int *rfd)
+#include "_http_tls.c"
+
+static MERR* _connect_to(const char *host, int hostlen, int port, int *rfd, struct _tls *ssl)
 {
     int fd = socket(AF_INET, SOCK_STREAM, 0);
     if (fd < 0) return merr_raise(MERR_ASSERT, "socket() failure");
@@ -51,16 +53,32 @@ static MERR* _connect_to(const char *host, int hostlen, int port, int *rfd)
     setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char*)&tv, sizeof(tv));
     setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (char*)&tv, sizeof(tv));
 
+    /* Secure Socket Layer */
+    if (ssl) {
+        ssl->ssl_fd.fd = fd;
+        mbedtls_ssl_set_bio(&ssl->ssl, &ssl->ssl_fd, mbedtls_net_send, mbedtls_net_recv, mbedtls_net_recv_timeout);
+        while ((rv = mbedtls_ssl_handshake(&ssl->ssl)) != 0) {
+            if (rv != MBEDTLS_ERR_SSL_WANT_READ && rv != MBEDTLS_ERR_SSL_WANT_WRITE)
+                return merr_raise(MERR_ASSERT, "ssl handshake error %d", rv);
+
+            /* TODO verify */
+        }
+    }
+
     return MERR_OK;
 }
 
-static MERR* _send_to(int fd, const unsigned char *buf, size_t len)
+static MERR* _send_to(int fd, const unsigned char *buf, size_t len, struct _tls *ssl)
 {
     MSG_DUMP("send:", buf, len);
 
     size_t c = 0;
+    int rv = 0;
     while (c < len) {
-        int rv = send(fd, buf + c, len - c, MSG_NOSIGNAL);
+
+        if (!ssl) rv = send(fd, buf + c, len - c, MSG_NOSIGNAL);
+        else rv = mbedtls_ssl_write(&ssl->ssl, buf + c, len - c);
+
         if (rv <= 0) return merr_raise(MERR_ASSERT, "send() return %d %s", rv, strerror(errno));
 
         c += rv;
@@ -69,7 +87,13 @@ static MERR* _send_to(int fd, const unsigned char *buf, size_t len)
     return MERR_OK;
 }
 
-bool mhttp_parse_url(const char *url,
+static int _recv_from(int fd, unsigned char *buf, size_t maxlen, struct _tls *ssl)
+{
+    if (!ssl) return recv(fd, buf, maxlen, MSG_NOSIGNAL);
+    else return mbedtls_ssl_read(&ssl->ssl, buf, maxlen);
+}
+
+bool mhttp_parse_url(const char *url, bool *secure,
                      char **host, int *hostlen, int *port,
                      char **scriptname, int *scriptlen,
                      char **requesturi)
@@ -77,13 +101,20 @@ bool mhttp_parse_url(const char *url,
     if (!url) return false;
 
     char *s = (char*)url;
-    int len = strlen(s), lport = 80, hlen = 0, slen = 0;
-    if (len < 7 ||
-        s[0] != 'h' || s[1] != 't' || s[2] != 't' || s[3] != 'p' ||
-        s[4] != ':' || s[5] != '/' || s[6] != '/')
-        return false;
+    int lport = 0, hlen = 0, slen = 0;
 
-    s += 7;
+    if (!strncasecmp(s, "https://", 8)) {
+        *secure = true;
+        lport = 443;
+        s += 8;
+    } else if (!strncasecmp(s, "http://", 7)) {
+        *secure = false;
+        lport = 80;
+        s += 7;
+    } else {
+        return false;
+    }
+
     while (*s == '/') s++;
 
     /* host */
@@ -160,9 +191,18 @@ MERR* mhttp_get(const char *url, MDF *rnode, MHTTP_ONBODY_FUNC body_callback, vo
 
     char *host, *scriptname, *requesturi;
     int port, hostlen, scriptlen;
+    struct _tls *ssl = NULL;
+    bool secure;
 
-    if (!mhttp_parse_url(url, &host, &hostlen, &port, &scriptname, &scriptlen, &requesturi))
+    if (!mhttp_parse_url(url, &secure, &host, &hostlen, &port, &scriptname, &scriptlen, &requesturi))
         return merr_raise(MERR_ASSERT, "not http url %s", url);
+
+    if (secure) {
+        char hostname[hostlen + 1];
+        strncpy(hostname, host, hostlen);
+        err = _tls_new(&ssl, hostname, MHTTP_TIMEOUT * 1000);
+        if (err) return merr_pass(err);
+    }
 
     int fd = 0;
     MSTR str; mstr_init(&str);
@@ -175,22 +215,23 @@ MERR* mhttp_get(const char *url, MDF *rnode, MHTTP_ONBODY_FUNC body_callback, vo
 
 #define RETURN(ret)                             \
     do {                                        \
+        if (secure) _tls_free(ssl);             \
         if (fd > 0) close(fd);                  \
         mstr_clear(&str);                       \
         return (ret);                           \
     } while (0)
 
-    err = _connect_to(host, hostlen, port, &fd);
+    err = _connect_to(host, hostlen, port, &fd, ssl);
     if (err) RETURN(merr_pass(err));
 
-    err = _send_to(fd, (unsigned char*)str.buf, str.len);
+    err = _send_to(fd, (unsigned char*)str.buf, str.len, ssl);
     if (err) RETURN(merr_pass(err));
 
     unsigned char buf[MAX_BUF_LEN];
     memset(buf, 0x0, MAX_BUF_LEN);
     int rv = 0, len = 0;
     bool end = false;
-    while ((rv = recv(fd, buf + len, MAX_BUF_LEN - len, MSG_NOSIGNAL)) > 0) {
+    while ((rv = _recv_from(fd, buf + len, MAX_BUF_LEN - len, ssl)) > 0) {
         mtc_mt_dbg("received %d bytes", rv);
         //MSG_DUMP("receive:", buf + len, rv);
 
@@ -223,11 +264,20 @@ MERR* mhttp_post(const char *url, const char *content_type, const char *payload,
 
     char *host, *scriptname, *requesturi;
     int port, hostlen, scriptlen;
+    struct _tls *ssl = NULL;
+    bool secure;
 
-    if (!mhttp_parse_url(url, &host, &hostlen, &port, &scriptname, &scriptlen, &requesturi))
+    if (!mhttp_parse_url(url, &secure, &host, &hostlen, &port, &scriptname, &scriptlen, &requesturi))
         return merr_raise(MERR_ASSERT, "not http url %s", url);
 
     if (!content_type) content_type = "application/x-www-form-urlencoded";
+
+    if (secure) {
+        char hostname[hostlen + 1];
+        strncpy(hostname, host, hostlen);
+        err = _tls_new(&ssl, hostname, MHTTP_TIMEOUT * 1000);
+        if (err) return merr_pass(err);
+    }
 
     int fd = 0;
     MSTR str; mstr_init(&str);
@@ -243,22 +293,23 @@ MERR* mhttp_post(const char *url, const char *content_type, const char *payload,
 
 #define RETURN(ret)                             \
     do {                                        \
+        if (secure) _tls_free(ssl);             \
         if (fd > 0) close(fd);                  \
         mstr_clear(&str);                       \
         return (ret);                           \
     } while (0)
 
-    err = _connect_to(host, hostlen, port, &fd);
+    err = _connect_to(host, hostlen, port, &fd, ssl);
     if (err) RETURN(merr_pass(err));
 
-    err = _send_to(fd, (unsigned char*)str.buf, str.len);
+    err = _send_to(fd, (unsigned char*)str.buf, str.len, ssl);
     if (err) RETURN(merr_pass(err));
 
     unsigned char buf[MAX_BUF_LEN];
     memset(buf, 0x0, MAX_BUF_LEN);
     int rv = 0, len = 0;
     bool end = false;
-    while ((rv = recv(fd, buf + len, MAX_BUF_LEN - len, MSG_NOSIGNAL)) > 0) {
+    while ((rv = _recv_from(fd, buf + len, MAX_BUF_LEN - len, ssl)) > 0) {
         mtc_mt_dbg("received %d bytes", rv);
         //MSG_DUMP("receive:", buf + len, rv);
 
@@ -328,7 +379,7 @@ static size_t _formdata_kv_length(char *key, char *val, int boundary_length)
     return len;
 }
 
-static MERR* _formdata_kv_send(int fd, char *key, char *val, const char *boundary)
+static MERR* _formdata_kv_send(int fd, char *key, char *val, const char *boundary, struct _tls *ssl)
 {
     if (!key || !val) return MERR_OK;
 
@@ -348,7 +399,7 @@ static MERR* _formdata_kv_send(int fd, char *key, char *val, const char *boundar
         mstr_appendf(&str, "--%s\r\n", boundary);
         mstr_appendf(&str, "Content-Disposition: form-data; name=\"%s\"\r\n\r\n", key);
         mstr_appendf(&str, "%s\r\n", val);
-        err = _send_to(fd, (unsigned char*)str.buf, str.len);
+        err = _send_to(fd, (unsigned char*)str.buf, str.len, ssl);
         if (err) RETURN(merr_pass(err));
     } else {
         /* TODO JPEG, PNG, DAT, BMP... */
@@ -363,21 +414,21 @@ static MERR* _formdata_kv_send(int fd, char *key, char *val, const char *boundar
         mstr_appendf(&str, "Content-Disposition: form-data; name=\"%s\"; filename=\"%s\"\r\n",
                      key, filename);
         mstr_appendf(&str, "Content-Type: image/jpeg\r\n\r\n");
-        err = _send_to(fd, (unsigned char*)str.buf, str.len);
+        err = _send_to(fd, (unsigned char*)str.buf, str.len, ssl);
         if (err) RETURN(merr_pass(err));
 
         FILE *fp = fopen(val, "r");
         if (fp) {
             size_t len = 0;
             while ((len = fread(buf, 1, MAX_BUF_LEN, fp)) > 0) {
-                err = _send_to(fd, buf, len);
+                err = _send_to(fd, buf, len, ssl);
                 if (err) RETURN(merr_pass(err));
             }
         } else return merr_raise(MERR_ASSERT, "unable to open %s", val);
 
         fclose(fp);
 
-        _send_to(fd, (unsigned char*)"\r\n", 2);
+        _send_to(fd, (unsigned char*)"\r\n", 2, ssl);
     }
 
     RETURN(MERR_OK);
@@ -420,7 +471,7 @@ static size_t _payload_lengthvf(int variable_count, va_list ap, int boundary_len
     return len;
 }
 
-static MERR* _send_payload_mdf(int fd, const char *boundary, MDF *node)
+static MERR* _send_payload_mdf(int fd, const char *boundary, MDF *node, struct _tls *ssl)
 {
     MERR *err;
 
@@ -429,7 +480,7 @@ static MERR* _send_payload_mdf(int fd, const char *boundary, MDF *node)
         char *key = mdf_get_name(cnode, NULL);
         char *val = mdf_get_value(cnode, NULL, NULL);
 
-        err = _formdata_kv_send(fd, key, val, boundary);
+        err = _formdata_kv_send(fd, key, val, boundary, ssl);
         if (err) return merr_pass(err);
 
         cnode = mdf_node_next(cnode);
@@ -437,13 +488,13 @@ static MERR* _send_payload_mdf(int fd, const char *boundary, MDF *node)
 
     MSTR str; mstr_init(&str);
     mstr_appendf(&str, "--%s--\r\n", boundary);
-    err = _send_to(fd, (unsigned char*)str.buf, str.len);
+    err = _send_to(fd, (unsigned char*)str.buf, str.len, ssl);
     mstr_clear(&str);
 
     return merr_pass(err);
 }
 
-static MERR* _send_payloadvf(int fd, const char *boundary, int variable_count, va_list ap)
+static MERR* _send_payloadvf(int fd, const char *boundary, int variable_count, va_list ap, struct _tls *ssl)
 {
     MERR *err;
 
@@ -451,13 +502,13 @@ static MERR* _send_payloadvf(int fd, const char *boundary, int variable_count, v
         char *key = va_arg(ap, char*);
         char *val = va_arg(ap, char*);
 
-        err = _formdata_kv_send(fd, key, val, boundary);
+        err = _formdata_kv_send(fd, key, val, boundary, ssl);
         if (err) return merr_pass(err);
     }
 
     MSTR str; mstr_init(&str);
     mstr_appendf(&str, "--%s--\r\n", boundary);
-    err = _send_to(fd, (unsigned char*)str.buf, str.len);
+    err = _send_to(fd, (unsigned char*)str.buf, str.len, ssl);
     mstr_clear(&str);
 
     return merr_pass(err);
@@ -480,9 +531,18 @@ MERR* mhttp_post_with_file(const char *url, MDF *dnode, MDF *rnode,
 
     char *host, *scriptname, *requesturi;
     int port, hostlen, scriptlen;
+    struct _tls *ssl = NULL;
+    bool secure;
 
-    if (!mhttp_parse_url(url, &host, &hostlen, &port, &scriptname, &scriptlen, &requesturi))
+    if (!mhttp_parse_url(url, &secure, &host, &hostlen, &port, &scriptname, &scriptlen, &requesturi))
         return merr_raise(MERR_ASSERT, "not http url %s", url);
+
+    if (secure) {
+        char hostname[hostlen + 1];
+        strncpy(hostname, host, hostlen);
+        err = _tls_new(&ssl, hostname, MHTTP_TIMEOUT * 1000);
+        if (err) return merr_pass(err);
+    }
 
     int fd = 0;
     MSTR str; mstr_init(&str);
@@ -498,27 +558,28 @@ MERR* mhttp_post_with_file(const char *url, MDF *dnode, MDF *rnode,
 
 #define RETURN(ret)                             \
     do {                                        \
+        if (secure) _tls_free(ssl);             \
         if (fd > 0) close(fd);                  \
         mstr_clear(&str);                       \
         return (ret);                           \
     } while (0)
 
-    err = _connect_to(host, hostlen, port, &fd);
+    err = _connect_to(host, hostlen, port, &fd, ssl);
     if (err) RETURN(merr_pass(err));
 
-    err = _send_to(fd, (unsigned char*)str.buf, str.len);
+    err = _send_to(fd, (unsigned char*)str.buf, str.len, ssl);
     if (err) RETURN(merr_pass(err));
 
     //rv = recv(fd, buf, MAX_BUF_LEN, MSG_NOSIGNAL);
 
-    err = _send_payload_mdf(fd, boundary, dnode);
+    err = _send_payload_mdf(fd, boundary, dnode, ssl);
     if (err) RETURN(merr_pass(err));
 
     unsigned char buf[MAX_BUF_LEN];
     memset(buf, 0x0, MAX_BUF_LEN);
     int rv = 0, len = 0;
     bool end = false;
-    while ((rv = recv(fd, buf + len, MAX_BUF_LEN - len, MSG_NOSIGNAL)) > 0) {
+    while ((rv = _recv_from(fd, buf + len, MAX_BUF_LEN - len, ssl)) > 0) {
         mtc_mt_dbg("received %d bytes", rv);
         //MSG_DUMP("receive:", buf + len, rv);
 
@@ -558,13 +619,22 @@ MERR* mhttp_post_with_filef(const char *url, MDF *rnode, MHTTP_ONBODY_FUNC body_
 
     char *host, *scriptname, *requesturi;
     int port, hostlen, scriptlen;
+    struct _tls *ssl = NULL;
+    bool secure;
 
-    if (!mhttp_parse_url(url, &host, &hostlen, &port, &scriptname, &scriptlen, &requesturi))
+    if (!mhttp_parse_url(url, &secure, &host, &hostlen, &port, &scriptname, &scriptlen, &requesturi))
         return merr_raise(MERR_ASSERT, "not http url %s", url);
 
     va_list apa, apb;
     va_start(apa, variable_count);
     va_copy(apb, apa);
+
+    if (secure) {
+        char hostname[hostlen + 1];
+        strncpy(hostname, host, hostlen);
+        err = _tls_new(&ssl, hostname, MHTTP_TIMEOUT * 1000);
+        if (err) return merr_pass(err);
+    }
 
     int fd = 0;
     MSTR str; mstr_init(&str);
@@ -583,27 +653,28 @@ MERR* mhttp_post_with_filef(const char *url, MDF *rnode, MHTTP_ONBODY_FUNC body_
 #define RETURN(ret)                             \
     do {                                        \
         va_end(apa);                            \
+        if (secure) _tls_free(ssl);             \
         if (fd > 0) close(fd);                  \
         mstr_clear(&str);                       \
         return (ret);                           \
     } while (0)
 
-    err = _connect_to(host, hostlen, port, &fd);
+    err = _connect_to(host, hostlen, port, &fd, ssl);
     if (err) RETURN(merr_pass(err));
 
-    err = _send_to(fd, (unsigned char*)str.buf, str.len);
+    err = _send_to(fd, (unsigned char*)str.buf, str.len, ssl);
     if (err) RETURN(merr_pass(err));
 
     //rv = recv(fd, buf, MAX_BUF_LEN, MSG_NOSIGNAL);
 
-    err = _send_payloadvf(fd, boundary, variable_count, apb);
+    err = _send_payloadvf(fd, boundary, variable_count, apb, ssl);
     if (err) RETURN(merr_pass(err));
 
     unsigned char buf[MAX_BUF_LEN];
     memset(buf, 0x0, MAX_BUF_LEN);
     int rv = 0, len = 0;
     bool end = false;
-    while ((rv = recv(fd, buf + len, MAX_BUF_LEN - len, MSG_NOSIGNAL)) > 0) {
+    while ((rv = _recv_from(fd, buf + len, MAX_BUF_LEN - len, ssl)) > 0) {
         mtc_mt_dbg("received %d bytes", rv);
         //MSG_DUMP("receive:", buf + len, rv);
 
