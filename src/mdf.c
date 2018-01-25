@@ -977,6 +977,13 @@ char* mdf_get_value_stringfy(MDF *node, const char *path, char *dftvalue)
 
     if (anode) {
         switch(anode->type) {
+        case MDF_TYPE_OBJECT:
+        case MDF_TYPE_ARRAY:
+        {
+            char *s = mdf_json_export_string(anode);
+            if (s) return s;
+            else goto dup_default;
+        }
         case MDF_TYPE_STRING:
             if (anode->val.s) return strdup(anode->val.s);
             else goto dup_default;

@@ -860,7 +860,8 @@ static void _export_json_string(MDF *node, void *rock, MDF_PRINTF mprintf, int l
         PAD_SPACE(); mprintf(rock, "]");
         break;
     case MDF_TYPE_STRING:
-        mprintf(rock, "\"%s\"", node->val.s);
+        if (!node->parent) mprintf(rock, "%s", node->val.s);
+        else mprintf(rock, "\"%s\"", node->val.s);
         break;
     case MDF_TYPE_INT:
         mprintf(rock, "%ld", node->val.n);

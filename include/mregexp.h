@@ -55,7 +55,7 @@ void  mre_destroy(MRE **reo);
 /* 获取总的匹配次数 */
 uint32_t mre_match_count(MRE *reo);
 
-/* 获取第几次匹配`(...)`的个数 */
+/* 获取第几次匹配`(...)`的个数（包含整个 match sub string） */
 uint32_t mre_sub_count(MRE *reo, uint32_t matchsn);
 
 /* 获取第几个匹配
