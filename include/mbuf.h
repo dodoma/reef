@@ -1,3 +1,4 @@
+#ifndef CS_COMMON_MBUF_H_
 #ifndef __MBUF_H__
 #define __MBUF_H__
 
@@ -22,4 +23,5 @@ void mbuf_shrink(MBUF *abuf);
 size_t mbuf_insert(MBUF *abuf, size_t offset, const void *data, size_t data_size);
 size_t mbuf_append(MBUF *abuf, const void *data, size_t data_size);
 
+#endif
 #endif
