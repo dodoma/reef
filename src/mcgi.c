@@ -2,10 +2,6 @@
 
 /* TODO If we've seen it before... we force it into a list */
 
-#define MAX_TOKEN    1024      /* max cookie, contenttype, query var variable number */
-#define MAX_POST_LEN 524288    /* post application/x-www-form-urlencoded max length */
-#define MAX_BUF_LEN  10485760  /* post multipart/form-data buffer length*/
-
 struct _MCGI {
     int method;                 /* GET, POST, PUT */
     int reqtype;                /* html, ajax, image */

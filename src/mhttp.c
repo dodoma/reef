@@ -1,8 +1,5 @@
 #include "reef.h"
 
-#define MAX_BUF_LEN  524288      /* 接收http回包缓冲 */
-#define MAX_BODY_LEN 10485760    /* http 回包内容长度限制 */
-
 #include "_http_tls.c"
 
 static MERR* _connect_to(const char *host, int hostlen, int port, int *rfd, struct _tls *ssl)
@@ -227,11 +224,11 @@ MERR* mhttp_get(const char *url, MDF *rnode, MHTTP_ONBODY_FUNC body_callback, vo
     err = _send_to(fd, (unsigned char*)str.buf, str.len, ssl);
     if (err) RETURN(merr_pass(err));
 
-    unsigned char buf[MAX_BUF_LEN];
-    memset(buf, 0x0, MAX_BUF_LEN);
+    unsigned char buf[MHTTP_BUFLEN];
+    memset(buf, 0x0, MHTTP_BUFLEN);
     int rv = 0, len = 0;
     bool end = false;
-    while ((rv = _recv_from(fd, buf + len, MAX_BUF_LEN - len, ssl)) > 0) {
+    while ((rv = _recv_from(fd, buf + len, MHTTP_BUFLEN - len, ssl)) > 0) {
         mtc_mt_dbg("received %d bytes", rv);
         //MSG_DUMP("receive:", buf + len, rv);
 
@@ -241,7 +238,7 @@ MERR* mhttp_get(const char *url, MDF *rnode, MHTTP_ONBODY_FUNC body_callback, vo
 
         if (end) RETURN(MERR_OK);
 
-        memset(buf + len, 0x0, MAX_BUF_LEN - len);
+        memset(buf + len, 0x0, MHTTP_BUFLEN - len);
     }
 
     if (rv <= 0) RETURN(merr_raise(MERR_ASSERT, "receive failure"));
@@ -305,11 +302,11 @@ MERR* mhttp_post(const char *url, const char *content_type, const char *payload,
     err = _send_to(fd, (unsigned char*)str.buf, str.len, ssl);
     if (err) RETURN(merr_pass(err));
 
-    unsigned char buf[MAX_BUF_LEN];
-    memset(buf, 0x0, MAX_BUF_LEN);
+    unsigned char buf[MHTTP_BUFLEN];
+    memset(buf, 0x0, MHTTP_BUFLEN);
     int rv = 0, len = 0;
     bool end = false;
-    while ((rv = _recv_from(fd, buf + len, MAX_BUF_LEN - len, ssl)) > 0) {
+    while ((rv = _recv_from(fd, buf + len, MHTTP_BUFLEN - len, ssl)) > 0) {
         mtc_mt_dbg("received %d bytes", rv);
         //MSG_DUMP("receive:", buf + len, rv);
 
@@ -319,7 +316,7 @@ MERR* mhttp_post(const char *url, const char *content_type, const char *payload,
 
         if (end) RETURN(MERR_OK);
 
-        memset(buf + len, 0x0, MAX_BUF_LEN - len);
+        memset(buf + len, 0x0, MHTTP_BUFLEN - len);
     }
 
     if (rv <= 0) RETURN(merr_raise(MERR_ASSERT, "receive failure %d %s", rv, strerror(errno)));
@@ -386,8 +383,8 @@ static MERR* _formdata_kv_send(int fd, char *key, char *val, const char *boundar
     MSTR str; mstr_init(&str);
     MERR *err;
 
-    unsigned char buf[MAX_BUF_LEN];
-    memset(buf, 0x0, MAX_BUF_LEN);
+    unsigned char buf[MHTTP_BUFLEN];
+    memset(buf, 0x0, MHTTP_BUFLEN);
 
 #define RETURN(ret)                             \
     do {                                        \
@@ -420,7 +417,7 @@ static MERR* _formdata_kv_send(int fd, char *key, char *val, const char *boundar
         FILE *fp = fopen(val, "r");
         if (fp) {
             size_t len = 0;
-            while ((len = fread(buf, 1, MAX_BUF_LEN, fp)) > 0) {
+            while ((len = fread(buf, 1, MHTTP_BUFLEN, fp)) > 0) {
                 err = _send_to(fd, buf, len, ssl);
                 if (err) RETURN(merr_pass(err));
             }
@@ -570,16 +567,16 @@ MERR* mhttp_post_with_file(const char *url, MDF *dnode, MDF *rnode,
     err = _send_to(fd, (unsigned char*)str.buf, str.len, ssl);
     if (err) RETURN(merr_pass(err));
 
-    //rv = recv(fd, buf, MAX_BUF_LEN, MSG_NOSIGNAL);
+    //rv = recv(fd, buf, MHTTP_BUFLEN, MSG_NOSIGNAL);
 
     err = _send_payload_mdf(fd, boundary, dnode, ssl);
     if (err) RETURN(merr_pass(err));
 
-    unsigned char buf[MAX_BUF_LEN];
-    memset(buf, 0x0, MAX_BUF_LEN);
+    unsigned char buf[MHTTP_BUFLEN];
+    memset(buf, 0x0, MHTTP_BUFLEN);
     int rv = 0, len = 0;
     bool end = false;
-    while ((rv = _recv_from(fd, buf + len, MAX_BUF_LEN - len, ssl)) > 0) {
+    while ((rv = _recv_from(fd, buf + len, MHTTP_BUFLEN - len, ssl)) > 0) {
         mtc_mt_dbg("received %d bytes", rv);
         //MSG_DUMP("receive:", buf + len, rv);
 
@@ -589,7 +586,7 @@ MERR* mhttp_post_with_file(const char *url, MDF *dnode, MDF *rnode,
 
         if (end) RETURN(MERR_OK);
 
-        memset(buf + len, 0x0, MAX_BUF_LEN - len);
+        memset(buf + len, 0x0, MHTTP_BUFLEN - len);
     }
 
     if (rv <= 0) RETURN(merr_raise(MERR_ASSERT, "receive failure"));
@@ -665,16 +662,16 @@ MERR* mhttp_post_with_filef(const char *url, MDF *rnode, MHTTP_ONBODY_FUNC body_
     err = _send_to(fd, (unsigned char*)str.buf, str.len, ssl);
     if (err) RETURN(merr_pass(err));
 
-    //rv = recv(fd, buf, MAX_BUF_LEN, MSG_NOSIGNAL);
+    //rv = recv(fd, buf, MHTTP_BUFLEN, MSG_NOSIGNAL);
 
     err = _send_payloadvf(fd, boundary, variable_count, apb, ssl);
     if (err) RETURN(merr_pass(err));
 
-    unsigned char buf[MAX_BUF_LEN];
-    memset(buf, 0x0, MAX_BUF_LEN);
+    unsigned char buf[MHTTP_BUFLEN];
+    memset(buf, 0x0, MHTTP_BUFLEN);
     int rv = 0, len = 0;
     bool end = false;
-    while ((rv = _recv_from(fd, buf + len, MAX_BUF_LEN - len, ssl)) > 0) {
+    while ((rv = _recv_from(fd, buf + len, MHTTP_BUFLEN - len, ssl)) > 0) {
         mtc_mt_dbg("received %d bytes", rv);
         //MSG_DUMP("receive:", buf + len, rv);
 
@@ -684,7 +681,7 @@ MERR* mhttp_post_with_filef(const char *url, MDF *rnode, MHTTP_ONBODY_FUNC body_
 
         if (end) RETURN(MERR_OK);
 
-        memset(buf + len, 0x0, MAX_BUF_LEN - len);
+        memset(buf + len, 0x0, MHTTP_BUFLEN - len);
     }
 
     if (rv <= 0) RETURN(merr_raise(MERR_ASSERT, "receive failure"));

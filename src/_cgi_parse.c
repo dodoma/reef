@@ -282,12 +282,12 @@ MERR* _parse_payload_rfc2388(MCGI *ses)
 
     mtc_mt_noise("parse payload rfc2388 %s", boundary);
 
-    r->buf = mos_calloc(1, MAX_BUF_LEN);
+    r->buf = mos_calloc(1, MCGI_BUFLEN);
     r->remain = 0;
     size_t readed = 0;
 
     while (readed < total_to_get) {
-        int seglen = (total_to_get - readed) > MAX_BUF_LEN ? MAX_BUF_LEN : (total_to_get - readed);
+        int seglen = (total_to_get - readed) > MCGI_BUFLEN ? MCGI_BUFLEN : (total_to_get - readed);
 
         memset(r->buf + r->remain, 0x0, seglen - r->remain);
         int rv = fread(r->buf + r->remain, 1, seglen - r->remain, stdin);

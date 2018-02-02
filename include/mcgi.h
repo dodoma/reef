@@ -12,6 +12,11 @@
  */
 __BEGIN_DECLS
 
+#define MAX_TOKEN    1024      /* max cookie, contenttype, query var variable number */
+#define MAX_POST_LEN 5242880   /* post application/x-www-form-urlencoded max length */
+
+#define MCGI_BUFLEN  10485760  /* post multipart/form-data buffer length, 程序全局空间 mos_calloc() */
+
 MERR* mcgi_init(MCGI **ses, char **envp);
 MERR* mcgi_parse_payload(MCGI *ses);
 int   mcgi_req_type(MCGI *ses);

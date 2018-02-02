@@ -6,6 +6,9 @@
  */
 __BEGIN_DECLS
 
+#define MAX_BODY_LEN 10485760    /* http 回包内容长度限制 */
+
+#define MHTTP_BUFLEN  524288    /* 接收http回包缓冲，函数局部空间 char[] */
 #define MHTTP_TIMEOUT 5         /* http 请求超时时间 */
 
 #ifdef DEBUG_MSG
