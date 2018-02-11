@@ -192,8 +192,9 @@ MERR* _parse_query(MCGI *ses)
 
     if (!query) return MERR_OK;
 
-    mtc_mt_noise("parse query %s", query);
+    mtc_mt_dbg("parse query %s", query);
 
+    MDF *qnode = mdf_get_or_create_node(node, "QUERY");
     MLIST *alist;
     err = mstr_array_split(&alist, query, "&", MAX_TOKEN);
     if (err) return merr_pass(err);
@@ -203,7 +204,54 @@ MERR* _parse_query(MCGI *ses)
         item = mstr_strip_space(item);
         item = mhttp_url_unescape(item, strlen(item), '%');
 
-        mdf_set_valuef(node, "QUERY.%s", item);
+        mtc_mt_noise("parse %s", item);
+
+        char key[1024], *val;
+        memset(key, 0x0, sizeof(key));
+        val = strchr(item, '=');
+        if (val) {
+            int keylen = (int)(val - item);
+            snprintf(key, sizeof(key), "%.*s", keylen, item);
+
+            MRE *reoa = mre_init(), *reob = mre_init();
+            MERR *err;
+            err = mre_compile(reoa, "^(.*?)\\[\\w\\]");
+            if (err != MERR_OK) return merr_pass(err);
+            err = mre_compile(reob, "(?:\\[(\\w)\\])");
+            if (err != MERR_OK) return merr_pass(err);
+
+            if (keylen >= 3 && key[keylen - 1] == ']' && key[keylen - 2] == '[') {
+                /* JSON URL 中的数组*/
+                key[keylen - 2] = '\0';
+                mdf_set_valuef(qnode, "%s.%d=%s", key, mdf_child_count(qnode, key), val + 1);
+                mdf_object_2_array(qnode, key);
+            } else if (strchr(key, '[') && strchr(key, ']') &&
+                       mre_match(reoa, key, false) &&
+                       mre_match_all(reob, key, false)) {
+                /* JSON URL 中的对象 */
+                MSTR astr; mstr_init(&astr);
+                const char *sp, *ep;
+
+                if (mre_sub_get(reoa, 0, 1, &sp, &ep)) {
+                    mstr_appendn(&astr, sp, (int)(ep - sp));
+                }
+
+                for (uint32_t i = 0; i < mre_match_count(reob); i++) {
+                    if (mre_sub_get(reob, i, 1, &sp, &ep)) {
+                        mstr_appendf(&astr, ".%.*s", (int)(ep - sp), sp);
+                    }
+                }
+
+                mdf_set_value(qnode, astr.buf, val + 1);
+                mstr_clear(&astr);
+            } else {
+                /* JSON URL 中的普通赋值 */
+                mdf_set_valuef(node, "QUERY.%s", item);
+            }
+
+            mre_destroy(&reoa);
+            mre_destroy(&reob);
+        }
     }
     mlist_destroy(&alist);
 
@@ -249,6 +297,7 @@ MERR* _parse_payload_post_form(MCGI *ses)
 
     mtc_mt_noise("parse post form %d %s", len, buf);
 
+    MDF *qnode = mdf_get_or_create_node(node, "QUERY");
     MLIST *alist;
     err = mstr_array_split(&alist, buf, "&", MAX_TOKEN);
     if (err) RETURN(merr_pass(err));
@@ -258,7 +307,54 @@ MERR* _parse_payload_post_form(MCGI *ses)
         item = mstr_strip_space(item);
         item = mhttp_url_unescape(item, strlen(item), '%');
 
-        mdf_set_valuef(node, "QUERY.%s", item);
+        mtc_mt_noise("parse %s", item);
+
+        char key[1024], *val;
+        memset(key, 0x0, sizeof(key));
+        val = strchr(item, '=');
+        if (val) {
+            int keylen = (int)(val - item);
+            snprintf(key, sizeof(key), "%.*s", keylen, item);
+
+            MRE *reoa = mre_init(), *reob = mre_init();
+            MERR *err;
+            err = mre_compile(reoa, "^(.*?)\\[\\w\\]");
+            if (err != MERR_OK) return merr_pass(err);
+            err = mre_compile(reob, "(?:\\[(\\w)\\])");
+            if (err != MERR_OK) return merr_pass(err);
+
+            if (keylen >= 3 && key[keylen - 1] == ']' && key[keylen - 2] == '[') {
+                /* JSON URL 中的数组*/
+                key[keylen - 2] = '\0';
+                mdf_set_valuef(qnode, "%s.%d=%s", key, mdf_child_count(qnode, key), val + 1);
+                mdf_object_2_array(qnode, key);
+            } else if (strchr(key, '[') && strchr(key, ']') &&
+                       mre_match(reoa, key, false) &&
+                       mre_match_all(reob, key, false)) {
+                /* JSON URL 中的对象 */
+                MSTR astr; mstr_init(&astr);
+                const char *sp, *ep;
+
+                if (mre_sub_get(reoa, 0, 1, &sp, &ep)) {
+                    mstr_appendn(&astr, sp, (int)(ep - sp));
+                }
+
+                for (uint32_t i = 0; i < mre_match_count(reob); i++) {
+                    if (mre_sub_get(reob, i, 1, &sp, &ep)) {
+                        mstr_appendf(&astr, ".%.*s", (int)(ep - sp), sp);
+                    }
+                }
+
+                mdf_set_value(qnode, astr.buf, val + 1);
+                mstr_clear(&astr);
+            } else {
+                /* JSON URL 中的普通赋值 */
+                mdf_set_valuef(node, "QUERY.%s", item);
+            }
+
+            mre_destroy(&reoa);
+            mre_destroy(&reob);
+        }
     }
     mlist_destroy(&alist);
 

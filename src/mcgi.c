@@ -1,7 +1,5 @@
 #include "reef.h"
 
-/* TODO If we've seen it before... we force it into a list */
-
 struct _MCGI {
     int method;                 /* GET, POST, PUT */
     int reqtype;                /* html, ajax, image */
