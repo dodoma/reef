@@ -23,6 +23,10 @@ static int8_t go_value_quote[256] = {0};
 static int8_t go_value_number[256] = {0};
 static int8_t go_unvalue[256] = {0};
 
+static int8_t go_data_quote[256] = {0};
+static int8_t go_data_number[256] = {0};
+static int8_t go_data_reserve[256] = {0};
+
 static int8_t go_comment_a[256] = {0};
 static int8_t go_comment_b[256] = {0};
 static int8_t go_utf8_continue[256] = {0};
@@ -100,6 +104,10 @@ static void _json_machine_init()
     GO_WHITESPACE_LOOP(go_plain);
     go_plain['{'] = A_OBJECT;
     go_plain['['] = A_ARRAY;
+    go_plain['"'] = A_DATA_QUOTE;
+    go_plain['\''] = A_DATA_QUOTE;
+    GO_DIGIT_SET(go_plain, A_DATA_NUMBER);
+    GO_ALPHA_SET(go_plain, A_DATA_RESERVE);
     go_plain['/'] = A_COMMENT_A;
 
     GO_WHITESPACE_LOOP(go_object);
@@ -202,6 +210,22 @@ static void _json_machine_init()
     go_unvalue['/'] = A_COMMENT_A;
 
     /*
+     * data
+     */
+    GO_ALL_SET(go_data_quote, A_LOOP);
+    GO_UTF8_SET(go_data_quote);
+    go_data_quote['\\'] = A_ESCAPE;
+    go_data_quote['"'] = A_UNDATA_QUOTE;
+    go_data_quote['\''] = A_UNDATA_QUOTE;
+
+    GO_ALL_SET(go_data_number, A_BAD);
+    GO_DIGIT_SET(go_data_number, A_LOOP);
+    go_data_number['.'] = A_DATA_FLOAT;
+
+    GO_ALL_SET(go_data_reserve, A_BAD);
+    GO_ALPHA_SET(go_data_reserve, A_LOOP);
+
+    /*
      * misc
      */
     go_comment_a['/'] = A_COMMENT_B;
@@ -265,8 +289,6 @@ static inline MERR* _add_pair_unknowntype(MDF *node, char *name, char *value,
         if (CHAR_IN(*value, 'f', 'F') && CHAR_IN(*(value+1), 'a', 'A') &&
             CHAR_IN(*(value+2), 'l', 'L') && CHAR_IN(*(value+3), 's', 'S') &&
             CHAR_IN(*(value+4), 'e', 'E')) {
-            xnode->type = MDF_TYPE_BOOL;
-            xnode->val.n = 1;
             xnode->type = MDF_TYPE_BOOL;
             xnode->val.n = 0;
         } else goto error;
@@ -339,8 +361,6 @@ static inline MERR* _add_value_unknowntype(MDF *node, char *value, int valuelen,
             CHAR_IN(*(value+2), 'l', 'L') && CHAR_IN(*(value+3), 's', 'S') &&
             CHAR_IN(*(value+4), 'e', 'E')) {
             xnode->type = MDF_TYPE_BOOL;
-            xnode->val.n = 1;
-            xnode->type = MDF_TYPE_BOOL;
             xnode->val.n = 0;
         } else goto error;
     } else goto error;
@@ -353,6 +373,66 @@ error:
     mdf_destroy(&xnode);
     return merr_raise(MERR_ASSERT, "unexpect token '%c' near line %d:%d of %s",
                       *value, lineno, columnno, fname);
+}
+
+static inline MERR* _set_value_fixtype(MDF *node, char *value, int valuelen, MDF_TYPE nodetype)
+{
+    if (node->type == MDF_TYPE_STRING || node->type == MDF_TYPE_BINARY_A)
+        mos_free(node->val.s);
+    if (node->type == MDF_TYPE_OBJECT || node->type == MDF_TYPE_ARRAY) {
+        mdf_destroy(&node->child);
+        node->last_child = NULL;
+    }
+    node->type = nodetype;
+
+    if (nodetype == MDF_TYPE_STRING) {
+        node->val.s = mstr_ndup(value, valuelen);
+        node->valuelen = valuelen;
+    } else if (nodetype == MDF_TYPE_INT) {
+        char *s = mstr_ndup(value, valuelen);
+        node->val.n = strtoll(s, NULL, 10);
+        mos_free(s);
+    } else if (nodetype == MDF_TYPE_FLOAT) {
+        char *s = mstr_ndup(value, valuelen);
+        node->val.f = strtof(s, NULL);
+        mos_free(s);
+    } else return merr_raise(MERR_ASSERT, "unsupport type %d", nodetype);
+
+    return MERR_OK;
+}
+
+static inline MERR* _set_value_unknowntype(MDF *node, char *value, int valuelen)
+{
+    if (node->type == MDF_TYPE_STRING || node->type == MDF_TYPE_BINARY_A)
+        mos_free(node->val.s);
+    if (node->type == MDF_TYPE_OBJECT || node->type == MDF_TYPE_ARRAY) {
+        mdf_destroy(&node->child);
+        node->last_child = NULL;
+    }
+
+    if (valuelen == 4) {
+        if (CHAR_IN(*value, 't', 'T') && CHAR_IN(*(value+1), 'r', 'R') &&
+            CHAR_IN(*(value+2), 'u', 'U') && CHAR_IN(*(value+3), 'e', 'E')) {
+            node->type = MDF_TYPE_BOOL;
+            node->val.n = 1;
+        } else if (CHAR_IN(*value, 'n', 'N') && CHAR_IN(*(value+1), 'u', 'U') &&
+            CHAR_IN(*(value+2), 'l', 'L') && CHAR_IN(*(value+3), 'l', 'L')) {
+            node->type = MDF_TYPE_NULL;
+            node->val.n = 0;
+        } else goto error;
+    } else if (valuelen == 5) {
+        if (CHAR_IN(*value, 'f', 'F') && CHAR_IN(*(value+1), 'a', 'A') &&
+            CHAR_IN(*(value+2), 'l', 'L') && CHAR_IN(*(value+3), 's', 'S') &&
+            CHAR_IN(*(value+4), 'e', 'E')) {
+            node->type = MDF_TYPE_BOOL;
+            node->val.n = 0;
+        } else goto error;
+    } else goto error;
+
+    return MERR_OK;
+
+error:
+    return merr_raise(MERR_ASSERT, "unknown value %.*s", valuelen, value);
 }
 
 static MERR* _import_json(MDF *node, const char *str,
@@ -743,6 +823,48 @@ static MERR* _import_json(MDF *node, const char *str,
              * array end
              */
 
+            /*
+             * data begin
+             */
+        case A_DATA_QUOTE:
+            quotechar = *pos;
+            nodetype = MDF_TYPE_STRING;
+            value = pos + 1;
+            valuelen = -1;
+            go = go_data_quote;
+            break;
+
+        case A_DATA_NUMBER:
+            nodetype = MDF_TYPE_INT;
+            value = pos;
+            valuelen = -1;
+            go = go_data_number;
+            break;
+
+        case A_DATA_FLOAT:
+            nodetype = MDF_TYPE_FLOAT;
+            go = go_data_number;
+            break;
+
+        case A_DATA_RESERVE:
+            value = pos;
+            valuelen = -1;
+            go = go_data_reserve;
+            break;
+
+        case A_UNDATA_QUOTE:
+            if (value) valuelen = pos - value;
+            else goto bad_char;
+
+            if (*pos == quotechar) {
+                err = _set_value_fixtype(node, value, valuelen, nodetype);
+                return merr_pass(err);
+            }
+            break;
+            /*
+             * data end
+             */
+
         case A_COMMENT_A:
             go_nearby = go;
             go = go_comment_a;
@@ -789,6 +911,20 @@ static MERR* _import_json(MDF *node, const char *str,
         columnno++;
     }
 
+    if (go == go_data_number) {
+        if (value) valuelen = pos - value;
+        else return merr_raise(MERR_ASSERT, "illgal json string");
+
+        err = _set_value_fixtype(node, value, valuelen, nodetype);
+        return merr_pass(err);
+    } else if (go == go_data_reserve) {
+        if (value) valuelen = pos - value;
+        else return merr_raise(MERR_ASSERT, "illgal json string");
+
+        err = _set_value_unknowntype(node, value, valuelen);
+        return merr_pass(err);
+    }
+
     return merr_raise(MERR_ASSERT, "illgal json string");
 }
 
@@ -821,7 +957,7 @@ static void _json_outbuf_appendf(void *rock, const char *fmt, ...)
 /*
  * level 参数用来控制输出格式，-1为单行输出，否则会以换行和缩进控制输出
  */
-static void _export_json_string(MDF *node, void *rock, MDF_PRINTF mprintf, int level, MDF *nnode)
+static void _export_json_string(MDF *node, void *rock, MDF_PRINTF mprintf, int level, MDF *nnode, bool root)
 {
     MDF *cnode;
 
@@ -836,7 +972,7 @@ static void _export_json_string(MDF *node, void *rock, MDF_PRINTF mprintf, int l
         cnode = node->child;
         while (cnode) {
             PAD_SPACE(); mprintf(rock, "\"%s\": ", cnode->name);
-            _export_json_string(cnode, rock, mprintf, level, cnode->next);
+            _export_json_string(cnode, rock, mprintf, level, cnode->next, false);
 
             cnode = cnode->next;
         }
@@ -851,7 +987,7 @@ static void _export_json_string(MDF *node, void *rock, MDF_PRINTF mprintf, int l
         cnode = node->child;
         while (cnode) {
             PAD_SPACE();
-            _export_json_string(cnode, rock, mprintf, level, cnode->next);
+            _export_json_string(cnode, rock, mprintf, level, cnode->next, false);
 
             cnode = cnode->next;
         }
@@ -860,7 +996,7 @@ static void _export_json_string(MDF *node, void *rock, MDF_PRINTF mprintf, int l
         PAD_SPACE(); mprintf(rock, "]");
         break;
     case MDF_TYPE_STRING:
-        if (!node->parent) mprintf(rock, "%s", node->val.s);
+        if (root) mprintf(rock, "%s", node->val.s);
         else mprintf(rock, "\"%s\"", node->val.s);
         break;
     case MDF_TYPE_INT:
@@ -951,7 +1087,7 @@ char* mdf_json_export_string(MDF *node)
     if (!node) return NULL;
 
     mstr_init(&astr);
-    _export_json_string(node, &astr, (MDF_PRINTF)mstr_appendf, -1, NULL);
+    _export_json_string(node, &astr, (MDF_PRINTF)mstr_appendf, -1, NULL, true);
 
     return astr.buf;
 }
@@ -963,7 +1099,7 @@ char* mdf_json_export_string_pretty(MDF *node)
     if (!node) return NULL;
 
     mstr_init(&astr);
-    _export_json_string(node, &astr, (MDF_PRINTF)mstr_appendf, 0, NULL);
+    _export_json_string(node, &astr, (MDF_PRINTF)mstr_appendf, 0, NULL, true);
 
     return astr.buf;
 }
@@ -980,7 +1116,7 @@ size_t mdf_json_export_buffer(MDF *node, char *buf, size_t len)
     jbuf.max = len;
     jbuf.len = 0;
 
-    _export_json_string(node, &jbuf, (MDF_PRINTF)_json_outbuf_appendf, -1, NULL);
+    _export_json_string(node, &jbuf, (MDF_PRINTF)_json_outbuf_appendf, -1, NULL, true);
 
     if (jbuf.len > jbuf.max) return 0;
 
@@ -997,7 +1133,7 @@ MERR* mdf_json_export_file(MDF *node, const char *fname)
     else fp = fopen(fname, "w");
     if (!fp) return merr_raise(MERR_OPENFILE, "open %s for write failure", fname);
 
-    _export_json_string(node, fp, (MDF_PRINTF)fprintf, 0, NULL);
+    _export_json_string(node, fp, (MDF_PRINTF)fprintf, 0, NULL, true);
 
     if (fname && strcmp(fname, "-")) fclose(fp);
 

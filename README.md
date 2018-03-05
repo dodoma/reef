@@ -36,6 +36,10 @@ reef 包括：
 
 * 一个常见网络服务 的客户端API封装(memcache)
 
+* CGI 协议基础函数
+
+* HTTP 协议基础函数
+
 
 ### 为何返回 MERR* 而非 int
 
@@ -47,7 +51,7 @@ MERR* 可以，虽然使用起来稍显麻烦。
 
 ### MDF 适合干嘛
 
-mdf 类似 Python 中的 dict, Javascript 中的 object。有丰富的操作函数。可以用来保存 web 开发 90% 左右的数据。
+mdf 类似 Python 中的 dict, Javascript 中的 object, Lua 中的 Table。有丰富的操作函数。可以用来保存 web 开发 90% 左右的数据。
 
 
 ### 出了问题怎么办

@@ -14,6 +14,21 @@ void test_string_short()
     mdf_destroy(&node);
 
     mdf_init(&node);
+    err = mdf_json_import_string(node, "'xxxyyy'");
+    MTEST_ASSERT_STR_EQ(mdf_get_value(node, NULL, ""), "xxxyyy");
+    mdf_destroy(&node);
+
+    mdf_init(&node);
+    err = mdf_json_import_string(node, "12.323");
+    MTEST_ASSERT(fabs(mdf_get_float_value(node, NULL, 0) - 12.323) < 0.1);
+    mdf_destroy(&node);
+
+    mdf_init(&node);
+    err = mdf_json_import_string(node, "false");
+    MTEST_ASSERT(mdf_get_bool_value(node, NULL, true) == false);
+    mdf_destroy(&node);
+
+    mdf_init(&node);
     err = mdf_json_import_string(node, "[1, 2, 3]");
     MTEST_ASSERT(err == MERR_OK);
     MTEST_ASSERT(mdf_get_int_value(node, "[0]", 0) == 1);
@@ -146,7 +161,7 @@ void suite_file()
 
 int main()
 {
-    mtc_init("-", MTC_DEBUG);
+    mtc_mt_init("-", "main", MTC_DEBUG);
 
     mtest_add_suite(suite_string, "string");
     mtest_add_suite(suite_file, "file");
