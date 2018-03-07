@@ -29,7 +29,7 @@ static MDF* _walk_by_name(MDF *node, const char *name, size_t len, bool create)
     if (create) {
         if (node->type == MDF_TYPE_STRING || node->type == MDF_TYPE_BINARY_A)
             mos_free(node->val.s);
-        node->type = MDF_TYPE_OBJECT;
+        if (node->type != MDF_TYPE_ARRAY) node->type = MDF_TYPE_OBJECT;
 
         mdf_init(&rnode);
         rnode->name = strdup(sname);
@@ -869,7 +869,7 @@ char* mdf_get_value_copy(MDF *node, const char *path, char *dftvalue)
 
     if (anode && anode->type == MDF_TYPE_STRING && anode->val.s)
         return strdup(anode->val.s);
-    else return dftvalue;
+    else return strdup(dftvalue);
 }
 
 int mdf_get_int_value(MDF *node, const char *path, int dftvalue)

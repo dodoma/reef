@@ -1,0 +1,7 @@
+<data>
+123123 for u
+  <one foo="aaa" bar="bbb">
+    <two z="abc">
+    </two>
+  </one>
+</data>

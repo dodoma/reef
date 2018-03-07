@@ -160,5 +160,19 @@ size_t mdf_mpack_len(MDF *node);
  */
 size_t mdf_mpack_deserialize(MDF *node, const unsigned char *buf, size_t len);
 
+
+/*
+ * 解析 xml 格式的字符串 str, 存储在已经准备好的 node 节点中.
+ */
+MERR* mdf_xml_import_string(MDF *node, const char *str);
+MERR* mdf_xml_import_file(MDF *node, const char *fname);
+
+/* 返回字符串为新申请内存，使用后请自行释放 */
+char* mdf_xml_export_string(MDF *node);
+char* mdf_xml_export_string_pretty(MDF *node);
+MERR* mdf_xml_export_file(MDF *node, const char *fname);
+/* 往已有内存中写，速度更快 */
+size_t mdf_xml_export_buffer(MDF *node, char *buf, size_t len);
+
 __END_DECLS
 #endif

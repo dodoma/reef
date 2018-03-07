@@ -19,6 +19,15 @@ __BEGIN_DECLS
                      "strcmp( " #fst ", " #snd " ) == 0",   \
                      __func__, __FILE__, __LINE__)
 
+#define MTEST_ASSERT_FILE_EQ(src, dst)                                  \
+    do {                                                                \
+        char __command[PATH_MAX];                                       \
+        snprintf(__command, sizeof(__command), "cmp %s %s", src, dst);  \
+        mtest_assert_run(system(__command) == 0,                        \
+                         "system( " #src ", " #dst " ) == 0",           \
+                         __func__, __FILE__, __LINE__);                 \
+    } while(0)
+
 
 void mtest_assert_run(int result, const char *expr,
                       const char *func, const char *file, int line);
