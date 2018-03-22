@@ -25,9 +25,9 @@ void  mcgi_destroy(MCGI **ses);
 MDF*  mcgi_get_data(MCGI *ses);
 
 void  mcgi_redirect(MCGI *ses, const char *url);
-MERR* mcgi_cookie_set(MCGI *ses, const char *name, const char *value,
+MERR* mcgi_cookie_set(const char *name, const char *value,
                       const char *path, const char *domain, int duration);
-MERR* mcgi_cookie_clear(MCGI *ses, const char *name, const char *domain, const char *path);
+MERR* mcgi_cookie_clear(const char *name, const char *domain, const char *path);
 
 
 __END_DECLS

@@ -147,22 +147,46 @@ int mcgi_req_type(MCGI *ses)
     return ses->reqtype;
 }
 
-/* TODO next functions */
-void mcgi_redirect(MCGI *ses, const char *url)
-{
-}
-
-MERR* mcgi_cookie_set(MCGI *ses, const char *name, const char *value,
+MERR* mcgi_cookie_set(const char *name, const char *value,
                       const char *path, const char *domain, int duration)
 {
+    if (!path) path = "/";
+
+    MSTR astr; mstr_init(&astr);
+
+    mstr_appendf(&astr, "Set-Cookie: %s=%s; path=%s", name, value, path);
+
+    if (domain) mstr_appendf(&astr, "; domain=%s", domain);
+    if (duration > 0) {
+        char my_time[256] = {0};
+        time_t exp_date = time(NULL) + (86400 * duration);
+        strftime (my_time, 48, "%A, %d-%b-%Y 23:59:59 GMT", gmtime(&exp_date));
+        mstr_appendf(&astr, "; expires=%s", my_time);
+    }
+
+    mstr_append(&astr, "\r\n");
+    printf("%s", astr.buf);
+    mstr_clear(&astr);
+
     return MERR_OK;
 }
 
-MERR* mcgi_cookie_clear(MCGI *ses, const char *name, const char *domain, const char *path)
+MERR* mcgi_cookie_clear(const char *name, const char *domain, const char *path)
 {
+    if (!path) path = "/";
+
+    if (domain) {
+        if (domain[0] == '.') domain = domain + 1;
+        printf("Set-Cookie: %s=; path=%s; domain=%s; expires=Thursday, 01-Jan-1970 00:00:00 GMT\r\n",
+               name, path, domain);
+    } else {
+        printf("Set-Cookie: %s=; path=%s; expires=Thursday, 01-Jan-1970 00:00:00 GMT\r\n", name, path);
+    }
+
     return MERR_OK;
 }
 
+/* TODO next functions */
 FILE* mcgi_file(MCGI *ses, const char *name)
 {
     return NULL;
