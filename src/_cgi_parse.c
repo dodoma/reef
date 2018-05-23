@@ -455,8 +455,39 @@ MERR* _parse_payload_json(MCGI *ses)
 MERR* _parse_payload_xml(MCGI *ses)
 {
     MDF *node = ses->data;
+    MERR *err;
 
-    return MERR_OK;
+    int len = mdf_get_int_value(node, "CGI.CONTENT_LENGTH", 0);
+    if (len <= 0) return MERR_OK;
+    if (len > MAX_POST_LEN) return merr_raise(MERR_ASSERT, "post length overflow %d %d", len, MAX_POST_LEN);
+
+    char *buf = mos_calloc(1, len + 1);
+    size_t readed = 0, rv = 0;
+
+#define RETURN(ret)                             \
+    do {                                        \
+        mos_free(buf);                          \
+        return ret;                             \
+    } while (0)
+
+    while (readed < len) {
+        rv = fread(buf + readed, 1, len - readed, stdin);
+        if (rv <= 0) break;
+        readed += rv;
+    }
+    buf[len] = '\0';
+
+    if (readed != len) RETURN(merr_raise(MERR_ASSERT, "Short readed on CGI POST input %zu %d", readed, len));
+
+    mtc_mt_noise("parse payload xml %d %s", len, buf);
+
+    MDF *onode = mdf_get_or_create_node(node, "QUERY");
+    err = mdf_xml_import_string(onode, buf);
+    if (err) RETURN(merr_pass(err));
+
+    RETURN(MERR_OK);
+
+#undef RETURN
 }
 
 MERR* _parse_payload_put(MCGI *ses)
