@@ -20,6 +20,20 @@ __BEGIN_DECLS
         mos_free(_zstra);                                   \
     } while (0)
 
+#define MDF_TRACE_XML(node)                                 \
+    do {                                                    \
+        char *_zstra = mdf_xml_export_string_pretty(node);  \
+        mtc_dbg("\n%s", _zstra);                            \
+        mos_free(_zstra);                                   \
+    } while (0)
+
+#define MDF_TRACE_XML_MT(node)                              \
+    do {                                                    \
+        char *_zstra = mdf_xml_export_string_pretty(node);  \
+        mtc_mt_dbg("\n%s", _zstra);                         \
+        mos_free(_zstra);                                   \
+    } while (0)
+
 void  mdf_set_typef(MDF *node, MDF_TYPE type, const char *fmt, ...)  ATTRIBUTE_PRINTF(3,4);
 
 char*   mdf_get_valuef(MDF *node, char *dftvalue, const char *fmt, ...) ATTRIBUTE_PRINTF(3,4);;
