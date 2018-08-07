@@ -189,6 +189,30 @@ void mstr_rand_string(char *s, size_t maxlen)
     s[x] = '\0';
 }
 
+void mstr_rand_word(char *s, size_t maxlen)
+{
+    size_t len, x;
+
+    if (!s) return;
+
+    len = (size_t)mos_rand(maxlen);
+    for (x = 0; x < len; x++) {
+        int type = mos_rand(3);
+        switch (type) {
+        case 0:
+            s[x] = (char)('A' + mos_rand(26));
+            break;
+        case 1:
+            s[x] = (char)('a' + mos_rand(26));
+            break;
+        case 2:
+            s[x] = (char)('0' + mos_rand(10));
+            break;
+        }
+    }
+    s[x] = '\0';
+}
+
 void mstr_rand_string_fixlen(char *s, size_t len)
 {
     size_t x;
@@ -197,6 +221,29 @@ void mstr_rand_string_fixlen(char *s, size_t len)
 
     for (x = 0; x < len; x++) {
         s[x] = (char)('a' + mos_rand(26));
+    }
+    s[x] = '\0';
+}
+
+void mstr_rand_word_fixlen(char *s, size_t len)
+{
+    size_t x;
+
+    if (!s) return;
+
+    for (x = 0; x < len; x++) {
+        int type = mos_rand(3);
+        switch (type) {
+        case 0:
+            s[x] = (char)('A' + mos_rand(26));
+            break;
+        case 1:
+            s[x] = (char)('a' + mos_rand(26));
+            break;
+        case 2:
+            s[x] = (char)('0' + mos_rand(10));
+            break;
+        }
     }
     s[x] = '\0';
 }

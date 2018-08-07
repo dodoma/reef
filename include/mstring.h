@@ -45,11 +45,15 @@ void mstr_clear(MSTR *astr);
  * 调用者需确保 s 的内存长度 >= maxlen + 1
  */
 void mstr_rand_string(char *s, size_t maxlen);
+/* 返回最多 len 个随机单词[A-Za-z0-9]组成的字符串 */
+void mstr_rand_word(char *s, size_t maxlen);
 /*
  * 返回由 len 个随机字母(a ~ z)组成的字符串
  * 调用者需确保 s 的内存长度 >= len + 1
  */
 void mstr_rand_string_fixlen(char *s, size_t len);
+/* 返回由 len 个随机单词[A-Za-z0-9]组成的字符串 */
+void mstr_rand_word_fixlen(char *s, size_t len);
 void mstr_rand_hexstring(char *s, size_t len);
 
 /*
