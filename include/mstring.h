@@ -47,6 +47,11 @@ void mstr_clear(MSTR *astr);
 void mstr_rand_string(char *s, size_t maxlen);
 /* 返回最多 len 个随机单词[A-Za-z0-9]组成的字符串 */
 void mstr_rand_word(char *s, size_t maxlen);
+/* 返回最多 len 个随机数字[0-9]组成的字符串 */
+void mstr_rand_digit(char *s, size_t maxlen);
+/* 返回最多 len 个随机16进制数字[0-9a-f]组成的字符串 */
+void mstr_rand_hexstring(char *s, size_t maxlen);
+
 /*
  * 返回由 len 个随机字母(a ~ z)组成的字符串
  * 调用者需确保 s 的内存长度 >= len + 1
@@ -54,7 +59,11 @@ void mstr_rand_word(char *s, size_t maxlen);
 void mstr_rand_string_fixlen(char *s, size_t len);
 /* 返回由 len 个随机单词[A-Za-z0-9]组成的字符串 */
 void mstr_rand_word_fixlen(char *s, size_t len);
-void mstr_rand_hexstring(char *s, size_t len);
+/* 返回由 len 个随机数字[0-9]组成的字符串 */
+void mstr_rand_digit_fixlen(char *s, size_t len);
+/* 返回由 len 个随机16进制数字[0-9]组成的字符串 */
+void mstr_rand_hexstring_fixlen(char *s, size_t len);
+
 
 /*
  * 以 sep 为分割符，将 str 分割为最多为 max 个元素的列表。

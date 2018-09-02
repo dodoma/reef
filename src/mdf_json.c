@@ -957,7 +957,7 @@ static void _json_outbuf_appendf(void *rock, const char *fmt, ...)
 /*
  * level 参数用来控制输出格式，-1为单行输出，否则会以换行和缩进控制输出
  */
-static void _export_json_string(MDF *node, void *rock, MDF_PRINTF mprintf, int level, MDF *nnode, bool root)
+static void _export_json_string(MDF *node, void *rock, MDF_PRINTF mprintf, int level, MDF *nnode)
 {
     MDF *cnode;
 
@@ -972,7 +972,7 @@ static void _export_json_string(MDF *node, void *rock, MDF_PRINTF mprintf, int l
         cnode = node->child;
         while (cnode) {
             PAD_SPACE(); mprintf(rock, "\"%s\": ", cnode->name);
-            _export_json_string(cnode, rock, mprintf, level, cnode->next, false);
+            _export_json_string(cnode, rock, mprintf, level, cnode->next);
 
             cnode = cnode->next;
         }
@@ -987,7 +987,7 @@ static void _export_json_string(MDF *node, void *rock, MDF_PRINTF mprintf, int l
         cnode = node->child;
         while (cnode) {
             PAD_SPACE();
-            _export_json_string(cnode, rock, mprintf, level, cnode->next, false);
+            _export_json_string(cnode, rock, mprintf, level, cnode->next);
 
             cnode = cnode->next;
         }
@@ -996,8 +996,8 @@ static void _export_json_string(MDF *node, void *rock, MDF_PRINTF mprintf, int l
         PAD_SPACE(); mprintf(rock, "]");
         break;
     case MDF_TYPE_STRING:
-        if (root) mprintf(rock, "%s", node->val.s);
-        else mprintf(rock, "\"%s\"", node->val.s);
+        if (node->val.s) mprintf(rock, "\"%s\"", node->val.s);
+        else mprintf(rock, "null");
         break;
     case MDF_TYPE_INT:
         mprintf(rock, "%ld", node->val.n);
@@ -1087,7 +1087,7 @@ char* mdf_json_export_string(MDF *node)
     if (!node) return NULL;
 
     mstr_init(&astr);
-    _export_json_string(node, &astr, (MDF_PRINTF)mstr_appendf, -1, NULL, true);
+    _export_json_string(node, &astr, (MDF_PRINTF)mstr_appendf, -1, NULL);
 
     return astr.buf;
 }
@@ -1099,7 +1099,7 @@ char* mdf_json_export_string_pretty(MDF *node)
     if (!node) return NULL;
 
     mstr_init(&astr);
-    _export_json_string(node, &astr, (MDF_PRINTF)mstr_appendf, 0, NULL, true);
+    _export_json_string(node, &astr, (MDF_PRINTF)mstr_appendf, 0, NULL);
 
     return astr.buf;
 }
@@ -1116,7 +1116,7 @@ size_t mdf_json_export_buffer(MDF *node, char *buf, size_t len)
     jbuf.max = len;
     jbuf.len = 0;
 
-    _export_json_string(node, &jbuf, (MDF_PRINTF)_json_outbuf_appendf, -1, NULL, true);
+    _export_json_string(node, &jbuf, (MDF_PRINTF)_json_outbuf_appendf, -1, NULL);
 
     if (jbuf.len > jbuf.max) return 0;
 
@@ -1133,7 +1133,7 @@ MERR* mdf_json_export_file(MDF *node, const char *fname)
     else fp = fopen(fname, "w");
     if (!fp) return merr_raise(MERR_OPENFILE, "open %s for write failure", fname);
 
-    _export_json_string(node, fp, (MDF_PRINTF)fprintf, 0, NULL, true);
+    _export_json_string(node, fp, (MDF_PRINTF)fprintf, 0, NULL);
 
     if (fname && strcmp(fname, "-")) fclose(fp);
 

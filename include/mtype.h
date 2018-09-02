@@ -33,6 +33,9 @@ typedef struct _MBUF MBUF;
 
 typedef enum {
     MERR_NOMEM = -30999,
+    MERR_DB,
+    MERR_NET,
+    MERR_SYSTEM,
     MERR_ASSERT,
     MERR_EMPTY,
     MERR_OPENFILE,
@@ -46,7 +49,7 @@ typedef struct _MLIST MLIST;
 
 typedef uint32_t (*MHASH_HASH_FUNC)(const void*);
 typedef int (*MHASH_COMP_FUNC)(const void*, const void*);
-typedef void (*MHASH_DESTROY_FUNC)(void *value);
+typedef void (*MHASH_DESTROY_FUNC)(void *key, void *value);
 typedef struct _MHASH MHASH;
 
 /*

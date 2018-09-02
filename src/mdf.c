@@ -796,7 +796,6 @@ void mdf_object_2_array(MDF *node, const char *path)
 
     if (!anode || (anode->type != MDF_TYPE_OBJECT && anode->type != MDF_TYPE_UNKNOWN)) return;
 
-
     anode->type = MDF_TYPE_ARRAY;
 }
 

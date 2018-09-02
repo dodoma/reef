@@ -151,6 +151,12 @@ const char* merr_code_2_str(MERR_CODE code)
     switch (code) {
     case MERR_NOMEM:
         return "out of memory";
+    case MERR_DB:
+        return "data base error";
+    case MERR_NET:
+        return "network error";
+    case MERR_SYSTEM:
+        return "system error";
     case MERR_ASSERT:
         return "assert error";
     case MERR_EMPTY:

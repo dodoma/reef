@@ -9,6 +9,11 @@ __BEGIN_DECLS
 MERR* mhash_init(MHASH **table, MHASH_HASH_FUNC hash_func,
                  MHASH_COMP_FUNC comp_func, MHASH_DESTROY_FUNC destroy_func);
 void  mhash_destroy(MHASH **table);
+
+/*
+ * 哈希表中的 key 和 value 直接使用业务端传来的参数赋值（不会另外 malloc + memcpy），
+ * 故，请业务端结合 destroy_func 自行确保 key, value 的持续性 和 释放
+ */
 MERR* mhash_insert(MHASH *table, void *key, void *value);
 void* mhash_lookup(MHASH *table, void *key);
 bool  mhash_has_key(MHASH *table, void *key);
@@ -19,7 +24,7 @@ uint32_t mhash_length(MHASH *table);
 
 uint32_t mhash_str_hash(const void *a);
 int      mhash_str_comp(const void *a, const void *b);
-void     mhash_str_free(void *a);
+void     mhash_str_free(void *key, void *val);
 
 uint32_t mhash_int_hash(const void *a);
 int      mhash_int_comp(const void *a, const void *b);

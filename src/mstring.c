@@ -53,7 +53,7 @@ char* mstr_strip_space(char *s)
 
 char* mstr_ndup(const char *s, size_t n)
 {
-    if (!s || n == 0) return NULL;
+    if (!s) return NULL;
 
     char *r = malloc(n + 1);
     if (!r) return NULL;
@@ -213,6 +213,34 @@ void mstr_rand_word(char *s, size_t maxlen)
     s[x] = '\0';
 }
 
+void mstr_rand_digit(char *s, size_t maxlen)
+{
+    size_t len, x;
+
+    if (!s) return;
+
+    len = (size_t)mos_rand(maxlen);
+    for (x = 0; x < len; x++) {
+        s[x] = (char)('0' + mos_rand(10));
+    }
+    s[x] = '\0';
+}
+
+void mstr_rand_hexstring(char *s, size_t maxlen)
+{
+    size_t len, x;
+
+    if (!s) return;
+
+    len = (size_t)mos_rand(maxlen);
+    for (x = 0; x < len; x++) {
+        int v = mos_rand(16);
+        if (v < 10) s[x] = (char)('0' + v);
+        else s[x] = (char)('a' + v - 10);
+    }
+    s[x] = '\0';
+}
+
 void mstr_rand_string_fixlen(char *s, size_t len)
 {
     size_t x;
@@ -248,7 +276,19 @@ void mstr_rand_word_fixlen(char *s, size_t len)
     s[x] = '\0';
 }
 
-void mstr_rand_hexstring(char *s, size_t len)
+void mstr_rand_digit_fixlen(char *s, size_t len)
+{
+    size_t x;
+
+    if (!s) return;
+
+    for (x = 0; x < len; x++) {
+        s[x] = (char)('0' + mos_rand(10));
+    }
+    s[x] = '\0';
+}
+
+void mstr_rand_hexstring_fixlen(char *s, size_t len)
 {
     size_t x;
 

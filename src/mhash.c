@@ -18,7 +18,7 @@ struct _MHASH {
 
     uint32_t __F(hash_func)(const void*);
     int __F(comp_func)(const void *, const void *);
-    void __F(destroy_func)(void *value);
+    void __F(destroy_func)(void *key, void *value);
 };
 
 /*
@@ -141,7 +141,7 @@ void mhash_destroy(MHASH **table)
             next = node->next;
             //mtc_dbg("destroy %s", (char*)node->key);
 
-            if (tbl->destroy_func) tbl->destroy_func(node->value);
+            if (tbl->destroy_func) tbl->destroy_func(node->key, node->value);
             mos_free(node);
 
             node = next;
@@ -213,7 +213,7 @@ bool mhash_remove(MHASH *table, void *key)
         struct node *lnode = *node;
         *node = lnode->next;
 
-        if (table->destroy_func) table->destroy_func(lnode->value);
+        if (table->destroy_func) table->destroy_func(lnode->key, lnode->value);
         mos_free(lnode);
 
         table->num--;
@@ -292,11 +292,10 @@ int mhash_str_comp(const void *a, const void *b)
     else return strcmp((const char*)a, (const char*)b);
 }
 
-void mhash_str_free(void *a)
+void mhash_str_free(void *key, void *val)
 {
-    char *value = (char*)a;
-
-    mos_free(value);
+    mos_free(key);
+    mos_free(val);
 }
 
 uint32_t mhash_int_hash(const void *a)

@@ -85,8 +85,10 @@ void test_hash()
     mstr_bin2hexstr(outa, 16, sa);
     mstr_bin2hexstr(outb, 20, sb);
 
-    MTEST_ASSERT_STR_EQ(sa, "94981b447947c1e6af5d8be1e262dd7e");
-    MTEST_ASSERT_STR_EQ(sb, "cfb5e25be6c3bd8074b0b1c6efedc131b107f903");
+    //printf("%s \n %s", sa, sb);
+
+    MTEST_ASSERT_STR_EQ(sa, "94981B447947C1E6AF5D8BE1E262DD7E");
+    MTEST_ASSERT_STR_EQ(sb, "CFB5E25BE6C3BD8074B0B1C6EFEDC131B107F903");
 }
 
 void suite_basic()
