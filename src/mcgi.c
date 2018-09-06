@@ -1,11 +1,20 @@
 #include "reef.h"
 
+struct _MCGI_UPFILE {
+    char *name;
+    char *filename;
+    char *fname;
+    FILE *fp;
+};
+
 struct _MCGI {
     int method;                 /* GET, POST, PUT */
     int reqtype;                /* html, ajax, image */
 
     MDF *data;
+
     MLIST *files;
+    MLIST *upcallbacks;
 
     struct rfc2388 *r;
 
@@ -14,9 +23,10 @@ struct _MCGI {
 };
 
 struct rfc2388 {
-    char *name;
-    char *filename;
+    char *name;                 /* posted key name (by client) */
+    char *filename;             /* posted filename header value (by client) */
     char *type;
+    char fname[PATH_MAX];       /* file name on server disk (temprary) */
 
     FILE *fp;
     MSTR *value;
@@ -30,9 +40,16 @@ struct rfc2388 {
 
 #include "_cgi_parse.c"
 
-static void _fclose(void *p)
+static void _upfile_free(void *p)
 {
-    if (p) fclose(p);
+    if (!p) return;
+
+    MCGI_UPFILE *ufp = (MCGI_UPFILE*)p;
+
+    mos_free(ufp->name);
+    mos_free(ufp->filename);
+    mos_free(ufp->fname);
+    fclose(ufp->fp);
 }
 
 MERR* mcgi_init(MCGI **ses, char **envp)
@@ -47,12 +64,14 @@ MERR* mcgi_init(MCGI **ses, char **envp)
     rses->time_start = mos_timef();
     rses->time_end = 0;
     mdf_init(&rses->data);
-    mlist_init(&rses->files, _fclose);
+    mlist_init(&rses->files, _upfile_free);
+    mlist_init(&rses->upcallbacks, NULL);
 
     struct rfc2388 *r = mos_calloc(1, sizeof(struct rfc2388));
     r->name = NULL;
     r->filename = NULL;
     r->type = NULL;
+    memset(r->fname, 0x0, sizeof(r->fname));
     r->fp = NULL;
     r->value = mos_calloc(1, sizeof(MSTR));
     r->headering = false;
@@ -99,6 +118,7 @@ void mcgi_destroy(MCGI **ses)
 
     mdf_destroy(&lses->data);
     mlist_destroy(&lses->files);
+    mlist_destroy(&lses->upcallbacks);
     lses->r = NULL;
 
     *ses = NULL;
@@ -140,6 +160,13 @@ MERR* mcgi_parse_payload(MCGI *ses)
     //MDF_TRACE_MT(ses->data);
 
     return MERR_OK;
+}
+
+void mcgi_regist_upload_callback(MCGI *ses, MCGI_UPLOAD_FUNC up_callback)
+{
+    if (!ses || !up_callback) return;
+
+    mlist_append(ses->upcallbacks, up_callback);
 }
 
 int mcgi_req_type(MCGI *ses)

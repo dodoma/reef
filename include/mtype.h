@@ -109,6 +109,16 @@ enum {
 };
 
 typedef struct _MCGI MCGI;
+typedef struct _MCGI_UPFILE MCGI_UPFILE;
+
+/*
+ * 回调函数可以 link fname 到另外的地址，然后返回链接到的文件名，这样，文件即可永久创建并赋值到 UPLOAD
+ * name         : posted key name (by client)
+ * filename     : posted filename header value (by client)
+ * fname        : file name on server disk (temprary)
+ * return char* : file name on server disk (permanently)
+ */
+typedef char* (*MCGI_UPLOAD_FUNC)(const char *name, const char *filename, char fname[PATH_MAX], FILE *fp);
 
 __END_DECLS
 #endif

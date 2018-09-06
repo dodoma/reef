@@ -1,0 +1,35 @@
+static char* _file_uploaded(const char *name, const char *filename, char fname[PATH_MAX], FILE *fp)
+{
+
+    /*
+     * 单进程内, parse_payload_rfc2388 不会并发调用上传回调，用静态变量是安全的。
+     */
+    static char rname[13];
+    memset(rname, 0x0, sizeof(rname));
+    mstr_rand_word_fixlen(rname, 12);
+
+    char myfilename[PATH_MAX] = {0};
+    snprintf(myfilename, sizeof(myfilename), "%s/%s/%s", g_location, mdf_get_value(g_cfg, "uploadto", ""), rname);
+
+    int rv = link(fname, myfilename);
+
+    mtc_mt_dbg("upload %s %s saved to %s %s", name, filename, myfilename, rv == 0 ? "" : strerror(rv));
+
+    return rname;
+}
+
+void sample()
+{
+    MERR *err;
+    MCGI *session = NULL;
+
+    err = mcgi_init(&session, envp);
+    RETURN_NOK(err);
+
+    mcgi_regist_upload_callback(session, _file_uploaded);
+
+    err = mcgi_parse_payload(session);
+    RETURN_NOK(err);
+
+    mcgi_destroy(&session);
+}

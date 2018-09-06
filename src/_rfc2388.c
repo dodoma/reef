@@ -2,18 +2,15 @@ static void _makesure_file(struct rfc2388 *r)
 {
     if (!r->filename || r->fp) return;
 
-    char fname[PATH_MAX] = "/var/tmp/mcgi_upload.XXXXXX";
-
-    int fd = mkstemp(fname);
+    strcpy(r->fname, "/var/tmp/mcgi_upload.XXXXXX");
+    int fd = mkstemp(r->fname);
     if (fd < 0) {
-        mtc_mt_warn("unable to create file %s", fname);
+        mtc_mt_warn("unable to create file %s", r->fname);
         return;
     }
 
     r->fp = fdopen(fd, "w+");
-    if (!r->fp) mtc_mt_warn("unable to open file %s", fname);
-
-    unlink(fname);
+    if (!r->fp) mtc_mt_warn("unable to open file %s", r->fname);
 }
 
 static bool _rfc2388_is_boundary(struct rfc2388 *r, int len, const char *boundary, int bl, bool *end)
@@ -85,6 +82,7 @@ static int _rfc2388_fill(struct rfc2388 *r, int len, const char *boundary, int b
     do {                                                    \
         if (r->filename) {                                  \
             _makesure_file(r);                              \
+            fseek(r->fp, 0, SEEK_END);                      \
             fwrite((buf), 1, (filllen), r->fp);             \
         } else mstr_appendn(r->value, (buf), (filllen));    \
     } while (0)
@@ -130,15 +128,47 @@ void _rfc2388_store(MCGI *ses)
     MDF *node = ses->data;
 
     if (r->name) {
+        bool isarray = false;
+        size_t len = strlen(r->name);
+        if (len >= 3 && r->name[len - 1] == ']' && r->name[len - 2] == '[') {
+            r->name[len - 2] = '\0';
+            isarray = true;
+        }
+
         if (r->fp) {
-            mlist_append(ses->files, r->fp);
+            MCGI_UPLOAD_FUNC callback;
+            MLIST_ITERATE(ses->upcallbacks, callback) {
+                char *savename = callback(r->name, r->filename, r->fname, r->fp);
+                if (savename) {
+                    if (isarray) {
+                        MDF *qnode = mdf_get_or_create_node(node, "UPLOAD");
+                        mdf_set_valuef(qnode, "%s.%d=%s", r->name, mdf_child_count(qnode, r->name), savename);
+                        mdf_object_2_array(qnode, r->name);
+                    } else mdf_set_valuef(node, "UPLOAD.%s=%s", r->name, savename);
+                }
+            }
+
+            MCGI_UPFILE *ufp = mos_calloc(1, sizeof(MCGI_UPFILE));
+            ufp->name = strdup(r->name);
+            ufp->filename = r->filename ? strdup(r->filename) : NULL;
+            ufp->fname = strdup(r->fname);
+            ufp->fp = r->fp;
+            mlist_append(ses->files, ufp);
+
+            /* can't link a unlinked file, so, unlink last */
+            unlink(r->fname);
         } else {
-            mdf_set_valuef(node, "QUERY.%s=%s", r->name, r->value->buf);
+            if (isarray) {
+                MDF *qnode = mdf_get_node(node, "QUERY");
+                mdf_set_valuef(qnode, "%s.%d=%s", r->name, mdf_child_count(qnode, r->name), r->value->buf);
+                mdf_object_2_array(qnode, r->name);
+            } else mdf_set_valuef(node, "QUERY.%s=%s", r->name, r->value->buf);
         }
     }
 
     mos_free(r->name);
     mos_free(r->filename);
+    memset(r->fname, 0x0, sizeof(r->fname));
     mos_free(r->type);
     mstr_clear(r->value);
     r->fp = NULL;
