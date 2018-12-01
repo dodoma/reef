@@ -123,6 +123,7 @@ MDF* mdf_node_parent(MDF *node);
 MDF* mdf_node_child(MDF *node);
 void mdf_sort_node(MDF *node, int __F(compare)(const void*, const void*));
 
+bool  mdf_path_valid(const char *path);
 bool  mdf_path_exist(MDF *node, const char *path);
 bool  mdf_leaf_node(MDF *node, const char *path);
 int   mdf_child_count(MDF *node, const char *path);

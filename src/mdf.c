@@ -160,7 +160,11 @@ static MERR* _walk_mdf(MDF *node, const char *path, bool create, MDF **rnode)
                     if (mlist_length(indexname_list) > 0) goto format_error;
 
                     if (!start) start = pos;
-                    pos++;
+                    if (*(unsigned char*)pos > 128) {
+                        Rune e;
+                        pos += chartorune(&e, pos);
+                    } else pos++;
+
                 } else goto format_error;
             }
             break;
@@ -1184,6 +1188,30 @@ void mdf_sort_node(MDF *node, int __F(compare)(const void*, const void*))
     mlist_destroy(&alist);
 }
 
+
+bool mdf_path_valid(const char *path)
+{
+    unsigned char *pos = (unsigned char*)path;
+
+    while (*pos) {
+        unsigned char c = *pos;
+
+        if (c == '.' || c == '[' || c == ']' || isalnum(c) ||
+            c == '_' || c == '-' ||
+            c == '$' || c == '^' ||
+            c == '@' || c == '#' ||
+            c == '+' || c == '/' ||
+            c == '(' || c == ')' ||
+            c == '{' || c == '}') pos++;
+        else if (c > 127) {
+            Rune e;
+            pos += chartorune(&e, (char*)pos);
+        }
+        else return false;
+    }
+
+    return true;
+}
 
 bool mdf_path_exist(MDF *node, const char *path)
 {
