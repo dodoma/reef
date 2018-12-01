@@ -41,6 +41,7 @@ unsigned long mtimer_stop(const char *fmt, ...)
     }
 
     mtc_foo("%s : nature time %lu usecs, processor time %0.4fs", msg, elapsed, duration);
+    mtc_mt_foo("%s : nature time %lu usecs, processor time %0.4fs", msg, elapsed, duration);
 
     return elapsed;
 }

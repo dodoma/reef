@@ -17,4 +17,5 @@ test/*
 !test/*.c
 !test/*.py
 !test/*.json
+!test/*.sample
 !test/Makefile

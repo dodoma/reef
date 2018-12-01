@@ -4,7 +4,7 @@
 /*
  * mcgi, Common Gateway Interface 封装
  *
- * 设置的 Dataset: CGI, HTTP, HTTP.COOKIE, QUERY
+ * 设置的 Dataset: CGI, HTTP, HTTP.COOKIE, QUERY, UPLOAD
  *
  * 保留的 url 关键字:
  *    _reqtype  *json, html, image     指定请求资源的类型
@@ -19,6 +19,8 @@ __BEGIN_DECLS
 
 MERR* mcgi_init(MCGI **ses, char **envp);
 MERR* mcgi_parse_payload(MCGI *ses);
+void  mcgi_regist_upload_callback(MCGI *ses, MCGI_UPLOAD_FUNC up_callback);
+
 int   mcgi_req_type(MCGI *ses);
 void  mcgi_destroy(MCGI **ses);
 
