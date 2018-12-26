@@ -872,7 +872,8 @@ char* mdf_get_value_copy(MDF *node, const char *path, char *dftvalue)
 
     if (anode && anode->type == MDF_TYPE_STRING && anode->val.s)
         return strdup(anode->val.s);
-    else return strdup(dftvalue);
+    else if (dftvalue) return strdup(dftvalue);
+    else return NULL;
 }
 
 int mdf_get_int_value(MDF *node, const char *path, int dftvalue)
