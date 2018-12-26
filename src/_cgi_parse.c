@@ -492,7 +492,5 @@ MERR* _parse_payload_xml(MCGI *ses)
 
 MERR* _parse_payload_put(MCGI *ses)
 {
-    MDF *node = ses->data;
-
     return MERR_OK;
 }

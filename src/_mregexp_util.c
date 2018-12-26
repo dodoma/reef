@@ -61,8 +61,10 @@ static bool _inrange(MLIST *rlist, Rune c, bool igcase)
     for (int i = 0; i < mlist_length(rlist); i += 2) {
         mlist_get(rlist, i, (void**)&a);
         mlist_get(rlist, i+1, (void**)&b);
-        ra = (Rune)a;
-        rb = (Rune)b;
+	ra = (Rune)MOS_MEM_2_OFFSET(a);
+	rb = (Rune)MOS_MEM_2_OFFSET(b);
+        //ra = (Rune)((void*)a - (void*)NULL);
+        //rb = (Rune)((void*)b - (void*)NULL);
 
         if (igcase) {
             for (Rune p = ra; p <= rb; ++p) {
@@ -98,8 +100,8 @@ static void _addrange(MRE *reo, MLIST *rlist, Rune a, Rune b)
         DIE(reo, "invalid character class range");
     }
 
-    mlist_append(rlist, MOS_MEM_OFFSET(a));
-    mlist_append(rlist, MOS_MEM_OFFSET(b));
+    mlist_append(rlist, MOS_OFFSET_2_MEM(a));
+    mlist_append(rlist, MOS_OFFSET_2_MEM(b));
 }
 
 static void _add_ranges_d(MRE *reo, MLIST *rlist)

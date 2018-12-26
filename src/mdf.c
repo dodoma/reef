@@ -147,7 +147,7 @@ static MERR* _walk_mdf(MDF *node, const char *path, bool create, MDF **rnode)
 
                 if (pos == oldpos) goto format_error;
 
-                mlist_append(indexname_list, MOS_MEM_OFFSET(arrayindex));
+                mlist_append(indexname_list, MOS_OFFSET_2_MEM(arrayindex));
             } else {
                 /* process RAW_NAME */
                 if (isalnum(*(unsigned char*)pos) || *(unsigned char*)pos > 127 ||
@@ -186,8 +186,8 @@ static MERR* _walk_mdf(MDF *node, const char *path, bool create, MDF **rnode)
 
     int32_t *arrayindexp;
     MLIST_ITERATE(indexname_list, arrayindexp) {
-        if (xnode) xnode = _walk_by_index(xnode, (int32_t)arrayindexp, create);
-        else if (node) xnode = _walk_by_index(node, (int32_t)arrayindexp, create);
+        if (xnode) xnode = _walk_by_index(xnode, (int32_t)MOS_MEM_2_OFFSET(arrayindexp), create);
+        else if (node) xnode = _walk_by_index(node, (int32_t)MOS_MEM_2_OFFSET(arrayindexp), create);
 
         if (!xnode) break;
     }
@@ -1105,7 +1105,7 @@ MDF* mdf_insert_node(MDF *node, const char *path, int position)
         char sname[PATH_MAX] = {0};
         MDF *rnode;
 
-        snprintf(sname, sizeof(sname), "__moon_resolved_index__%llu", insert_sn++);
+        snprintf(sname, sizeof(sname), "__moon_resolved_index__%"PRIu64, insert_sn++);
         mdf_init(&rnode);
         rnode->name = strdup(sname);
         rnode->namelen = strlen(sname);

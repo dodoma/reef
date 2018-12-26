@@ -13,7 +13,8 @@
  */
 __BEGIN_DECLS
 
-#define MOS_MEM_OFFSET(i) ((char*)NULL+(i))
+#define MOS_OFFSET_2_MEM(i)    ((char*)NULL + (i))
+#define MOS_MEM_2_OFFSET(addr) ((char*)(addr) - (char*)NULL)
 
 #define mos_free(p)                             \
     do {                                        \
