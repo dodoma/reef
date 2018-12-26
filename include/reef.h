@@ -27,6 +27,9 @@
 /*
  * system headers
  */
+#ifdef USE_FCGI
+#include <fcgi_stdio.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
