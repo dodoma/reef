@@ -125,7 +125,7 @@ static void _json_machine_init()
     go_pair_l_raw['\n'] = A_UNPAIR_L_RAW_NEWLINE;
     go_pair_l_raw[':'] = A_UNPAIR_L_PAIR;
 
-    GO_ALL_SET(go_pair_l_quote, A_LOOP);
+    GO_256_SET(go_pair_l_quote, A_LOOP);
     GO_UTF8_SET(go_pair_l_quote);
     go_pair_l_quote['"'] = A_UNPAIR_L_QUOTE;
     go_pair_l_quote['\''] = A_UNPAIR_L_QUOTE;
@@ -150,7 +150,7 @@ static void _json_machine_init()
     go_pair_r_raw['}'] = A_UNPAIR_R_RAW_BRACE;
     go_pair_r_raw[','] = A_UNPAIR_R_RAW_COMMA;
 
-    GO_ALL_SET(go_pair_r_quote, A_LOOP);
+    GO_256_SET(go_pair_r_quote, A_LOOP);
     GO_UTF8_SET(go_pair_r_quote);
     go_pair_r_quote['"'] = A_UNPAIR_R_QUOTE;
     go_pair_r_quote['\''] = A_UNPAIR_R_QUOTE;
@@ -190,7 +190,7 @@ static void _json_machine_init()
     go_value_raw[']'] = A_UNVALUE_RAW_SQUARE;
     go_value_raw[','] = A_UNVALUE_RAW_COMMA;
 
-    GO_ALL_SET(go_value_quote, A_LOOP);
+    GO_256_SET(go_value_quote, A_LOOP);
     GO_UTF8_SET(go_value_quote);
     go_value_quote['"'] = A_UNVALUE_QUOTE;
     go_value_quote['\''] = A_UNVALUE_QUOTE;
