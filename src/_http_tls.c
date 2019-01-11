@@ -23,7 +23,7 @@ MERR* _tls_new(struct _tls **ssl, const char *hostname, int timeout)
 {
     struct _tls *s = mos_calloc(1, sizeof(struct _tls));
 
-    mbedtls_net_init(&s->ssl_fd );
+    mbedtls_net_init(&s->ssl_fd);
     mbedtls_entropy_init(&s->entropy);
     mbedtls_ctr_drbg_init(&s->ctr_drbg);
 
