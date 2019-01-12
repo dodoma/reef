@@ -1,5 +1,18 @@
 #include "reef.h"
 
+static inline uint32_t _get_tid()
+{
+#if defined(MOS_LINUX)
+    return syscall(__NR_gettid);
+#elif defined(MOS_OSX) || defined(MOS_ESP)
+    uint64_t id;
+    pthread_threadid_np(NULL, &id);
+    return id;
+#else
+#error "unsupport platform"
+#endif
+}
+
 void* mos_malloc(size_t size)
 {
     if (size > 1000 * 1048576) {
@@ -51,10 +64,11 @@ uint32_t mos_rand(uint32_t max)
 
     if (!inited) {
         inited = true;
+        uint32_t tid = _get_tid();
 #if defined(MOS_ESP)
-        srand(time(NULL));
+        srand(time(NULL) + tid);
 #else
-        srand48(time(NULL));
+        srand48(time(NULL) + tid);
 #endif
     }
 
