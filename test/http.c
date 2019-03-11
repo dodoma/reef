@@ -19,6 +19,10 @@ void test_url_unescape()
     char s[100] = "%E4%BA%AE%E5%93%A5%E5%93%A5";
 
     MTEST_ASSERT_STR_EQ("亮哥哥", mhttp_url_unescape(s, strlen(s), '%'));
+
+    char *es = mhttp_url_escape("http://weixin.qq.com/q/02zSfCgTe_e4i1DgfFhscJ我爱你");
+    MTEST_ASSERT_STR_EQ("http%3A%2F%2Fweixin.qq.com%2Fq%2F02zSfCgTe_e4i1DgfFhscJ%E6%88%91%E7%88%B1%E4%BD%A0", es);
+    mos_free(es);
 }
 
 void test_request()

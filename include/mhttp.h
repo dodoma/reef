@@ -38,6 +38,12 @@ bool mhttp_parse_url(const char *url, bool *secure,
                      char **host, int *hostlen, int *port,
                      char **scriptname, int *scriptlen,
                      char **requesturi);
+
+/*
+ * 类似 encodeURIComponent 功能 ，新申请内存，记得释放
+ */
+char* mhttp_url_escape(char *s);
+
 /*
  * 类似 decodeURIComponent 功能，处理http url 传参
  * 修改输入参数 s

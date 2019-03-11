@@ -151,6 +151,30 @@ bool mhttp_parse_url(const char *url, bool *secure,
     return true;
 }
 
+char* mhttp_url_escape(char *s)
+{
+    if (!s) return NULL;
+
+    static char *escs = " $&+,/:;=?@ \"<>#%{}|\\^~[]`'";
+
+    MSTR astr; mstr_init(&astr);
+
+    while (*s) {
+        uint8_t c = *s;
+        if (strchr(escs, c) || c < 32 || c > 126) {
+            mstr_appendc(&astr, '%');
+            mstr_appendc(&astr, "0123456789ABCDEF"[c / 16]);
+            mstr_appendc(&astr, "0123456789ABCDEF"[c % 16]);
+        } else {
+            mstr_appendc(&astr, c);
+        }
+
+        s++;
+    }
+
+    return astr.buf;
+}
+
 char* mhttp_url_unescape(char *s, size_t buflen, char esc_char)
 {
     size_t i = 0, o = 0;
