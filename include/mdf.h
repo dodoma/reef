@@ -96,13 +96,14 @@ void mdf_object_2_array(MDF *node, const char *path);
 void mdf_array_2_object(MDF *node, const char *path);
 
 MDF_TYPE mdf_get_type(MDF *node, const char *path);
-char*   mdf_get_name(MDF *node, const char *path);
-char*   mdf_get_value(MDF *node, const char *path, char *dftvalue);
-char*   mdf_get_value_copy(MDF *node, const char *path, char *dftvalue);
-int     mdf_get_int_value(MDF *node, const char *path, int dftvalue);
-int64_t mdf_get_int64_value(MDF *node, const char *path, int64_t dftvalue);
-float   mdf_get_float_value(MDF *node, const char *path, float dftvalue);
-bool    mdf_get_bool_value(MDF *node, const char *path, bool dftvalue);
+char*    mdf_get_name(MDF *node, const char *path);
+char*    mdf_get_value(MDF *node, const char *path, char *dftvalue);
+char*    mdf_get_value_copy(MDF *node, const char *path, char *dftvalue);
+int      mdf_get_int_value(MDF *node, const char *path, int dftvalue);
+uint32_t mdf_get_uint32_value(MDF *node, const char *path, uint32_t dftvalue);
+int64_t  mdf_get_int64_value(MDF *node, const char *path, int64_t dftvalue);
+float    mdf_get_float_value(MDF *node, const char *path, float dftvalue);
+bool     mdf_get_bool_value(MDF *node, const char *path, bool dftvalue);
 unsigned char* mdf_get_binary(MDF *node, const char *path, size_t *len);
 void*   mdf_get_pointer(MDF *node, const char *path);
 /* 返回节点的值（以字符串的方式），返回内容为新申请内存，使用后请自行释放。*/

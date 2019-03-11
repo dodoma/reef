@@ -890,6 +890,20 @@ int mdf_get_int_value(MDF *node, const char *path, int dftvalue)
     else return dftvalue;
 }
 
+uint32_t mdf_get_uint32_value(MDF *node, const char *path, uint32_t dftvalue)
+{
+    MDF *anode;
+    MERR *err;
+
+    if (!node) return dftvalue;
+
+    err = _walk_mdf(node, path, false, &anode);
+    TRACE_NOK(err);
+
+    if (anode && anode->type == MDF_TYPE_INT) return (uint32_t)anode->val.n;
+    else return dftvalue;
+}
+
 int64_t mdf_get_int64_value(MDF *node, const char *path, int64_t dftvalue)
 {
     MDF *anode;
