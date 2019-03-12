@@ -65,6 +65,7 @@ MDF*  mdf_get_or_create_nodef(MDF *node, const char *fmt, ...) ATTRIBUTE_PRINTF(
 MERR* mdf_json_import_filef(MDF *node, const char *fmt, ...) ATTRIBUTE_PRINTF(2, 3);
 MERR* mdf_json_export_filef(MDF *node, const char *fmt, ...) ATTRIBUTE_PRINTF(2, 3);
 
+void mdf_aux_list2mapf(MDF *node, const char *fmt, ...) ATTRIBUTE_PRINTF(2, 3);
 
 __END_DECLS
 #endif

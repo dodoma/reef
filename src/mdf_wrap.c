@@ -351,3 +351,15 @@ MERR* mdf_json_export_filef(MDF *node, const char *fmt, ...)
 
     return mdf_json_export_file(node, fname);
 }
+
+void mdf_aux_list2mapf(MDF *node, const char *fmt, ...)
+{
+    char key[1024];
+    va_list ap;
+
+    va_start(ap, fmt);
+    vsnprintf(key, sizeof(key), fmt, ap);
+    va_end(ap);
+
+    return mdf_aux_list2map(node, key);
+}
