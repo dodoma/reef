@@ -63,6 +63,14 @@ void test_set()
     MTEST_ASSERT(mdf_get_node(node, "aa[1]") != NULL);
     MTEST_ASSERT(mdf_get_value(node, "aa[1]", NULL) == NULL);
 
+    mdf_set_int_value(node, "namef", 3843283921);
+    mdf_set_int64_value(node, "nameg", 8898283828813);
+    mtc_dbg("int %d %d uint32_t %u %u",
+            INT_MAX, mdf_get_int_value(node, "namef", 0),
+            UINT32_MAX, mdf_get_uint32_value(node, "namef", 0));
+
+    mtc_dbg("%"PRId64, mdf_get_int64_value(node, "nameg", 0));
+
     mdf_destroy(&node);
 }
 

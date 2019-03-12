@@ -60,6 +60,7 @@ void  mdf_clear(MDF *node);
 bool  mdf_equal(MDF *anode, MDF *bnode);
 
 MERR* mdf_set_value(MDF *node, const char *path, const char *value);
+/* value 为uint32_t 时也能正确设置和获取(使用mdf_get_uint32_value()获取) */
 MERR* mdf_set_int_value(MDF *node, const char *path, int value);
 MERR* mdf_set_int64_value(MDF *node, const char *path, int64_t value);
 MERR* mdf_set_float_value(MDF *node, const char *path, float value);
