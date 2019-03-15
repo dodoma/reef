@@ -1208,6 +1208,9 @@ bool mdf_path_valid(const char *path)
 {
     unsigned char *pos = (unsigned char*)path;
 
+    /*
+     * especially, ',' ' ' not valid.
+     */
     while (*pos) {
         unsigned char c = *pos;
 
