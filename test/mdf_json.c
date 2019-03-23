@@ -54,7 +54,7 @@ void test_string_short()
     MTEST_ASSERT(mdf_get_int_value(node, "a", 0) == 100);
     MTEST_ASSERT_STR_EQ(mdf_get_value(node, "c", NULL), "value \"c\"");
     str = mdf_json_export_string(node);
-    MTEST_ASSERT_STR_EQ("{\"a\": 100, \"b\": 100.20000, \"c\": \"value \"c\"\"}", str);
+    MTEST_ASSERT_STR_EQ("{\"a\": 100, \"b\": 100.20000, \"c\": \"value \\\"c\\\"\"}", str);
 
     mos_free(str);
     mdf_destroy(&node);

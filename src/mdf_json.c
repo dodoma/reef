@@ -245,12 +245,12 @@ static inline void _add_pair_fixtype(MDF *node, char *name, char *value,
     MDF *xnode;
 
     mdf_init(&xnode);
-    xnode->name = mstr_ndup(name, namelen);
+    xnode->name = mstr_ndup_json_string(name, namelen);
     xnode->namelen = namelen;
     xnode->type = nodetype;
 
     if (nodetype == MDF_TYPE_STRING) {
-        xnode->val.s = mstr_ndup(value, valuelen);
+        xnode->val.s = mstr_ndup_json_string(value, valuelen);
         xnode->valuelen = valuelen;
     } else if (nodetype == MDF_TYPE_INT) {
         char *s = mstr_ndup(value, valuelen);
@@ -272,7 +272,7 @@ static inline MERR* _add_pair_unknowntype(MDF *node, char *name, char *value,
     MDF *xnode;
 
     mdf_init(&xnode);
-    xnode->name = mstr_ndup(name, namelen);
+    xnode->name = mstr_ndup_json_string(name, namelen);
     xnode->namelen = namelen;
 
     if (valuelen == 4) {
@@ -318,7 +318,7 @@ static inline void _add_value_fixtype(MDF *node, char *value, int valuelen,
     xnode->type = nodetype;
 
     if (nodetype == MDF_TYPE_STRING) {
-        xnode->val.s = mstr_ndup(value, valuelen);
+        xnode->val.s = mstr_ndup_json_string(value, valuelen);
         xnode->valuelen = valuelen;
     } else if (nodetype == MDF_TYPE_INT) {
         char *s = mstr_ndup(value, valuelen);
@@ -386,7 +386,7 @@ static inline MERR* _set_value_fixtype(MDF *node, char *value, int valuelen, MDF
     node->type = nodetype;
 
     if (nodetype == MDF_TYPE_STRING) {
-        node->val.s = mstr_ndup(value, valuelen);
+        node->val.s = mstr_ndup_json_string(value, valuelen);
         node->valuelen = valuelen;
     } else if (nodetype == MDF_TYPE_INT) {
         char *s = mstr_ndup(value, valuelen);
@@ -563,7 +563,7 @@ static MERR* _import_json(MDF *node, const char *str,
             size_t childlen;
 
             mdf_init(&xnode);
-            xnode->name = mstr_ndup(name, namelen);
+            xnode->name = mstr_ndup_json_string(name, namelen);
             xnode->namelen = namelen;
 
             err = _import_json(xnode, pos, &childlen, fname, lineno);
@@ -971,6 +971,7 @@ static void _export_json_string(MDF *node, void *rock, MDF_PRINTF mprintf, int l
         level = level < 0 ? -1 : level + 1;
         cnode = node->child;
         while (cnode) {
+            /* TODO escape " in name */
             PAD_SPACE(); mprintf(rock, "\"%s\": ", cnode->name);
             _export_json_string(cnode, rock, mprintf, level, cnode->next);
 
@@ -996,8 +997,16 @@ static void _export_json_string(MDF *node, void *rock, MDF_PRINTF mprintf, int l
         PAD_SPACE(); mprintf(rock, "]");
         break;
     case MDF_TYPE_STRING:
-        if (node->val.s) mprintf(rock, "\"%s\"", node->val.s);
-        else mprintf(rock, "null");
+        if (node->val.s) {
+            mprintf(rock, "\"");
+            char *s = node->val.s;
+            while (*s) {
+                if (*s == '"') mprintf(rock, "\\");
+                mprintf(rock, "%c", *s);
+                s++;
+            }
+            mprintf(rock, "\"");
+        } else mprintf(rock, "null");
         break;
     case MDF_TYPE_INT:
         mprintf(rock, "%ld", node->val.n);

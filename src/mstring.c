@@ -51,6 +51,20 @@ char* mstr_strip_space(char *s)
     return s;
 }
 
+char* mstr_repchr(char *s, char from, char to)
+{
+    char *r = s;
+
+    if (!s) return NULL;
+
+    while (*s) {
+        if (*s == from) *s = to;
+        s++;
+    }
+
+    return r;
+}
+
 char* mstr_ndup(const char *s, size_t n)
 {
     if (!s) return NULL;
@@ -62,6 +76,23 @@ char* mstr_ndup(const char *s, size_t n)
         r[i] = s[i];
     }
     r[n] = '\0';
+
+    return r;
+}
+
+char* mstr_ndup_json_string(const char *s, size_t n)
+{
+    if (!s) return NULL;
+
+    char *r = malloc(n + 1);
+    if (!r) return NULL;
+
+    int j = 0;
+    for (int i = 0; i < n; i++) {
+        if (s[i] == '\\' && s[i+1] == '"') continue;
+        else r[j++] = s[i];
+    }
+    r[j] = '\0';
 
     return r;
 }

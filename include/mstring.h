@@ -16,7 +16,13 @@ __BEGIN_DECLS
 /* strip will modify input string. make sure s is modifiable (not const) */
 char* mstr_strip(char *s, char n);
 char* mstr_strip_space(char *s);
+char* mstr_repchr(char *s, char from, char to);
 char* mstr_ndup(const char *s, size_t n);
+/*
+ * json string 中的
+ *   1. \" 转换成 " (一般存到内存中时，不用存'\'，否则与人沟通时会有问题)
+ */
+char* mstr_ndup_json_string(const char *s, size_t n);
 
 
 /*
