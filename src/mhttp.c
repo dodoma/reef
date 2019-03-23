@@ -201,7 +201,7 @@ char* mhttp_url_unescape(char *s, size_t buflen, char esc_char)
 
 #include "_http_parse.c"
 
-MERR* mhttp_get(const char *url, MDF *rnode, MHTTP_ONBODY_FUNC body_callback, void *arg)
+MERR* mhttp_get(const char *url, MDF *headernode, MDF *rnode, MHTTP_ONBODY_FUNC body_callback, void *arg)
 {
     MERR *err;
 
@@ -230,9 +230,15 @@ MERR* mhttp_get(const char *url, MDF *rnode, MHTTP_ONBODY_FUNC body_callback, vo
     mstr_appendf(&str,
                  "GET /%s HTTP/1.1\r\n"
                  "HOST: %.*s\r\n"
-                 "User-Agent: reef\r\n"
-                 "Accept: */*\r\n\r\n",
+                 "User-Agent: reef\r\n",
                  requesturi, hostlen, host);
+    MDF *cnode = mdf_node_child(headernode);
+    while (cnode) {
+        mstr_appendf(&str, "%s: %s\r\n", mdf_get_name(cnode, NULL), mdf_get_value(cnode, NULL, NULL));
+
+        cnode = mdf_node_next(cnode);
+    }
+    mstr_append(&str, "Accept: */*\r\n\r\n");
 
 #define RETURN(ret)                             \
     do {                                        \

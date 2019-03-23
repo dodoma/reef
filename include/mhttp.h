@@ -62,7 +62,7 @@ char* mhttp_url_unescape(char *s, size_t buflen, char esc_char);
  *     }
  * }
  */
-MERR* mhttp_get(const char *url, MDF *rnode, MHTTP_ONBODY_FUNC body_callback, void *arg);
+MERR* mhttp_get(const char *url, MDF *headernode, MDF *rnode, MHTTP_ONBODY_FUNC body_callback, void *arg);
 
 /*
  * content_type: default "application/x-www-form-urlencoded"
