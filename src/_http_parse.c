@@ -114,7 +114,7 @@ static MERR* _process_chunk(MDF *node, char *pos, size_t remain, bool *end, MHTT
     return MERR_OK;
 }
 
-static MERR* _process_text(MDF *node, char *pos, size_t remain, bool *end, MHTTP_ONBODY_FUNC body_callback)
+static MERR* _process_content(MDF *node, char *pos, size_t remain, bool *end, MHTTP_ONBODY_FUNC body_callback)
 {
     char *content_type = mdf_get_value(node, "HEADER.Content-Type", "application/json");
     size_t content_length = mdf_get_int64_value(node, "HEADER.Content-Length", 0);
@@ -198,23 +198,25 @@ static MERR* _parse_response(unsigned char *buf, size_t len, int *rlen, bool *en
     /* Transfer-Encoding */
     char *t_encoding = mdf_get_value(node, "HEADER.Transfer-Encoding", NULL);
     if (t_encoding && !strcasecmp(t_encoding, "chunked")) {
+        /* chunked */
         return merr_pass(_process_chunk(node, pos, remain, end, body_callback));
+    } else {
+        /* content-length */
+        mdf_set_type(node, "HEADER.Content-Length", MDF_TYPE_INT);
+        char *content_type = mdf_get_value(node, "HEADER.Content-Type", "application/json");
+        size_t content_length = mdf_get_int64_value(node, "HEADER.Content-Length", 0);
+        if (content_length <= 0 || content_length > MAX_BODY_LEN)
+            return merr_raise(MERR_ASSERT, "content length %zu", content_length);
+
+        if (!strncmp(content_type, "application/json", 16) ||
+            !strncmp(content_type, "text/html", 9) ||
+            !strncmp(content_type, "text/xml", 8) ||
+            !strncmp(content_type, "text/json", 9) ||
+            !strncmp(content_type, "text/plain", 10) ||
+            !strncmp(content_type, "image/", 6)) {
+            return merr_pass(_process_content(node, pos, remain, end, body_callback));
+        }
+
+        return merr_raise(MERR_ASSERT, "content_type %s not support", content_type);
     }
-
-    /* content-length */
-    mdf_set_type(node, "HEADER.Content-Length", MDF_TYPE_INT);
-    char *content_type = mdf_get_value(node, "HEADER.Content-Type", "application/json");
-    size_t content_length = mdf_get_int64_value(node, "HEADER.Content-Length", 0);
-    if (content_length <= 0 || content_length > MAX_BODY_LEN)
-        return merr_raise(MERR_ASSERT, "content length %zu", content_length);
-
-    if (!strncmp(content_type, "application/json", 16) ||
-        !strncmp(content_type, "text/html", 9) ||
-        !strncmp(content_type, "text/xml", 8) ||
-        !strncmp(content_type, "text/json", 9) ||
-        !strncmp(content_type, "text/plain", 10)) {
-        return merr_pass(_process_text(node, pos, remain, end, body_callback));
-    }
-
-    return merr_raise(MERR_ASSERT, "content_type %s not support", content_type);
 }
