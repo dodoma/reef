@@ -33,6 +33,7 @@ void test_request()
     //char *url = "http://open.youzan.com/api/oauthentry/youzan.itemcategories.tags/3.0.0/get?access_token=e08d686ae35d38768c02f0ed2c623cba";
     //char *url = "http://open.youzan.com/oauth/token";
     //char *url = "http://open.youzan.com/api/oauthentry/youzan.materials.storage.platform.img/3.0.0/upload";
+    url = "https://res.mbox.net.cn/audio/eMix.mp3";
     char *payload = "client_id=41c986e32e3342f0af&client_secret=81d9b72d5b01bb1543393671db061933&grant_type=silent&kdt_id=40134859";
     MDF *node, *dnode;
     MERR *err;
@@ -45,7 +46,7 @@ void test_request()
 
     FILE *fp = fopen("result.html", "w");
 
-    err = mhttp_get(url, node, onbody, fp);
+    err = mhttp_get(url, NULL, node, onbody, fp);
     //err = mhttp_post(url, NULL, payload, node, onbody);
     //err = mhttp_post_with_file(url, dnode, node, onbody, fp);
     //err = mhttp_post_with_filef(url, node, onbody, fp, 2,

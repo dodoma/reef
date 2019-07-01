@@ -213,7 +213,8 @@ static MERR* _parse_response(unsigned char *buf, size_t len, int *rlen, bool *en
             !strncmp(content_type, "text/xml", 8) ||
             !strncmp(content_type, "text/json", 9) ||
             !strncmp(content_type, "text/plain", 10) ||
-            !strncmp(content_type, "image/", 6)) {
+            !strncmp(content_type, "image/", 6) ||
+            !strncmp(content_type, "audio/", 6)) {
             return merr_pass(_process_content(node, pos, remain, end, body_callback));
         }
 

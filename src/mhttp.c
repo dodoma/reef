@@ -220,6 +220,7 @@ MERR* mhttp_get(const char *url, MDF *headernode, MDF *rnode, MHTTP_ONBODY_FUNC 
 
     if (secure) {
         char hostname[hostlen + 1];
+        memset(hostname, 0x0, sizeof(hostname));
         strncpy(hostname, host, hostlen);
         err = _tls_new(&ssl, hostname, MHTTP_TIMEOUT * 1000);
         if (err) return merr_pass(err);
@@ -301,6 +302,7 @@ MERR* mhttp_post(const char *url, const char *content_type, const char *payload,
 
     if (secure) {
         char hostname[hostlen + 1];
+        memset(hostname, 0x0, sizeof(hostname));
         strncpy(hostname, host, hostlen);
         err = _tls_new(&ssl, hostname, MHTTP_TIMEOUT * 1000);
         if (err) return merr_pass(err);
@@ -566,6 +568,7 @@ MERR* mhttp_post_with_file(const char *url, MDF *dnode, MDF *rnode,
 
     if (secure) {
         char hostname[hostlen + 1];
+        memset(hostname, 0x0, sizeof(hostname));
         strncpy(hostname, host, hostlen);
         err = _tls_new(&ssl, hostname, MHTTP_TIMEOUT * 1000);
         if (err) return merr_pass(err);
@@ -658,6 +661,7 @@ MERR* mhttp_post_with_filef(const char *url, MDF *rnode, MHTTP_ONBODY_FUNC body_
 
     if (secure) {
         char hostname[hostlen + 1];
+        memset(hostname, 0x0, sizeof(hostname));
         strncpy(hostname, host, hostlen);
         err = _tls_new(&ssl, hostname, MHTTP_TIMEOUT * 1000);
         if (err) return merr_pass(err);
