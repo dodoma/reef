@@ -1107,22 +1107,25 @@ MDF* mdf_insert_node(MDF *node, const char *path, int position)
     if (!node) return NULL;
 
     err = _walk_mdf(node, path, true, &anode);
-    TRACE_NOK(err);
+    RETURN_V_NOK(err, NULL);
 
-    if (anode) {
-        static uint64_t insert_sn = 0;
-        char sname[PATH_MAX] = {0};
-        MDF *rnode;
+    /* new created node's type is unknown, need change to object to hold children */
+    if (anode->type == MDF_TYPE_UNKNOWN) anode->type = MDF_TYPE_OBJECT;
 
-        snprintf(sname, sizeof(sname), "__moon_resolved_index__%"PRIu64, insert_sn++);
-        mdf_init(&rnode);
-        rnode->name = strdup(sname);
-        rnode->namelen = strlen(sname);
+    static uint64_t insert_sn = 0;
+    char sname[PATH_MAX] = {0};
+    MDF *rnode;
 
-        _mdf_insert_child_node(anode, rnode, -1, position);
+    snprintf(sname, sizeof(sname), "__moon_resolved_index__%"PRIu64, insert_sn++);
+    mdf_init(&rnode);
+    rnode->name = strdup(sname);
+    rnode->namelen = strlen(sname);
 
-        return rnode;
-    } else return NULL;
+    _mdf_insert_child_node(anode, rnode, -1, position);
+
+    if (insert_sn >= 0x7FFFFFFF) insert_sn = 0;
+
+    return rnode;
 }
 
 MDF* mdf_get_child(MDF *node, const char *path)
