@@ -56,6 +56,9 @@ __BEGIN_DECLS
 
 MERR* mdf_init(MDF **node);
 void  mdf_destroy(MDF **node);
+/*
+ * clear 仅清空节点的值、删除子节点、及其兄弟节点，保留节点的父节点信息、内存指针、名字、类型 占位属性
+ */
 void  mdf_clear(MDF *node);
 bool  mdf_equal(MDF *anode, MDF *bnode);
 

@@ -19,7 +19,7 @@ static MDF* _walk_by_name(MDF *node, const char *name, size_t len, bool create)
     } else {
         rnode = node->child;
         while (rnode) {
-            if (!strcmp(rnode->name, sname)) goto found;
+            if (rnode->name && !strcmp(rnode->name, sname)) goto found;
 
             childnum++;
             rnode = rnode->next;
@@ -363,11 +363,6 @@ void mdf_clear(MDF *node)
 
     if (node->type == MDF_TYPE_STRING || node->type == MDF_TYPE_BINARY_A)
         mos_free(node->val.s);
-    mos_free(node->name);
-
-    node->namelen = node->valuelen = 0;
-    node->name = NULL;
-    node->type = MDF_TYPE_UNKNOWN;
     node->val.s = NULL;
     node->val.n = 0;
     node->val.f = 0.0;
@@ -377,7 +372,6 @@ void mdf_clear(MDF *node)
     node->prev = NULL;
     node->next = NULL;
 
-    node->parent = NULL;
     node->child = NULL;
     node->last_child = NULL;
 }

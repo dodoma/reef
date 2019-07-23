@@ -23,7 +23,8 @@ void mdf_aux_list2map(MDF *node, const char *path)
         cnode = mdf_node_next(cnode);
     }
 
-    mdf_remove(node, path);
+    cnode = mdf_get_node(node, path);
+    mdf_clear(cnode);
     mdf_copy(node, path, tmpnode, true);
     mdf_remove_me(tmpnode);
 }
