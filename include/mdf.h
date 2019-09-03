@@ -120,6 +120,11 @@ MERR* mdf_remove_me(MDF *node);
 MDF* mdf_get_node(MDF *node, const char *path);
 /* 新建的node类型为 MDF_TYPE_UNKNOWN */
 MDF* mdf_get_or_create_node(MDF *node, const char *path);
+/*
+ * path 下插入子节点，常用于数组节点的操作，用例详见mdf_xml.c
+ * path: 不存在则创建
+ * position: 插入位置，0 为第一个，1为第二个，-1为最后一个
+ */
 MDF* mdf_insert_node(MDF *node, const char *path, int position);
 MDF* mdf_get_child(MDF *node, const char *path);
 

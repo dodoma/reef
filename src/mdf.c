@@ -1106,7 +1106,7 @@ MDF* mdf_insert_node(MDF *node, const char *path, int position)
 
     if (!node) return NULL;
 
-    err = _walk_mdf(node, path, false, &anode);
+    err = _walk_mdf(node, path, true, &anode);
     TRACE_NOK(err);
 
     if (anode) {
