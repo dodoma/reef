@@ -195,14 +195,14 @@ bool mtc_mt_msg(const char *func, const char *file, long line, MTC_LEVEL level,
 
     gettimeofday(&tv, NULL);
 
-#if defined(RELEASE)
+#if defined(TRACE_SHORT)
+    snprintf(timestr, 24, "%04ld", tv.tv_sec % 10000);
+    timestr[4] = '\0';
+#else
     struct tm *tm;
     tm = localtime(&tv.tv_sec);
     strftime(timestr, 25, "%Y-%m-%d %H:%M:%S", tm);
     timestr[24] = '\0';
-#else
-    snprintf(timestr, 24, "%04ld", tv.tv_sec % 10000);
-    timestr[4] = '\0';
 #endif
 
     fprintf(e->fp, "[%s.%06u]", timestr, (unsigned)tv.tv_usec);
