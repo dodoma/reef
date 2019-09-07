@@ -57,3 +57,14 @@ mdf 类似 Python 中的 dict, Javascript 中的 object, Lua 中的 Table。有�
 ### 出了问题怎么办
 
 先写个 test 进行确认，真有问题，你需要看看源代码。
+
+
+### 怪异关键字
+
+* QJYQ - 奇技淫巧
+
+  一些很不规范的操作，谨慎使用。
+
+* TCTR - too complex to remember
+
+  现实中太复杂的业务场景，或者仅仅是代码实现得太复杂，时间太久容易忘记。照着注释来就行。
