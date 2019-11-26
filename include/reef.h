@@ -69,6 +69,7 @@
 #include "merror.h"
 #include "merror_macro.h"
 
+#include "mmime.h"
 #include "mtrace.h"
 #include "mtrace_macro.h"
 #include "mtrace_multithread.h"
