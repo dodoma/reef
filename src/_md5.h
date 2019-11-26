@@ -30,7 +30,8 @@ documentation and/or software.
  * K&Risms.
  */
 
-#include <limits.h>
+//#include <limits.h>
+#include "reef.h"
 
 
 /* POINTER defines a generic pointer type */
@@ -48,12 +49,12 @@ typedef unsigned int UINT4;
 typedef unsigned long int UINT4;
 #endif
 
-/* MD5 context. */
-typedef struct {
-  UINT4 state[4];                    /* state (ABCD) */
-  UINT4 count[2];     /* number of bits, modulo 2^64 (lsb first) */
-  unsigned char buffer[64];                /* input buffer */
-} md5_ctx;
+///* MD5 context. */
+//typedef struct {
+//  UINT4 state[4];                    /* state (ABCD) */
+//  UINT4 count[2];     /* number of bits, modulo 2^64 (lsb first) */
+//  unsigned char buffer[64];                /* input buffer */
+//} md5_ctx;
 
 void MD5Init(md5_ctx *);
 void MD5Update(md5_ctx *, unsigned char *, unsigned int);

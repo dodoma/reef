@@ -342,3 +342,18 @@ void mhash_sha256_buf(unsigned char *in, size_t len, unsigned char out[32])
 {
     return sha256_hash(out, in, len);
 }
+
+void mhash_md5_init(MD5CTX *ctx)
+{
+    MD5Init(ctx);
+}
+
+void mhash_md5_update(MD5CTX *ctx, unsigned char *buf, size_t len)
+{
+    MD5Update(ctx, buf, (unsigned long)len);
+}
+
+void mhash_md5_final(unsigned char checksum[16], MD5CTX *ctx)
+{
+    MD5Final(checksum, ctx);
+}

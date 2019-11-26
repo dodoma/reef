@@ -52,6 +52,13 @@ typedef int (*MHASH_COMP_FUNC)(const void*, const void*);
 typedef void (*MHASH_DESTROY_FUNC)(void *key, void *value);
 typedef struct _MHASH MHASH;
 
+typedef struct _MD5CTX {
+    uint32_t state[4];            /* state (ABCD) */
+    uint32_t count[2];            /* number of bits, modulo 2^64 (lsb first) */
+    unsigned char buffer[64];     /* input buffer */
+} md5_ctx;                        /* 此 md5_ctx 给 md5.c 使用，暂不统一风格 */
+typedef struct _MD5CTX MD5CTX;
+
 /*
  * 一个节点只能有一个类型，故此，如下操作：
  *   mdf_set_value(node, "a", "value a");
