@@ -58,10 +58,10 @@ void test_basic()
     //}
 
     /*
-     * 2. 使用 MOS_MEM_OFFSET()
+     * 2. 使用 MOS_OFFSET_2_MEM()
      */
     for (int i = 0; i < 10000; i++) {
-        mlist_append(alist, MOS_MEM_OFFSET(i));
+        mlist_append(alist, MOS_OFFSET_2_MEM(i));
     }
 
     int m = 1;

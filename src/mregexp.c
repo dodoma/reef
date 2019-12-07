@@ -283,6 +283,39 @@ static uint32_t _parse_statement(MRE *reo)
     return icount;
 }
 
+/*
+ * "Win(?!95|98|NT).*in"
+ * =====================
+ *   0: split 27
+ *   1:     lpar 0
+ *   2:         char 'W'
+ *   3:         char 'i'
+ *   4:         char 'n'
+ *   5:         nla 17
+ *   6:             split 14
+ *   7:                 split 11
+ *   8:                     char '9'
+ *   9:                     char '5'
+ *  10:                     jump relative 13 2147483647
+ *  11:                 char '9'
+ *  12:                 char '8'
+ *  13:                 jump relative 16 2147483647
+ *  14:             char 'N'
+ *  15:             char 'T'
+ *  16:             end
+ *  17:         split 22
+ *  18:             any
+ *  19:             split 22
+ *  20:                 any
+ *  21:                 jump relative 19 2147483645
+ *  22:             jump relative 23 0
+ *  23:         char 'i'
+ *  24:         char 'n'
+ *  25:     rpar 0
+ *  26:     end
+ *  27: anynl
+ *  28: jump absolute 0
+ */
 static MERR* _compile(MRE *reo, const char *pattern)
 {
     Instruct *pc;

@@ -8,6 +8,11 @@
  */
 __BEGIN_DECLS
 
+#define MSTR_CONSTANT(a, b, c, d, e, f, g, h)               \
+    ((uint64_t)((a) | (b)<<8 | (c)<<16 | (d)<<24 |          \
+                (uint64_t)(e)<<32 | (uint64_t)(f)<<40 |     \
+                (uint64_t)(g)<<48 | (uint64_t)(h)<<56 ))
+
 /*
  * ======================
  * raw string functions
@@ -17,6 +22,8 @@ __BEGIN_DECLS
 char* mstr_strip(char *s, char n);
 char* mstr_strip_space(char *s);
 char* mstr_repchr(char *s, char from, char to);
+/* break s 'item = Page.Menu' into *a = 'item', *b = 'Page.Menu' when c == '=' */
+bool  mstr_break(char *s, char c, char **a, char **b);
 char* mstr_ndup(const char *s, size_t n);
 /*
  * json string 中的

@@ -454,10 +454,14 @@ MERR* mdf_xml_import_file(MDF *node, const char *fname)
     buf = mos_calloc(1, fs.st_size + 1);
 
     fp = fopen(fname, "r");
-    if (!fp) return merr_raise(MERR_OPENFILE, "open %s for read failure", fname);
+    if (!fp) {
+        mos_free(buf);
+        return merr_raise(MERR_OPENFILE, "open %s for read failure", fname);
+    }
 
     if (fread(buf, 1, fs.st_size, fp) != fs.st_size) {
         fclose(fp);
+        mos_free(buf);
         return merr_raise(MERR_ASSERT, "read file failure %ld", (long int)fs.st_size);
     }
     buf[fs.st_size] = '\0';

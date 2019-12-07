@@ -82,8 +82,10 @@ typedef enum {
     MDF_TYPE_NULL               /* 9 */
 } MDF_TYPE;
 typedef struct _MDF MDF;
+typedef struct _MCS MCS;
 
 typedef void (*MDF_PRINTF)(void *rock, const char *fmt, ...);
+typedef void (*MCS_PRINTF)(void *rock, const char *fmt, ...);
 
 typedef enum
 {

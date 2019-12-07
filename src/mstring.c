@@ -80,6 +80,27 @@ char* mstr_ndup(const char *s, size_t n)
     return r;
 }
 
+bool mstr_break(char *s, char c, char **a, char **b)
+{
+    if (!s || !a || !b) return false;
+
+    char *va, *vb;
+    char *p = strchr(s, c);
+    if (!p) return false;
+
+    va = s;
+    vb = p + 1;
+    *p = '\0';
+
+    va = mstr_strip_space(va);
+    vb = mstr_strip_space(vb);
+
+    *a = va;
+    *b = vb;
+
+    return true;
+}
+
 char* mstr_ndup_json_string(const char *s, size_t n)
 {
     if (!s) return NULL;
