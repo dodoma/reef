@@ -67,8 +67,8 @@ MERR* mhttp_get(const char *url, MDF *headernode, MDF *rnode, MHTTP_ONBODY_FUNC 
 /*
  * content_type: default "application/x-www-form-urlencoded"
  */
-MERR* mhttp_post(const char *url, const char *content_type, const char *payload, MDF *rnode,
-                 MHTTP_ONBODY_FUNC body_callback, void *arg);
+MERR* mhttp_post(const char *url, const char *content_type, MDF *headernode, const char *payload,
+                 MDF *rnode, MHTTP_ONBODY_FUNC body_callback, void *arg);
 
 /*
  * 以可上传文件方式(rfc2388)发送POST请求

@@ -236,7 +236,6 @@ MERR* mhttp_get(const char *url, MDF *headernode, MDF *rnode, MHTTP_ONBODY_FUNC 
     MDF *cnode = mdf_node_child(headernode);
     while (cnode) {
         mstr_appendf(&str, "%s: %s\r\n", mdf_get_name(cnode, NULL), mdf_get_value(cnode, NULL, NULL));
-
         cnode = mdf_node_next(cnode);
     }
     mstr_append(&str, "Accept: */*\r\n\r\n");
@@ -252,6 +251,7 @@ MERR* mhttp_get(const char *url, MDF *headernode, MDF *rnode, MHTTP_ONBODY_FUNC 
     err = _connect_to(host, hostlen, port, &fd, ssl);
     if (err) RETURN(merr_pass(err));
 
+    //mtc_mt_dbg("send %s", str.buf);
     err = _send_to(fd, (unsigned char*)str.buf, str.len, ssl);
     if (err) RETURN(merr_pass(err));
 
@@ -280,7 +280,7 @@ MERR* mhttp_get(const char *url, MDF *headernode, MDF *rnode, MHTTP_ONBODY_FUNC 
 #undef RETURN
 }
 
-MERR* mhttp_post(const char *url, const char *content_type, const char *payload,
+MERR* mhttp_post(const char *url, const char *content_type, MDF *headernode, const char *payload,
                  MDF *rnode, MHTTP_ONBODY_FUNC body_callback, void *arg)
 {
     MERR *err;
@@ -313,12 +313,19 @@ MERR* mhttp_post(const char *url, const char *content_type, const char *payload,
     mstr_appendf(&str,
                  "POST /%s HTTP/1.1\r\n"
                  "HOST: %.*s\r\n"
-                 "User-Agent: reef\r\n"
+                 "User-Agent: reef\r\n",
+                 requesturi, hostlen, host);
+    MDF *cnode = mdf_node_child(headernode);
+    while (cnode) {
+        mstr_appendf(&str, "%s: %s\r\n", mdf_get_name(cnode, NULL), mdf_get_value(cnode, NULL, NULL));
+        cnode = mdf_node_next(cnode);
+    }
+    mstr_appendf(&str,
                  "Accept: */*\r\n"
                  "Content-Type: %s\r\n"
                  "Content-Length: %zd\r\n\r\n"
                  "%s",
-                 requesturi, hostlen, host, content_type, strlen(payload), payload);
+                 content_type, strlen(payload), payload);
 
 #define RETURN(ret)                             \
     do {                                        \
@@ -331,6 +338,7 @@ MERR* mhttp_post(const char *url, const char *content_type, const char *payload,
     err = _connect_to(host, hostlen, port, &fd, ssl);
     if (err) RETURN(merr_pass(err));
 
+    //mtc_mt_dbg("send %s", str.buf);
     err = _send_to(fd, (unsigned char*)str.buf, str.len, ssl);
     if (err) RETURN(merr_pass(err));
 
