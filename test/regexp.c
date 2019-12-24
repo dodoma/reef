@@ -21,6 +21,14 @@ void test_basic()
 
     MRE *reo = mre_init();
 
+    err = mre_compile(reo, "^http.*/(.*.mp3)$");
+    //mtc_dbg(" ");
+    //mre_dump(reo);
+    TRACE_NOK(err);
+    char *string = "https://res.mbox.net.cn/audio/eMix.mp3";
+    MTEST_ASSERT(mre_match(reo, string, true) == true);
+    _dump_res(reo, string);
+
 #if 1
     err = mre_compile(reo, "ab|cc|newman|foo|bar|jia|yi|bing");
     //mtc_dbg(" ");
@@ -110,7 +118,7 @@ void test_basic()
     TRACE_NOK(err);
     //mtc_dbg(" ");
     //mre_dump(reo);
-    const char *string = "womane shif dvfoogoodfine google good fine google gle sdoeoX";
+    string = "womane shif dvfoogoodfine google good fine google gle sdoeoX";
     MTEST_ASSERT(mre_match(reo, string, true) == true);
     //_dump_res(reo, string);
 

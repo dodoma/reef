@@ -46,6 +46,8 @@ typedef enum {
 typedef struct _MERR MERR;
 
 typedef struct _MLIST MLIST;
+typedef struct _MTREE MTREE;
+typedef struct _MUTREE MUTREE;
 
 typedef uint32_t (*MHASH_HASH_FUNC)(const void*);
 typedef int (*MHASH_COMP_FUNC)(const void*, const void*);

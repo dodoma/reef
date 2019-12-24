@@ -80,6 +80,8 @@
 
 #include "mlist.h"
 #include "mlist_macro.h"
+#include "mtree.h"
+#include "mutree.h"
 
 #include "mhash.h"
 #include "mhash_macro.h"
