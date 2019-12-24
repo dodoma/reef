@@ -171,6 +171,7 @@ void mcgi_regist_upload_callback(MCGI *ses, MCGI_UPLOAD_FUNC up_callback)
 
 int mcgi_req_type(MCGI *ses)
 {
+    if (!ses) return MCGI_REQ_UNKNOWN;
     return ses->reqtype;
 }
 
