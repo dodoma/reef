@@ -35,6 +35,8 @@ void mhash_md5_buf(unsigned char *in, size_t len, unsigned char out[16]);
 void mhash_sha1_buf(unsigned char *in, size_t len, unsigned char out[20]);
 /* ecab4881ee80ad3d76bb1da68387428ca752eb885e52621a3129dcf4d9bc4fd4 */
 void mhash_sha256_buf(unsigned char *in, size_t len, unsigned char out[32]);
+void mhash_hmac_sha256(unsigned char *data, size_t data_len, unsigned char *key, size_t key_len,
+                       unsigned char out[32]);
 
 /*
  * 为尽可能少的修改公共代码，做层包裹

@@ -343,6 +343,70 @@ void mhash_sha256_buf(unsigned char *in, size_t len, unsigned char out[32])
     return sha256_hash(out, in, len);
 }
 
+/* from [aperezdc](https://github.com/aperezdc/hmac-sha256) */
+#define B 64
+#define L 32
+#define K 64
+#define I_PAD 0x36
+#define O_PAD 0x5C
+void mhash_hmac_sha256(unsigned char *data, size_t data_len, unsigned char *key, size_t key_len,
+                       unsigned char out[32])
+{
+    sha256_t ss;
+    uint8_t kh[32];
+
+    /*
+     * If the key length is bigger than the buffer size B, apply the hash
+     * function to it first and use the result instead.
+     */
+    if (key_len > B) {
+        sha256_hash(kh, key, key_len);
+        key_len = 32;
+        key = kh;
+    }
+
+    /*
+     * (1) append zeros to the end of K to create a B byte string
+     *     (e.g., if K is of length 20 bytes and B=64, then K will be
+     *     appended with 44 zero bytes 0x00)
+     * (2) XOR (bitwise exclusive-OR) the B byte string computed in step
+     *     (1) with ipad
+     */
+    uint8_t kx[B];
+    for (size_t i = 0; i < key_len; i++) kx[i] = I_PAD ^ key[i];
+    for (size_t i = key_len; i < B; i++) kx[i] = I_PAD ^ 0;
+
+    /*
+     * (3) append the stream of data 'text' to the B byte string resulting
+     *     from step (2)
+     * (4) apply H to the stream generated in step (3)
+     */
+    sha256_init(&ss);
+    sha256_update(&ss, kx, B);
+    sha256_update(&ss, data, data_len);
+    sha256_final(&ss, out);
+
+    /*
+     * (5) XOR (bitwise exclusive-OR) the B byte string computed in
+     *     step (1) with opad
+     *
+     * NOTE: The "kx" variable is reused.
+     */
+    for (size_t i = 0; i < key_len; i++) kx[i] = O_PAD ^ key[i];
+    for (size_t i = key_len; i < B; i++) kx[i] = O_PAD ^ 0;
+
+    /*
+     * (6) append the H result from step (4) to the B byte string
+     *     resulting from step (5)
+     * (7) apply H to the stream generated in step (6) and output
+     *     the result
+     */
+    sha256_init(&ss);
+    sha256_update(&ss, kx, B);
+    sha256_update(&ss, out, 32);
+    sha256_final(&ss, out);
+}
+
 void mhash_md5_init(MD5CTX *ctx)
 {
     MD5Init(ctx);
