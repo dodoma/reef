@@ -8,7 +8,8 @@ void mdf_aux_list2map(MDF *node, const char *path)
     char *k, *v;
     k = v = NULL;
 
-    MDF *tmpnode = mdf_get_or_create_node(node, "__list2map__");
+    MDF *tmpnode;
+    mdf_init(&tmpnode);
 
     MDF *cnode = mdf_get_child(node, path);
     while (cnode) {
@@ -26,5 +27,6 @@ void mdf_aux_list2map(MDF *node, const char *path)
     cnode = mdf_get_node(node, path);
     mdf_clear(cnode);
     mdf_copy(node, path, tmpnode, true);
-    mdf_remove_me(tmpnode);
+
+    mdf_destroy(&tmpnode);
 }
