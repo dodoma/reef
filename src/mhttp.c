@@ -151,7 +151,7 @@ bool mhttp_parse_url(const char *url, bool *secure,
     return true;
 }
 
-char* mhttp_url_escape(char *s)
+char* mhttp_url_escape(const char *s)
 {
     if (!s) return NULL;
 
