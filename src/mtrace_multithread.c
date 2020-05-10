@@ -13,13 +13,13 @@
 
 static pthread_mutex_t m_lock = PTHREAD_MUTEX_INITIALIZER;
 
-static int  m_cur_level = MTC_DEFAULT_LEVEL;
 static char *m_levels[MTC_MAX] = {"DIE", "MESSAGE", "ERROR",
                                   "WARNING", "INFO", "DEBUG",
                                   "NOISE"};
 
 struct _entry {
     uint32_t tid;
+    int level;
     char modulename[256];
     char filename[PATH_MAX];
     char linebuf[2096];
@@ -119,9 +119,7 @@ static inline void _shift_file(struct _entry *e)
 
 MERR* mtc_mt_init(const char *fn, const char *modulename, MTC_LEVEL level)
 {
-    if (!fn || !modulename) return merr_raise(MERR_ASSERT, "paramter null");
-
-    if (level <= MTC_MAX) m_cur_level = level;
+    if (!fn || !modulename || level > MTC_MAX) return merr_raise(MERR_ASSERT, "paramter null");
 
     if (!m_logs) atexit(_leave);
 
@@ -145,6 +143,7 @@ MERR* mtc_mt_init(const char *fn, const char *modulename, MTC_LEVEL level)
     struct _entry *e = m_logs[m_num];
 
     e->tid = tid;
+    e->level = level;
     strncpy(e->filename, fn, sizeof(e->filename));
     strncpy(e->modulename, modulename, sizeof(e->modulename));
     if (!strcmp(e->filename, "-")) e->fp = stdout;
@@ -178,7 +177,11 @@ MERR* mtc_mt_initf(const char *modulename, MTC_LEVEL level, const char *fmt, ...
 
 void mtc_mt_set_level(MTC_LEVEL level)
 {
-    if (level <= MTC_MAX) m_cur_level = level;
+    if (level <= MTC_MAX) {
+        uint32_t tid = _get_tid();
+        struct _entry *e = _entry_search(tid);
+        if (e) e->level = level;
+    }
 }
 
 bool mtc_mt_msg(const char *func, const char *file, long line, MTC_LEVEL level,
@@ -187,7 +190,7 @@ bool mtc_mt_msg(const char *func, const char *file, long line, MTC_LEVEL level,
     uint32_t tid = _get_tid();
     struct _entry *e = _entry_search(tid);
 
-    if (level > m_cur_level || !e) return false;
+    if (!e || e->level < level) return false;
 
     va_list ap;
     struct timeval tv;
