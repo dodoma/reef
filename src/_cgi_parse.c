@@ -122,7 +122,13 @@ MERR* _parse_http_headers(MCGI *ses, char **envp)
             k += 5;
             *v++ = '\0';
 
-            mdf_set_valuef(node, "HTTP.%s=%s", k, v);
+            /*
+             * json valid failure for (fuck sec_ch_ua developer):
+             * HTTP_SEC_CH_UA="\\Not;A\"Brand";v="99", "Google Chrome";v="85", "Chromium";v="85"
+             */
+            if (strcmp(k, "SEC_CH_UA")) {
+                mdf_set_valuef(node, "HTTP.%s=%s", k, v);
+            }
         }
 
         free(s);
