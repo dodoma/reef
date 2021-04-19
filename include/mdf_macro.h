@@ -6,18 +6,22 @@
  */
 __BEGIN_DECLS
 
-#define MDF_TRACE(node)                                     \
-    do {                                                    \
-        char *_zstra = mdf_json_export_string_pretty(node); \
-        mtc_dbg("\n%s", _zstra);                            \
-        mos_free(_zstra);                                   \
+#define MDF_TRACE(node)                                             \
+    do {                                                            \
+        if (!mdf_get_bool_value(node, "_trace_supress", false)) {   \
+            char *_zstra = mdf_json_export_string_pretty(node);     \
+            mtc_dbg("\n%s", _zstra);                                \
+            mos_free(_zstra);                                       \
+        }                                                           \
     } while (0)
 
 #define MDF_TRACE_MT(node)                                  \
-    do {                                                    \
-        char *_zstra = mdf_json_export_string_pretty(node); \
-        mtc_mt_dbg("\n%s", _zstra);                         \
-        mos_free(_zstra);                                   \
+    do {                                                            \
+        if (!mdf_get_bool_value(node, "_trace_supress", false)) {   \
+            char *_zstra = mdf_json_export_string_pretty(node);     \
+            mtc_mt_dbg("\n%s", _zstra);                             \
+            mos_free(_zstra);                                       \
+        }                                                           \
     } while (0)
 
 #define MDF_TRACE_XML(node)                                 \
