@@ -7,8 +7,8 @@
  * 设置的 Dataset: CGI, HTTP, HTTP.COOKIE, QUERY, UPLOAD
  *
  * 保留的 url 关键字:
- *    _reqtype  *json, html, image     指定请求资源的类型
- *    _script   xxxx                   请求资源的 url， 由 http 服务器 url rewrite 生成
+ *    _reqtype  *json,html,image,auido     指定请求资源的类型
+ *    _script   xxxx                       请求资源的 url， 由 http 服务器 url rewrite 生成
  */
 __BEGIN_DECLS
 
