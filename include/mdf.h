@@ -171,6 +171,8 @@ size_t mdf_mpack_len(MDF *node);
  */
 size_t mdf_mpack_deserialize(MDF *node, const unsigned char *buf, size_t len);
 
+MERR* mdf_mpack_import_file(MDF *node, const char *fname);
+MERR* mdf_mpack_export_file(MDF *node, const char *fname);
 
 /*
  * 解析 xml 格式的字符串 str, 存储在已经准备好的 node 节点中.
