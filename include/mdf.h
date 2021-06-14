@@ -132,6 +132,8 @@ MDF* mdf_node_next(MDF *node);
 MDF* mdf_node_parent(MDF *node);
 MDF* mdf_node_child(MDF *node);
 void mdf_sort_node(MDF *node, int __F(compare)(const void*, const void*));
+/* search, without sort, will be slow in bignode */
+MDF* mdf_search(MDF *node, void *key, int __F(compare)(const void *a, void *key));
 
 bool  mdf_path_valid(const char *path);
 bool  mdf_path_exist(MDF *node, const char *path);

@@ -1200,6 +1200,20 @@ void mdf_sort_node(MDF *node, int __F(compare)(const void*, const void*))
     mlist_destroy(&alist);
 }
 
+MDF* mdf_search(MDF *node, void *key, int __F(compare)(const void *a, void *key))
+{
+    if (!node || !key || !compare) return NULL;
+
+    MDF *cnode = mdf_get_child(node, NULL);
+    while (cnode) {
+        if (compare(cnode, key) == 0) return cnode;
+
+        cnode = mdf_node_next(cnode);
+    }
+
+    return NULL;
+}
+
 
 bool mdf_path_valid(const char *path)
 {

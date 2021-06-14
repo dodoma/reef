@@ -352,6 +352,30 @@ MERR* mdf_json_export_filef(MDF *node, const char *fmt, ...)
     return mdf_json_export_file(node, fname);
 }
 
+MERR* mdf_mpack_import_filef(MDF *node, const char *fmt, ...)
+{
+    char fname[PATH_MAX];
+    va_list ap;
+
+    va_start(ap, fmt);
+    vsnprintf(fname, sizeof(fname), fmt, ap);
+    va_end(ap);
+
+    return mdf_mpack_import_file(node, fname);
+}
+
+MERR* mdf_mpack_export_filef(MDF *node, const char *fmt, ...)
+{
+    char fname[PATH_MAX];
+    va_list ap;
+
+    va_start(ap, fmt);
+    vsnprintf(fname, sizeof(fname), fmt, ap);
+    va_end(ap);
+
+    return mdf_mpack_export_file(node, fname);
+}
+
 void mdf_aux_list2mapf(MDF *node, const char *fmt, ...)
 {
     char key[1024];
