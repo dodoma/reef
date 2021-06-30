@@ -9,7 +9,7 @@ struct _MCGI_UPFILE {
 
 struct _MCGI {
     int method;                 /* GET, POST, PUT */
-    int reqtype;                /* html, ajax, image */
+    int reqtype;                /* html, ajax, image, audio */
 
     MDF *data;
 
@@ -20,6 +20,8 @@ struct _MCGI {
 
     double time_start;
     double time_end;
+
+    /* TODO Cache-Control */
 };
 
 struct rfc2388 {

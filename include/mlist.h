@@ -52,6 +52,7 @@ MERR* mlist_init(MLIST **alist, void __F(freeitem)(void*));
 
 MERR* mlist_append(MLIST *alist, void *data);
 MERR* mlist_pop(MLIST *alist, void **data);
+void* mlist_popx(MLIST *alist);
 MERR* mlist_insert(MLIST *alist, int x, void *data);
 MERR* mlist_delete(MLIST *alist, int x);
 void  mlist_free(void *alist);

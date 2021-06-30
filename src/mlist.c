@@ -72,6 +72,16 @@ MERR* mlist_pop(MLIST *alist, void **data)
     return MERR_OK;
 }
 
+void* mlist_popx(MLIST *alist)
+{
+    if (!alist || alist->num <= 0) return NULL;
+
+    void *ret = alist->items[alist->num - 1];
+    alist->num--;
+
+    return ret;
+}
+
 MERR* mlist_insert(MLIST *alist, int x, void *data)
 {
     void **start;
@@ -258,7 +268,7 @@ void mlist_sort(MLIST *alist, int __F(compare)(const void *, const void*))
 void* mlist_search(MLIST *alist, const void *key,
                    int __F(compare)(const void*, const void*))
 {
-    if (!alist || !key || !compare) return NULL;
+    if (!alist || !key || !compare || alist->num <= 0) return NULL;
 
     if (!alist->sorted) {
         qsort(alist->items, alist->num, sizeof(void*), compare);
