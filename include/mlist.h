@@ -59,6 +59,7 @@ void  mlist_free(void *alist);
 void  mlist_clear(MLIST *alist);
 
 MERR* mlist_get(MLIST *alist, int x, void **data);
+void* mlist_getx(MLIST *alist, int x);
 MERR* mlist_set(MLIST *alist, int x, void *data);
 MERR* mlist_cut(MLIST *alist, int x, void **data);
 

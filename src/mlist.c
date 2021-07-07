@@ -135,6 +135,14 @@ MERR* mlist_get(MLIST *alist, int x, void **data)
     return MERR_OK;
 }
 
+void* mlist_getx(MLIST *alist, int x)
+{
+    if (!alist || x < 0 || x >= alist->num) return NULL;
+
+    return alist->items[x];
+}
+
+
 MERR* mlist_set(MLIST *alist, int x, void *data)
 {
     MERR_NOT_NULLB(alist, data);
