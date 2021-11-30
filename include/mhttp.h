@@ -11,12 +11,17 @@ __BEGIN_DECLS
 #define MHTTP_BUFLEN  524288    /* 接收http回包缓冲，函数局部空间 char[] */
 #define MHTTP_TIMEOUT 5         /* http 请求超时时间 */
 
+/*
+ * 使用 mstr_bin2hexstr() 十六进制格式输出，方便重现故障
+ * 此处可以改成 mstr_bin2str() 方便查看字符串
+ * 也可以通过 mstr_hexstr2bin("") 之后再 mstr_bin2str() 查看字符串
+ */
 #ifdef DEBUG_MSG
 #define MSG_DUMP(pre, p, psize)                                     \
     do {                                                            \
         if ((ssize_t)(psize) > 0) {                                 \
             char zstra[(psize)*2+1];                                \
-            mstr_bin2str((uint8_t*)(p), (psize), zstra);            \
+            mstr_bin2hexstr((uint8_t*)(p), (psize), zstra);         \
             mtc_mt_dbg("%s%zu %s", pre, (size_t)(psize), zstra);    \
         }                                                           \
     } while (0)
