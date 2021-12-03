@@ -97,6 +97,7 @@
 #include "mregexp.h"
 
 #include "mhttp.h"
+#include "mhttp_ext.h"
 #include "mcgi.h"
 
 

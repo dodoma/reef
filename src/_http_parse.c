@@ -205,10 +205,11 @@ static MERR* _parse_response(unsigned char *buf, size_t len, int *rlen, bool *en
         mdf_set_type(node, "HEADER.Content-Length", MDF_TYPE_INT);
         char *content_type = mdf_get_value(node, "HEADER.Content-Type", "application/json");
         size_t content_length = mdf_get_int64_value(node, "HEADER.Content-Length", 0);
-        if (content_length <= 0 || content_length > MAX_BODY_LEN)
+        if (content_length <= 0)
             return merr_raise(MERR_ASSERT, "content length %zu", content_length);
 
         if (!strncmp(content_type, "application/json", 16) ||
+            !strncmp(content_type, "application/gzip", 16) ||
             !strncmp(content_type, "text/html", 9) ||
             !strncmp(content_type, "text/xml", 8) ||
             !strncmp(content_type, "text/json", 9) ||

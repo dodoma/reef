@@ -260,7 +260,7 @@ MERR* mhttp_get(const char *url, MDF *headernode, MDF *rnode, MHTTP_ONBODY_FUNC 
     int rv = 0, len = 0;
     bool end = false;
     while ((rv = _recv_from(fd, buf + len, MHTTP_BUFLEN - len, ssl)) > 0) {
-        mtc_mt_dbg("received %d bytes", rv);
+        mtc_mt_noise("received %d bytes", rv);
         //MSG_DUMP("receive:", buf + len, rv);
 
         buf[len + rv] = '\0';
@@ -347,7 +347,7 @@ MERR* mhttp_post(const char *url, const char *content_type, MDF *headernode, con
     int rv = 0, len = 0;
     bool end = false;
     while ((rv = _recv_from(fd, buf + len, MHTTP_BUFLEN - len, ssl)) > 0) {
-        mtc_mt_dbg("received %d bytes", rv);
+        mtc_mt_noise("received %d bytes", rv);
         //MSG_DUMP("receive:", buf + len, rv);
 
         buf[len + rv] = '\0';
@@ -618,7 +618,7 @@ MERR* mhttp_post_with_file(const char *url, MDF *dnode, MDF *rnode,
     int rv = 0, len = 0;
     bool end = false;
     while ((rv = _recv_from(fd, buf + len, MHTTP_BUFLEN - len, ssl)) > 0) {
-        mtc_mt_dbg("received %d bytes", rv);
+        mtc_mt_noise("received %d bytes", rv);
         //MSG_DUMP("receive:", buf + len, rv);
 
         buf[len + rv] = '\0';
@@ -714,7 +714,7 @@ MERR* mhttp_post_with_filef(const char *url, MDF *rnode, MHTTP_ONBODY_FUNC body_
     int rv = 0, len = 0;
     bool end = false;
     while ((rv = _recv_from(fd, buf + len, MHTTP_BUFLEN - len, ssl)) > 0) {
-        mtc_mt_dbg("received %d bytes", rv);
+        mtc_mt_noise("received %d bytes", rv);
         //MSG_DUMP("receive:", buf + len, rv);
 
         buf[len + rv] = '\0';
