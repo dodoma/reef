@@ -116,7 +116,8 @@ enum {
     MCGI_REQ_UNKNOWN  = 0,
     MCGI_REQ_HTML,
     MCGI_REQ_JSON,
-    MCGI_REQ_IMAGE
+    MCGI_REQ_IMAGE,
+    MCGI_REQ_AUDIO
 };
 
 typedef struct _MCGI MCGI;

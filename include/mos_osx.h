@@ -19,6 +19,7 @@
 
 #define FMT_INT64  "%lld"
 #define FMT_UINT64 "%llu"
+#define FMT_SIZE   "%zu"
 #endif
 
 #endif

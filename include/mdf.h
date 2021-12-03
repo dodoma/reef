@@ -132,6 +132,8 @@ MDF* mdf_node_next(MDF *node);
 MDF* mdf_node_parent(MDF *node);
 MDF* mdf_node_child(MDF *node);
 void mdf_sort_node(MDF *node, int __F(compare)(const void*, const void*));
+/* search, without sort, will be slow in bignode */
+MDF* mdf_search(MDF *node, void *key, int __F(compare)(const void *a, void *key));
 
 bool  mdf_path_valid(const char *path);
 bool  mdf_path_exist(MDF *node, const char *path);
@@ -171,6 +173,8 @@ size_t mdf_mpack_len(MDF *node);
  */
 size_t mdf_mpack_deserialize(MDF *node, const unsigned char *buf, size_t len);
 
+MERR* mdf_mpack_import_file(MDF *node, const char *fname);
+MERR* mdf_mpack_export_file(MDF *node, const char *fname);
 
 /*
  * 解析 xml 格式的字符串 str, 存储在已经准备好的 node 节点中.

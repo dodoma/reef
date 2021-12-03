@@ -268,6 +268,8 @@ MERR* _parse_query(MCGI *ses)
         ses->reqtype = MCGI_REQ_HTML;
     } else if (!strcmp(s, "image")) {
         ses->reqtype = MCGI_REQ_IMAGE;
+    } else if (!strcmp(s, "audio")) {
+        ses->reqtype = MCGI_REQ_AUDIO;
     } else ses->reqtype = MCGI_REQ_JSON;
 
     return MERR_OK;

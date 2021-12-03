@@ -428,6 +428,15 @@ char* mstr_toupper(char *s)
     return s;
 }
 
+bool mstr_isxstring(const char *s)
+{
+    if (!s) return false;
+
+    for ( ; *s; s++) if (!isxdigit(*s)) return false;
+
+    return true;
+}
+
 void mstr_bin2str(uint8_t *hexin, unsigned int inlen, char *charout)
 {
     /* 48 '0' */

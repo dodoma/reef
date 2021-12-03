@@ -856,3 +856,64 @@ size_t mdf_mpack_deserialize(MDF *node, const unsigned char *buf, size_t len)
 
     return mylen;
 }
+
+MERR* mdf_mpack_import_file(MDF *node, const char *fname)
+{
+    struct stat fs;
+    unsigned char *buf;
+    FILE *fp;
+
+    MERR_NOT_NULLB(node, fname);
+
+    if (stat(fname, &fs) == -1)
+        return merr_raise(MERR_OPENFILE, "stat %s failure", fname);
+
+    if (fs.st_size < 0 || fs.st_size > INT32_MAX)
+        return merr_raise(MERR_ASSERT, "file size error %ld", (long int)fs.st_size);
+
+    buf = mos_calloc(1, fs.st_size);
+
+    fp = fopen(fname, "r");
+    if (!fp) {
+        mos_free(buf);
+        return merr_raise(MERR_OPENFILE, "open %s for read failure", fname);
+    }
+
+    if (fread(buf, 1, fs.st_size, fp) != fs.st_size) {
+        fclose(fp);
+        mos_free(buf);
+        return merr_raise(MERR_ASSERT, "read file failure %ld", (long int)fs.st_size);
+    }
+    fclose(fp);
+
+    size_t actlen = mdf_mpack_deserialize(node, buf, fs.st_size);
+    if (actlen != fs.st_size) {
+        mos_free(buf);
+        return merr_raise(MERR_ASSERT, "mpack import failure %ld != %ld", (long int)actlen, fs.st_size);
+    }
+
+    mos_free(buf);
+
+    return MERR_OK;
+}
+
+MERR* mdf_mpack_export_file(MDF *node, const char *fname)
+{
+    FILE *fp;
+
+    if (!node) return MERR_OK;
+
+    if (!fname || !strcmp(fname, "-")) fp = stdout;
+    else fp = fopen(fname, "w");
+    if (!fp) return merr_raise(MERR_OPENFILE, "open %s for write failure", fname);
+
+    size_t len = mdf_mpack_len(node);
+    unsigned char *buf = mos_calloc(1, len);
+    mdf_mpack_serialize(node, buf, len);
+    fwrite(buf, 1, len, fp);
+
+    mos_free(buf);
+    fclose(fp);
+
+    return MERR_OK;
+}

@@ -52,12 +52,14 @@ MERR* mlist_init(MLIST **alist, void __F(freeitem)(void*));
 
 MERR* mlist_append(MLIST *alist, void *data);
 MERR* mlist_pop(MLIST *alist, void **data);
+void* mlist_popx(MLIST *alist);
 MERR* mlist_insert(MLIST *alist, int x, void *data);
 MERR* mlist_delete(MLIST *alist, int x);
 void  mlist_free(void *alist);
 void  mlist_clear(MLIST *alist);
 
 MERR* mlist_get(MLIST *alist, int x, void **data);
+void* mlist_getx(MLIST *alist, int x);
 MERR* mlist_set(MLIST *alist, int x, void *data);
 MERR* mlist_cut(MLIST *alist, int x, void **data);
 
