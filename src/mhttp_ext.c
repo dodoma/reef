@@ -1,10 +1,11 @@
 #include "reef.h"
 
-static void _on_json(unsigned char *buf, size_t len, const char *type, void *p)
+static void _on_string(unsigned char *buf, size_t len, const char *type, void *p)
 {
     MSTR *astr = (MSTR*)p;
 
-    mstr_appendn(astr, (char*)buf, len);
+    //mtc_dbg("%s", (char*)buf);
+    if (astr) mstr_appendn(astr, (char*)buf, len);
 }
 
 static void _on_download(unsigned char *buf, size_t len, const char *type, void *p)
@@ -32,7 +33,7 @@ MERR* mhttp_get_json(const char *url, MDF *body)
         return (ret);                           \
     } while (0)
 
-    err = mhttp_get(url, NULL, xnode, _on_json, &astr);
+    err = mhttp_get(url, NULL, xnode, _on_string, &astr);
     if (err != MERR_OK) RETURN(merr_pass(err));
 
     int code = mdf_get_int_value(xnode, "HEADER.code", 200);
@@ -86,4 +87,32 @@ MERR* mhttp_downloadf(const char *url, const char *fmt, ...)
     va_end(ap);
 
     return mhttp_download(url, key);
+}
+
+MERR* mhttp_post_file(const char *url, const char *key, const char *filename, MSTR *astr)
+{
+    MERR *err;
+    MERR_NOT_NULLC(url, key, filename);
+
+    MDF *dnode, *xnode;
+    mdf_init(&dnode);
+    mdf_init(&xnode);
+    mdf_set_valuef(dnode, "%s=@%s", key, filename);
+
+#define RETURN(ret)                             \
+    do {                                        \
+        mdf_destroy(&xnode);                    \
+        mdf_destroy(&dnode);                    \
+        return (ret);                           \
+    } while (0)
+
+    err = mhttp_post_with_file(url, dnode, xnode, _on_string, astr);
+    if (err != MERR_OK) RETURN(merr_pass(err));
+
+    int code = mdf_get_int_value(xnode, "HEADER.code", 200);
+    if (code != 200) RETURN(merr_raise(MERR_ASSERT, "response code %d", code));
+
+    RETURN(MERR_OK);
+
+#undef RETURN
 }
