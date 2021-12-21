@@ -9,18 +9,16 @@ void test_basic()
     MDF *node;
     mdf_init(&node);
 
-    err = mcs_parse_file("test1.cs", NULL, NULL, &tpl);
+    err = mcs_parse_file("test_if.cs", NULL, NULL, &tpl);
     TRACE_NOK(err);
 
-    mdf_set_value(node, "New.name", "hahahahah");
+    mcs_dump(tpl);
+
+    mdf_set_value(node, "New.name", "newman");
     mdf_set_value(node, "desc", "一张图片");
     mdf_set_value(node, "images.0", "https://mbox.net.cn/x.jpg");
     mdf_set_value(node, "images.1", "https://mbox.net.cn/y.jpg");
-
-    mdf_set_value(node, "users.0.name", "张三");
-    mdf_set_value(node, "users.0.score", "84");
-    mdf_set_value(node, "users.1.name", "李四");
-    mdf_set_value(node, "users.1.score", "87");
+    mdf_set_int_value(node, "Count", 100);
 
     MDF_TRACE(node);
 

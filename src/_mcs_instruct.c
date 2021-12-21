@@ -7,6 +7,10 @@ enum {
     I_INCLUDE,
     I_EACH,
     I_EACH_CLOSE,
+    I_IF,
+    I_ELIF,
+    I_ELSE,
+    I_IF_CLOSE,
 };
 
 static inline uint32_t _genid(MCS *sme)
@@ -30,7 +34,8 @@ static struct instruct* _instruct_find(MCS *sme, uint32_t id)
 }
 
 /*
- * ATTENTION: 不建议直接使用pc, 要用也要乘热使用 pc，若夹杂着其他 _emitxxx 后再使用，bcode.buf 已经被 realloc 改变了值
+ * ATTENTION: 不建议直接使用此处返回的pc, 要用也要乘热使用 pc，
+ * 若夹杂着其他 _emitxxx 后再使用，bcode.buf 已经被 realloc 改变了值
  */
 static void _emit(MCS *sme, uint8_t op, struct instruct **pc)
 {
@@ -44,6 +49,7 @@ static void _emit(MCS *sme, uint8_t op, struct instruct **pc)
     inst.u.s = NULL;
     inst.len = 0;
     inst.pca = 0;
+    inst.pcb = 0;
     mbuf_append(&sme->bcode, &inst, INSTRUCT_LEN);
 
     if (pc) *pc = (struct instruct *)(sme->bcode.buf + sme->bcode.len - INSTRUCT_LEN);

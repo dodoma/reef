@@ -7,7 +7,7 @@
  * ***PARTLY DONE***
  * currently support:
  *     parse time: include
- *     rend time: var, name, each
+ *     rend time: var, name, each, if, elif, else
  */
 __BEGIN_DECLS
 
@@ -18,6 +18,7 @@ MERR* mcs_parse_string(const char *str, const char *path, MDF *node, MCS **tpl);
 MERR* mcs_parse_file(const char *fname, const char *path, MDF *node, MCS **tpl);
 MERR* mcs_rend(MCS *tpl, MDF *node, const char *fname);
 void  mcs_destroy(MCS **tpl);
+void  mcs_dump(MCS *tpl);
 
 __END_DECLS
 #endif

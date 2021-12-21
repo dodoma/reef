@@ -18,6 +18,7 @@
 #define FMT_INT64  "%jd"
 #define FMT_UINT64 "%ju"
 #define FMT_SIZE   "%zu"
+#define FMT_TIME   "%ld"
 #endif
 
 #endif

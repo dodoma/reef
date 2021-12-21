@@ -18,6 +18,7 @@
 
 /*
  * <?cs var  :   Page.num ?>
+ * <?cs else?>
  * INPUT
  *     *sme->pos = 'v'
  * OUTPUT
@@ -115,6 +116,10 @@ enum {
     TOK_INCLUDE,
     TOK_EACH,
     TOK_EACH_CLOSE,
+    TOK_IF,
+    TOK_ELSE,
+    TOK_ELIF,
+    TOK_IF_CLOSE,
 };
 
 static inline bool _tok_cs(MCS *sme)
@@ -140,12 +145,12 @@ static uint8_t _tok_next(MCS *sme, struct token *tok)
     if (_tok_cs(sme)) {
         _EXPECT_CSBEGIN(sme);
 
-        if (*sme->pos != '/') {
-            /* command */
-            _EXPECT(sme, pbgn, pend, ':');
-        } else {
-            /* command close */
+        if (*sme->pos == '/' || !memcmp(sme->pos, "else", 4)) {
+            /* command close, or else */
             _EXPECT_CSEND(sme, pbgn, pend);
+        } else {
+            /* command with : parameters */
+            _EXPECT(sme, pbgn, pend, ':');
         }
 
         len = pend - pbgn;
@@ -184,6 +189,24 @@ static uint8_t _tok_next(MCS *sme, struct token *tok)
                 break;
             case _COMMAND_EACH_CLOSE:
                 tok->type = TOK_EACH_CLOSE;
+                break;
+            case _COMMAND_IF:
+                _EXPECT_CSEND(sme, pbgn, pend);
+                tok->type = TOK_IF;
+                tok->s = pbgn;
+                tok->len = pend - pbgn;
+                break;
+            case _COMMAND_ELSE:
+                tok->type = TOK_ELSE;
+                break;
+            case _COMMAND_ELIF:
+                _EXPECT_CSEND(sme, pbgn, pend);
+                tok->type = TOK_ELIF;
+                tok->s = pbgn;
+                tok->len = pend - pbgn;
+                break;
+            case _COMMAND_IF_CLOSE:
+                tok->type = TOK_IF_CLOSE;
                 break;
             default:
                 DIE(sme, "unknown command");
