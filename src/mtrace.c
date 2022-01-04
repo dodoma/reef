@@ -95,7 +95,7 @@ void mtc_set_level(MTC_LEVEL level)
     if (level <= MTC_MAX) m_cur_level = level;
 }
 
-int mtc_level_str2int(const char *level)
+MTC_LEVEL mtc_level_str2int(const char *level)
 {
     switch (*level) {
     case 'f':
