@@ -15,6 +15,31 @@ static void _on_download(unsigned char *buf, size_t len, const char *type, void 
     fwrite(buf, 1, len, fp);
 }
 
+void mhttp_getx(const char *url)
+{
+    if (!url) return;
+
+    MDF *xnode;
+    mdf_init(&xnode);
+
+    MERR *err = mhttp_get(url, NULL, xnode, NULL, NULL);
+    TRACE_NOK(err);
+
+    mdf_destroy(&xnode);
+}
+
+void mhttp_getxf(const char *fmt, ...)
+{
+    char url[1024];
+    va_list ap;
+
+    va_start(ap, fmt);
+    vsnprintf(url, sizeof(url), fmt, ap);
+    va_end(ap);
+
+    return mhttp_getx(url);
+}
+
 MERR* mhttp_get_json(const char *url, MDF *body)
 {
     MDF *xnode;
@@ -45,6 +70,18 @@ MERR* mhttp_get_json(const char *url, MDF *body)
     RETURN(MERR_OK);
 
 #undef RETURN
+}
+
+MERR* mhttp_get_jsonf(MDF *body, const char *fmt, ...)
+{
+    char url[1024];
+    va_list ap;
+
+    va_start(ap, fmt);
+    vsnprintf(url, sizeof(url), fmt, ap);
+    va_end(ap);
+
+    return mhttp_get_json(url, body);
 }
 
 MERR* mhttp_download(const char *url, const char *filename)
