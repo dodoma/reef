@@ -50,7 +50,7 @@ static int _parse_chunklenline(char *buf, size_t len, int *chunklen)
 
     *chunklen = strtol(buf, NULL, 16);
 
-    mtc_mt_dbg("new chunk %d", *chunklen);
+    mtc_mt_noise("new chunk %d", *chunklen);
 
     return nl - buf + 2;
 }

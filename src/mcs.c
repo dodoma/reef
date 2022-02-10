@@ -574,7 +574,7 @@ MERR* mcs_rend(MCS *tpl, MDF *node, const char *fname)
 
     MERR_NOT_NULLC(tpl, node, fname);
 
-    MDF_TRACE_MT(node);
+    //MDF_TRACE_MT(node);
 
     if (!fname || !strcmp(fname, "-")) fp = stdout;
     else fp = fopen(fname, "w");
