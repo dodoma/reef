@@ -26,7 +26,7 @@ static int _parse_header_line(char *buf, size_t len, bool *headerend, MDF *node)
         mdf_set_int_value(node, "HEADER.code", code);
 
         while (*pos && isspace(*pos)) pos++;
-        mdf_set_valuef(node, "HEADER.status=%.*s", (int)(nl - pos), pos);
+        if (nl > pos) mdf_set_valuef(node, "HEADER.status=%.*s", (int)(nl - pos), pos);
     } else {
         /* 头部 key: value 行 */
         char *p = strchr(pos, ':');
