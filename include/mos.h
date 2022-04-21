@@ -1,6 +1,7 @@
 #ifndef __MOS_H__
 #define __MOS_H__
 
+#define IS_BIG_ENDIAN (!(union { uint16_t u16; unsigned char c; }){ .u16 = 1 }.c)
 #ifndef htonll
 #define htonll(x) ((1==htonl(1)) ? (x) :                                \
                    ((uint64_t)htonl((uint64_t)(x) & 0xFFFFFFFF) << 32) | htonl((uint64_t)(x) >> 32))
