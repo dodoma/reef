@@ -14,7 +14,6 @@ __BEGIN_DECLS
  * 此处可以改成 mstr_bin2str() 方便查看字符串
  * 也可以通过 mstr_hexstr2bin("") 之后再 mstr_bin2str() 查看字符串
  */
-#ifdef DEBUG_MSG
 #define MSG_DUMP(pre, p, psize)                                     \
     do {                                                            \
         if ((ssize_t)(psize) > 0) {                                 \
@@ -23,9 +22,6 @@ __BEGIN_DECLS
             mtc_mt_dbg("%s%zu %s", pre, (size_t)(psize), zstra);    \
         }                                                           \
     } while (0)
-#else
-#define MSG_DUMP(pre, p, psize)
-#endif
 
 /*
  * url: https://anothersite.com:8080/cgi/viki?aaaa=bbbb
