@@ -50,7 +50,7 @@ int64_t mdf_get_int64_valuef(MDF *node, int64_t dftvalue, const char *fmt, ...)
     return mdf_get_int64_value(node, key, dftvalue);
 }
 
-float mdf_get_float_valuef(MDF *node, float dftvalue, const char *fmt, ...)
+double mdf_get_double_valuef(MDF *node, double dftvalue, const char *fmt, ...)
 {
     char key[1024];
     va_list ap;
@@ -59,7 +59,7 @@ float mdf_get_float_valuef(MDF *node, float dftvalue, const char *fmt, ...)
     vsnprintf(key, sizeof(key), fmt, ap);
     va_end(ap);
 
-    return mdf_get_float_value(node, key, dftvalue);
+    return mdf_get_double_value(node, key, dftvalue);
 }
 
 bool mdf_get_bool_valuef(MDF *node, bool dftvalue, const char *fmt, ...)
@@ -159,7 +159,7 @@ MERR* mdf_set_int64_valuef(MDF *node, int64_t val, const char *fmt, ...)
     return mdf_set_int64_value(node, key, val);
 }
 
-MERR* mdf_set_float_valuef(MDF *node, float val, const char *fmt, ...)
+MERR* mdf_set_double_valuef(MDF *node, double val, const char *fmt, ...)
 {
     char key[1024];
     va_list ap;
@@ -168,7 +168,7 @@ MERR* mdf_set_float_valuef(MDF *node, float val, const char *fmt, ...)
     vsnprintf(key, sizeof(key), fmt, ap);
     va_end(ap);
 
-    return mdf_set_float_value(node, key, val);
+    return mdf_set_double_value(node, key, val);
 }
 
 MERR* mdf_set_bool_valuef(MDF *node, bool val, const char *fmt, ...)
@@ -208,7 +208,7 @@ int64_t mdf_add_int64_valuef(MDF *node, int64_t val, const char *fmt, ...)
     return mdf_add_int64_value(node, key, val);
 }
 
-float mdf_add_float_valuef(MDF *node, float val, const char *fmt, ...)
+double mdf_add_double_valuef(MDF *node, double val, const char *fmt, ...)
 {
     char key[1024];
     va_list ap;
@@ -217,7 +217,7 @@ float mdf_add_float_valuef(MDF *node, float val, const char *fmt, ...)
     vsnprintf(key, sizeof(key), fmt, ap);
     va_end(ap);
 
-    return mdf_add_float_value(node, key, val);
+    return mdf_add_double_value(node, key, val);
 }
 
 char* mdf_append_string_valuef(MDF *node, char *str, const char *fmt, ...)

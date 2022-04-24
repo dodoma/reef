@@ -378,7 +378,7 @@ void mdf_clear(MDF *node)
 
 bool mdf_equal(MDF *anode, MDF *bnode)
 {
-    float epsilon = anode->type == MDF_TYPE_FLOAT ? 1e-4: 0;
+    double epsilon = anode->type == MDF_TYPE_DOUBLE ? 1e-6: 0;
 
     if (!anode && !bnode) return true;
     if (!anode || !bnode) return false;
@@ -411,8 +411,8 @@ bool mdf_equal(MDF *anode, MDF *bnode)
     case MDF_TYPE_BOOL:
         if (anode->val.n != bnode->val.n) return false;
         break;
-    case MDF_TYPE_FLOAT:
-        if (fabs((double)(anode->val.f - bnode->val.f)) > epsilon) return false;
+    case MDF_TYPE_DOUBLE:
+        if (fabs(anode->val.f - bnode->val.f) > epsilon) return false;
         break;
     default:
         break;
@@ -506,7 +506,7 @@ MERR* mdf_set_int64_value(MDF *node, const char *path, int64_t value)
     return MERR_OK;
 }
 
-MERR* mdf_set_float_value(MDF *node, const char *path, float value)
+MERR* mdf_set_double_value(MDF *node, const char *path, double value)
 {
     MDF *anode;
     MERR *err;
@@ -522,7 +522,7 @@ MERR* mdf_set_float_value(MDF *node, const char *path, float value)
         mdf_destroy(&anode->child);
         anode->last_child = NULL;
     }
-    anode->type = MDF_TYPE_FLOAT;
+    anode->type = MDF_TYPE_DOUBLE;
     anode->val.f = value;
 
     return MERR_OK;
@@ -640,12 +640,12 @@ int64_t mdf_add_int64_value(MDF *node, const char *path, int64_t val)
     return ov + val;
 }
 
-float mdf_add_float_value(MDF *node, const char *path, float val)
+double mdf_add_double_value(MDF *node, const char *path, double val)
 {
     if (!node) return 0;
 
-    float ov = mdf_get_float_value(node, path, 0);
-    mdf_set_float_value(node, path, ov + val);
+    double ov = mdf_get_double_value(node, path, 0);
+    mdf_set_double_value(node, path, ov + val);
 
     return ov + val;
 }
@@ -710,8 +710,8 @@ void mdf_set_type(MDF *node, const char *path, MDF_TYPE type)
         if (anode->val.s) anode->val.n = strtoll(anode->val.s, NULL, 10);
         else anode->val.n = 0;
         break;
-    case MDF_TYPE_FLOAT:
-        if (anode->val.s) anode->val.f = strtof(anode->val.s, NULL);
+    case MDF_TYPE_DOUBLE:
+        if (anode->val.s) anode->val.f = strtod(anode->val.s, NULL);
         else anode->val.f = 0.0;
         break;
     case MDF_TYPE_BOOL:
@@ -740,10 +740,10 @@ void mdf_set_digit_type(MDF *node, const char *path, MDF_TYPE type)
     TRACE_NOK(err);
 
     if (!anode || (anode->type != MDF_TYPE_INT &&
-                   anode->type != MDF_TYPE_FLOAT &&
+                   anode->type != MDF_TYPE_DOUBLE &&
                    anode->type != MDF_TYPE_BOOL) ||
         (type != MDF_TYPE_INT &&
-         type != MDF_TYPE_FLOAT &&
+         type != MDF_TYPE_DOUBLE &&
          type != MDF_TYPE_BOOL)) return;
 
     if (anode->type != type) {
@@ -752,8 +752,8 @@ void mdf_set_digit_type(MDF *node, const char *path, MDF_TYPE type)
         case MDF_TYPE_INT:
             anode->val.n = (int) anode->val.f;
             break;
-        case MDF_TYPE_FLOAT:
-            anode->val.f = (float) anode->val.n;
+        case MDF_TYPE_DOUBLE:
+            anode->val.f = (double) anode->val.n;
             break;
         case MDF_TYPE_BOOL:
             if (anode->val.n || anode->val.f) anode->val.n = 1;
@@ -881,6 +881,7 @@ int mdf_get_int_value(MDF *node, const char *path, int dftvalue)
     TRACE_NOK(err);
 
     if (anode && anode->type == MDF_TYPE_INT) return (int)anode->val.n;
+    else if (anode && anode->type == MDF_TYPE_DOUBLE) return (int)anode->val.f;
     else return dftvalue;
 }
 
@@ -895,6 +896,7 @@ uint32_t mdf_get_uint32_value(MDF *node, const char *path, uint32_t dftvalue)
     TRACE_NOK(err);
 
     if (anode && anode->type == MDF_TYPE_INT) return (uint32_t)anode->val.n;
+    else if (anode && anode->type == MDF_TYPE_DOUBLE) return (uint32_t)anode->val.f;
     else return dftvalue;
 }
 
@@ -909,10 +911,11 @@ int64_t mdf_get_int64_value(MDF *node, const char *path, int64_t dftvalue)
     TRACE_NOK(err);
 
     if (anode && anode->type == MDF_TYPE_INT) return anode->val.n;
+    else if (anode && anode->type == MDF_TYPE_DOUBLE) return (int64_t)anode->val.f;
     else return dftvalue;
 }
 
-float mdf_get_float_value(MDF *node, const char *path, float dftvalue)
+double mdf_get_double_value(MDF *node, const char *path, double dftvalue)
 {
     MDF *anode;
     MERR *err;
@@ -922,7 +925,8 @@ float mdf_get_float_value(MDF *node, const char *path, float dftvalue)
     err = _walk_mdf(node, path, false, &anode);
     TRACE_NOK(err);
 
-    if (anode && anode->type == MDF_TYPE_FLOAT) return anode->val.f;
+    if (anode && anode->type == MDF_TYPE_DOUBLE) return anode->val.f;
+    else if (anode && anode->type == MDF_TYPE_INT) return (double)anode->val.n;
     else return dftvalue;
 }
 
@@ -1002,7 +1006,7 @@ char* mdf_get_value_stringfy(MDF *node, const char *path, char *dftvalue)
         case MDF_TYPE_INT:
             snprintf(tok, sizeof(tok), "%lld", (long long)anode->val.n);
             return strdup(tok);
-        case MDF_TYPE_FLOAT:
+        case MDF_TYPE_DOUBLE:
             snprintf(tok, sizeof(tok), "%f", anode->val.f);
             return strdup(tok);
         case MDF_TYPE_BOOL:

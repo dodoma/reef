@@ -163,7 +163,7 @@ static inline uint _mpack_get_uint(unsigned char *buf, size_t *step)
     return 0;
 }
 
-static inline float _mpack_get_float(unsigned char *buf, size_t *step)
+static inline double _mpack_get_double(unsigned char *buf, size_t *step)
 {
     uint8_t type = _mpack_load_u8(buf);
 
@@ -177,7 +177,7 @@ static inline float _mpack_get_float(unsigned char *buf, size_t *step)
         memcpy(&v, buf + 1, sizeof(uint32_t));
 
         *step = 5;
-        return v.f;
+        return (double)v.f;
     }
     case 0xCB:
     {
@@ -189,7 +189,7 @@ static inline float _mpack_get_float(unsigned char *buf, size_t *step)
 
         *step = 9;
         /* TODO need MDF_TYPE_DOUBLE ? */
-        return (float) v.d;
+        return v.d;
     }
     default:
         break;
@@ -419,10 +419,10 @@ size_t mdf_mpack_serialize(MDF *node, unsigned char *buf, size_t len)
             }
         }
         break;
-    case MDF_TYPE_FLOAT:
-        *pos = 0xCA;
-        *(float*)(pos+1) = node->val.f;
-        mylen = 5;
+    case MDF_TYPE_DOUBLE:
+        *pos = 0xCB;
+        *(double*)(pos+1) = node->val.f;
+        mylen = 9;
         break;
     case MDF_TYPE_BOOL:
         if (node->val.n != 0) {
@@ -556,8 +556,8 @@ size_t mdf_mpack_len(MDF *node)
             }
         }
         break;
-    case MDF_TYPE_FLOAT:
-        mylen = 5;
+    case MDF_TYPE_DOUBLE:
+        mylen = 9;
         break;
     case MDF_TYPE_BOOL:
         mylen = 1;
@@ -593,7 +593,7 @@ size_t mdf_mpack_deserialize(MDF *node, const unsigned char *buf, size_t len)
     unsigned char *pos;
     char *name, *values, *valueb, arrayindex[64];
     int64_t valuen;
-    float valuef;
+    double valuef;
     int nodenum_got, nodenum_need, valued_time, namelen, valuelen;
     size_t step, mylen;
     MDF *xnode;
@@ -674,8 +674,8 @@ size_t mdf_mpack_deserialize(MDF *node, const unsigned char *buf, size_t len)
 
         case F_FLOAT32:
         case F_FLOAT64:
-            nodetype = MDF_TYPE_FLOAT;
-            valuef = _mpack_get_float(pos, &step);
+            nodetype = MDF_TYPE_DOUBLE;
+            valuef = _mpack_get_double(pos, &step);
             valued_time++;
             break;
 
@@ -799,7 +799,7 @@ size_t mdf_mpack_deserialize(MDF *node, const unsigned char *buf, size_t len)
                     xnode->valuelen = valuelen;
                 } else if (nodetype == MDF_TYPE_INT) {
                     xnode->val.n = valuen;
-                } else if (nodetype == MDF_TYPE_FLOAT) {
+                } else if (nodetype == MDF_TYPE_DOUBLE) {
                     xnode->val.f = valuef;
                 } else if (nodetype == MDF_TYPE_BOOL) {
                     xnode->val.n = valuen;
@@ -829,7 +829,7 @@ size_t mdf_mpack_deserialize(MDF *node, const unsigned char *buf, size_t len)
                     xnode->valuelen = valuelen;
                 } else if (nodetype == MDF_TYPE_INT) {
                     xnode->val.n = valuen;
-                } else if (nodetype == MDF_TYPE_FLOAT) {
+                } else if (nodetype == MDF_TYPE_DOUBLE) {
                     xnode->val.f = valuef;
                 } else if (nodetype == MDF_TYPE_BOOL) {
                     xnode->val.n = valuen;

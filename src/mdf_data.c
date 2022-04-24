@@ -43,7 +43,7 @@ static void _c_empty_string(MDF *anode, MDF *vnode, MDF *outnode, char *name, in
         mdf_set_type(cnode, NULL, MDF_TYPE_INT);
         break;
     case AXIS_X_FLOAT:
-        mdf_set_type(cnode, NULL, MDF_TYPE_FLOAT);
+        mdf_set_type(cnode, NULL, MDF_TYPE_DOUBLE);
         break;
     case AXIS_X_BOOL:
         mdf_set_type(cnode, NULL, MDF_TYPE_BOOL);
@@ -103,7 +103,7 @@ static void _c_3_0(MDF *anode, MDF *vnode, MDF *outnode, char *name, int x, int 
         break;
     case AXIS_X_FLOAT:
         mdf_copy(outnode, name, vnode, true);
-        mdf_set_type(outnode, name, MDF_TYPE_FLOAT);
+        mdf_set_type(outnode, name, MDF_TYPE_DOUBLE);
         break;
     case AXIS_X_BOOL:
         mdf_copy(outnode, name, vnode, true);
@@ -130,7 +130,7 @@ static void _c_4_0(MDF *anode, MDF *vnode, MDF *outnode, char *name, int x, int 
         break;
     case AXIS_X_FLOAT:
         mdf_copy(outnode, name, vnode, true);
-        mdf_set_digit_type(outnode, name, MDF_TYPE_FLOAT);
+        mdf_set_digit_type(outnode, name, MDF_TYPE_DOUBLE);
         break;
     case AXIS_X_BOOL:
         mdf_copy(outnode, name, vnode, true);
@@ -447,6 +447,10 @@ void mdf_data_rend(MDF *config_node, MDF *data_node, MDF *outnode)
                 break;
             case 'f': /* float */
             case 'F':
+                /*
+                 * TODO 将关键字 float 改为 double
+                 * 类型关键字目前是 'float' 或 'Float'，内部已经使用了 double 实现
+                 */
                 x = AXIS_X_FLOAT;
                 break;
             case 'b': /* bool */

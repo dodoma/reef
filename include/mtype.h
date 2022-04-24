@@ -76,7 +76,7 @@ typedef enum {
 
     /* TYPE NUMBER */
     MDF_TYPE_INT,               /* 4 */
-    MDF_TYPE_FLOAT,             /* 5 */
+    MDF_TYPE_DOUBLE,            /* 5 */
 
     MDF_TYPE_BOOL,              /* 6 */
     MDF_TYPE_BINARY_A,          /* 7 由 mdf 申请和释放的二进制数据 */

@@ -28,7 +28,7 @@ struct opnode {
     enum optype op;
 
     union {
-        float f;                /* use float to do numberic operation(without int64_t) */
+        double f;               /* use double to do numberic operation(without int64_t) */
         char *s;
     } val;
 
@@ -186,8 +186,8 @@ static size_t _digit_len(char *str, struct opnode *node, int sign)
     char *pos = str;
 
     bool point = false;
-    float fval = 0.0;
-    float fpart = 0.1;
+    double fval = 0.0;
+    double fpart = 0.1;
 
     while (*pos != '\0' && (isdigit(*pos) || *pos == '.')) {
         if (*pos == '.') point = true;
@@ -408,10 +408,10 @@ static MDLIST* _opnode_eval(MDLIST *alist, MDF *mnode)
             MDF_TYPE type = mdf_get_type(mnode, key);
             if (type == MDF_TYPE_INT) {
                 onode->op = OP_NUMBER;
-                onode->val.f = (float)mdf_get_int_value(mnode, key, 0);
-            } else if (type == MDF_TYPE_FLOAT) {
+                onode->val.f = (double)mdf_get_int_value(mnode, key, 0);
+            } else if (type == MDF_TYPE_DOUBLE) {
                 onode->op = OP_NUMBER;
-                onode->val.f = mdf_get_float_value(mnode, key, 0.0);
+                onode->val.f = mdf_get_double_value(mnode, key, 0.0);
             } else if (type == MDF_TYPE_STRING) {
                 onode->op = OP_STRING;
                 onode->val.s = mdf_get_value(mnode, key, NULL);
@@ -478,7 +478,7 @@ static MDLIST* _opnode_eval(MDLIST *alist, MDF *mnode)
         }
         break;
     case OP_MOD:
-        onode->val.f = (float)((int)nodea->val.f % (int)nodeb->val.f);
+        onode->val.f = (double)((int)nodea->val.f % (int)nodeb->val.f);
         break;
 
     case OP_LPAREN:
@@ -574,7 +574,8 @@ static bool _opnode_value_bool(struct opnode *node)
     if (!node) return false;
 
     if (node->op == OP_NUMBER) {
-        if (node->val.f == 1) return true;
+        //if (node->val.f == 1) return true;
+        if (fabs(node->val.f - 1) < 1e-6) return true;
         return false;
     } else if (node->op == OP_STRING) {
         if (node->len > 0) return true;

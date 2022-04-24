@@ -10,7 +10,7 @@
  * mdf 可以方便的进行如下操作:
  *   基本操作：
  *     1. init, destroy, clear, equal compare
- *     2. set value (string, int, float, bool)
+ *     2. set value (string, int, double, bool)
  *     3. type convert
  *     4. get value, include key exist judement (support format string)
  *     5. remove, copy
@@ -42,12 +42,12 @@
  *      [0], [0][3], [0].aa[3]
  *      aa[0], aa[0][2].bb
  *
- *   2. 除非必须，请不要使用 mdf_set_int/int64/float/bool_value()
+ *   2. 除非必须，请不要使用 mdf_set_int/int64/double/bool_value()
  *      因为在我们操作数据时，大都不必关心数据类型，默认使用字符串类型即可。
  *      使用类型带来的坏处是 set 和 get 的操作方法必须一致。
  *      例如，mdf_set_int_value(node, "key", 100);
  *      则必须使用 mdf_get_int_value(node, "key", 0) 才能返回100,
- *      mdf_get_value(), mdf_get_float/bool等都不行，非常麻烦。
+ *      mdf_get_value(), mdf_get_double/bool等都不行，非常麻烦。
  *
  *      在与诸如database, web server等外部程序进行数据交互时，需要明确数据类型时使用上述函数
  *      另外，可以使用 mdf_set_type() 进行字符串类型节点的强制类型转换。
@@ -66,7 +66,7 @@ MERR* mdf_set_value(MDF *node, const char *path, const char *value);
 /* value 为uint32_t 时也能正确设置和获取(使用mdf_get_uint32_value()获取) */
 MERR* mdf_set_int_value(MDF *node, const char *path, int value);
 MERR* mdf_set_int64_value(MDF *node, const char *path, int64_t value);
-MERR* mdf_set_float_value(MDF *node, const char *path, float value);
+MERR* mdf_set_double_value(MDF *node, const char *path, double value);
 MERR* mdf_set_bool_value(MDF *node, const char *path, bool value);
 /*
  * 新申请 len 字节内存，并拷贝buf内容
@@ -82,7 +82,7 @@ MERR* mdf_set_pointer(MDF *node, const char *path, void *p);
 
 int     mdf_add_int_value(MDF *node, const char *path, int val);
 int64_t mdf_add_int64_value(MDF *node, const char *path, int64_t val);
-float   mdf_add_float_value(MDF *node, const char *path, float val);
+double  mdf_add_double_value(MDF *node, const char *path, double val);
 MERR*   mdf_make_int_clamp(MDF *node, const char *path, int min, int max);
 char*   mdf_append_string_value(MDF *node, const char *path, char *str);
 char*   mdf_preppend_string_value(MDF *node, const char *path, char *str);
@@ -106,7 +106,7 @@ char*    mdf_get_value_copy(MDF *node, const char *path, char *dftvalue);
 int      mdf_get_int_value(MDF *node, const char *path, int dftvalue);
 uint32_t mdf_get_uint32_value(MDF *node, const char *path, uint32_t dftvalue);
 int64_t  mdf_get_int64_value(MDF *node, const char *path, int64_t dftvalue);
-float    mdf_get_float_value(MDF *node, const char *path, float dftvalue);
+double   mdf_get_double_value(MDF *node, const char *path, double dftvalue);
 bool     mdf_get_bool_value(MDF *node, const char *path, bool dftvalue);
 unsigned char* mdf_get_binary(MDF *node, const char *path, size_t *len);
 void*   mdf_get_pointer(MDF *node, const char *path);

@@ -157,7 +157,7 @@ static void _json_machine_init()
     go_pair_r_quote['\\'] = A_ESCAPE;
 
     GO_DIGIT_SET(go_pair_r_number, A_LOOP);
-    go_pair_r_number['.'] = A_PAIR_R_FLOAT;
+    go_pair_r_number['.'] = A_PAIR_R_DOUBLE;
     go_pair_r_number[' '] = A_UNPAIR_R_NUMBER;
     go_pair_r_number['\t'] = A_UNPAIR_R_NUMBER;
     go_pair_r_number['\n'] = A_UNPAIR_R_NUMBER_NEWLINE;
@@ -197,7 +197,7 @@ static void _json_machine_init()
     go_value_quote['\\'] = A_ESCAPE;
 
     GO_DIGIT_SET(go_value_number, A_LOOP);
-    go_value_number['.'] = A_VALUE_FLOAT;
+    go_value_number['.'] = A_VALUE_DOUBLE;
     go_value_number[' '] = A_UNVALUE_NUMBER;
     go_value_number['\t'] = A_UNVALUE_NUMBER;
     go_value_number['\n'] = A_UNVALUE_NUMBER_NEWLINE;
@@ -220,7 +220,7 @@ static void _json_machine_init()
 
     GO_ALL_SET(go_data_number, A_BAD);
     GO_DIGIT_SET(go_data_number, A_LOOP);
-    go_data_number['.'] = A_DATA_FLOAT;
+    go_data_number['.'] = A_DATA_DOUBLE;
 
     GO_ALL_SET(go_data_reserve, A_BAD);
     GO_ALPHA_SET(go_data_reserve, A_LOOP);
@@ -256,9 +256,9 @@ static inline void _add_pair_fixtype(MDF *node, char *name, char *value,
         char *s = mstr_ndup(value, valuelen);
         xnode->val.n = strtoll(s, NULL, 10);
         mos_free(s);
-    } else if (nodetype == MDF_TYPE_FLOAT) {
+    } else if (nodetype == MDF_TYPE_DOUBLE) {
         char *s = mstr_ndup(value, valuelen);
-        xnode->val.f = strtof(s, NULL);
+        xnode->val.f = strtod(s, NULL);
         mos_free(s);
     }
 
@@ -324,9 +324,9 @@ static inline void _add_value_fixtype(MDF *node, char *value, int valuelen,
         char *s = mstr_ndup(value, valuelen);
         xnode->val.n = strtoll(s, NULL, 10);
         mos_free(s);
-    } else if (nodetype == MDF_TYPE_FLOAT) {
+    } else if (nodetype == MDF_TYPE_DOUBLE) {
         char *s = mstr_ndup(value, valuelen);
-        xnode->val.f = strtof(s, NULL);
+        xnode->val.f = strtod(s, NULL);
         mos_free(s);
     }
 
@@ -392,9 +392,9 @@ static inline MERR* _set_value_fixtype(MDF *node, char *value, int valuelen, MDF
         char *s = mstr_ndup(value, valuelen);
         node->val.n = strtoll(s, NULL, 10);
         mos_free(s);
-    } else if (nodetype == MDF_TYPE_FLOAT) {
+    } else if (nodetype == MDF_TYPE_DOUBLE) {
         char *s = mstr_ndup(value, valuelen);
-        node->val.f = strtof(s, NULL);
+        node->val.f = strtod(s, NULL);
         mos_free(s);
     } else return merr_raise(MERR_ASSERT, "unsupport type %d", nodetype);
 
@@ -552,8 +552,8 @@ static MERR* _import_json(MDF *node, const char *str,
             go = go_pair_r_number;
             break;
 
-        case A_PAIR_R_FLOAT:
-            nodetype = MDF_TYPE_FLOAT;
+        case A_PAIR_R_DOUBLE:
+            nodetype = MDF_TYPE_DOUBLE;
             go = go_pair_r_number;
             break;
 
@@ -702,8 +702,8 @@ static MERR* _import_json(MDF *node, const char *str,
             go = go_value_number;
             break;
 
-        case A_VALUE_FLOAT:
-            nodetype = MDF_TYPE_FLOAT;
+        case A_VALUE_DOUBLE:
+            nodetype = MDF_TYPE_DOUBLE;
             go = go_value_number;
             break;
 
@@ -841,8 +841,8 @@ static MERR* _import_json(MDF *node, const char *str,
             go = go_data_number;
             break;
 
-        case A_DATA_FLOAT:
-            nodetype = MDF_TYPE_FLOAT;
+        case A_DATA_DOUBLE:
+            nodetype = MDF_TYPE_DOUBLE;
             go = go_data_number;
             break;
 
@@ -1013,8 +1013,8 @@ static void _export_json_string(MDF *node, void *rock, MDF_PRINTF mprintf, int l
     case MDF_TYPE_INT:
         mprintf(rock, "%ld", node->val.n);
         break;
-    case MDF_TYPE_FLOAT:
-        mprintf(rock, "%.5f", node->val.f);
+    case MDF_TYPE_DOUBLE:
+        mprintf(rock, "%f", node->val.f);
         break;
     case MDF_TYPE_BOOL:
         if (node->val.n != 0) mprintf(rock, "true");
