@@ -1014,7 +1014,7 @@ static void _export_json_string(MDF *node, void *rock, MDF_PRINTF mprintf, int l
         mprintf(rock, "%ld", node->val.n);
         break;
     case MDF_TYPE_DOUBLE:
-        mprintf(rock, "%f", node->val.f);
+        mprintf(rock, "%.6f", node->val.f);
         break;
     case MDF_TYPE_BOOL:
         if (node->val.n != 0) mprintf(rock, "true");

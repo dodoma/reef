@@ -1007,7 +1007,7 @@ char* mdf_get_value_stringfy(MDF *node, const char *path, char *dftvalue)
             snprintf(tok, sizeof(tok), "%lld", (long long)anode->val.n);
             return strdup(tok);
         case MDF_TYPE_DOUBLE:
-            snprintf(tok, sizeof(tok), "%f", anode->val.f);
+            snprintf(tok, sizeof(tok), "%.6f", anode->val.f);
             return strdup(tok);
         case MDF_TYPE_BOOL:
             snprintf(tok, sizeof(tok), "%lld", (long long)anode->val.n);
