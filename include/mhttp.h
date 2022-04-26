@@ -50,7 +50,7 @@ char* mhttp_url_escape(const char *s);
 char* mhttp_url_unescape(char *s, size_t buflen, char esc_char);
 
 /*
- * 设置的 Dataset:
+ * rnode 里设置的 Dataset:
  * {
  *     HEADER {
  *         code: 200,
@@ -64,13 +64,27 @@ char* mhttp_url_unescape(char *s, size_t buflen, char esc_char);
 MERR* mhttp_get(const char *url, MDF *headernode, MDF *rnode, MHTTP_ONBODY_FUNC body_callback, void *arg);
 
 /*
- * content_type: default "application/x-www-form-urlencoded"
+ * POST 请求常用的有三种参数组织方式：
+ *
+ * 1. application/x-www-form-urlencoded（默认）
+ *     char *payload = "client_id=41c986e3334&client_secret=81d9b75b&grant_type=silent";
+ * 2. application/json
+ *     char *payload = '{"client_id":41c986e3334,"client_secret":"81d9bd5b","grant_type":"silent"}'
+ * 3. multipart/form-data; boundary=%s
+ *
+ * 此函数实现了1，2种方式（用content_type切换），第三种由 mhttp_post_with_file[f]() 实现
  */
 MERR* mhttp_post(const char *url, const char *content_type, MDF *headernode, const char *payload,
                  MDF *rnode, MHTTP_ONBODY_FUNC body_callback, void *arg);
 
 /*
- * 以可上传文件方式(rfc2388)发送POST请求
+ * 非文件内容POST，内部调用mhttp_post()，参数已经在 dnode 中准备好
+ */
+MERR* mhttp_post_dnode(const char *url, MDF *headernode, MDF *dnode,
+                       MDF *rnode, MHTTP_ONBODY_FUNC body_callback, void *arg, bool useJSON);
+
+/*
+ * 以可上传文件方式(rfc2388)发送POST请求（表单提交的方式，带或不带文件上传均可）
  * Content-Type: multipart/form-data; boundary=%s\r\n\r\n
  * 请求参数放在 dnode 中
  */
@@ -78,7 +92,7 @@ MERR* mhttp_post_with_file(const char *url, MDF *dnode, MDF *rnode,
                            MHTTP_ONBODY_FUNC body_callback, void *arg);
 
 /*
- * 以可上传文件方式(rfc2388)发送POST请求
+ * 以可上传文件方式(rfc2388)发送POST请求（表单提交的方式，带或不带文件上传均可）
  * Content-Type: multipart/form-data; boundary=%s\r\n\r\n
  * 请求参数以参数个数+可变参数方式传入
  */

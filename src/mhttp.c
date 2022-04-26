@@ -367,6 +367,50 @@ MERR* mhttp_post(const char *url, const char *content_type, MDF *headernode, con
 #undef RETURN
 }
 
+MERR* mhttp_post_dnode(const char *url, MDF *headernode, MDF *dnode,
+                       MDF *rnode, MHTTP_ONBODY_FUNC body_callback, void *arg, bool useJSON)
+{
+    MERR *err;
+
+    if (useJSON) {
+        char *payload = mdf_json_export_string(dnode);
+
+        err = mhttp_post(url, "application/json", headernode, payload, rnode, body_callback, arg);
+
+        free(payload);
+
+        return merr_pass(err);
+    } else {
+        MSTR astr, *payload;
+        mstr_init(&astr);
+        payload = &astr;
+
+        MDF *cnode = mdf_node_child(dnode);
+        while (cnode) {
+            char *key = mdf_get_name(cnode, NULL);
+            char *val = mdf_get_value_stringfy(cnode, NULL, NULL);
+
+            if (key && val) {
+                if (astr.len > 0) mstr_appendc(payload, '&');
+                mstr_appendf(payload, "%s=%s", key, val);
+
+                free(val);
+            }
+
+            cnode = mdf_node_next(cnode);
+        }
+
+        err = mhttp_post(url, "application/x-www-form-urlencoded",
+                         headernode, payload->buf, rnode, body_callback, arg);
+
+        mstr_clear(&astr);
+
+        return merr_pass(err);
+    }
+
+    return MERR_OK;
+}
+
 /*
 --------------------------63e31c
 ccefa02565..Content-Disposition:
@@ -514,6 +558,7 @@ static MERR* _send_payload_mdf(int fd, const char *boundary, MDF *node, struct _
 
     MDF *cnode = mdf_node_child(node);
     while (cnode) {
+        /* TODO val = mdf_get_value_stringfy() */
         char *key = mdf_get_name(cnode, NULL);
         char *val = mdf_get_value(cnode, NULL, NULL);
 

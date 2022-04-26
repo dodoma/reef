@@ -15,20 +15,28 @@ static void _on_download(unsigned char *buf, size_t len, const char *type, void 
     fwrite(buf, 1, len, fp);
 }
 
-void mhttp_getx(const char *url)
+bool mhttp_getx(const char *url)
 {
-    if (!url) return;
+    if (!url) return false;
+
+    bool ret = true;
 
     MDF *xnode;
     mdf_init(&xnode);
 
     MERR *err = mhttp_get(url, NULL, xnode, NULL, NULL);
+    if (err != MERR_OK) ret = false;
     TRACE_NOK(err);
 
+    int code = mdf_get_int_value(xnode, "HEADER.code", 200);
+    if (code != 200) ret = false;
+
     mdf_destroy(&xnode);
+
+    return ret;
 }
 
-void mhttp_getxf(const char *fmt, ...)
+bool mhttp_getxf(const char *fmt, ...)
 {
     char url[1024];
     va_list ap;
@@ -40,13 +48,55 @@ void mhttp_getxf(const char *fmt, ...)
     return mhttp_getx(url);
 }
 
-MERR* mhttp_get_json(const char *url, MDF *body)
+bool mhttp_postx(const char *url, const char *payload)
+{
+    if (!url || !payload) return false;
+
+    bool ret = true;
+
+    MDF *xnode;
+    mdf_init(&xnode);
+
+    MERR *err = mhttp_post(url, NULL, NULL, payload, xnode, NULL, NULL);
+    if (err != MERR_OK) ret = false;
+    TRACE_NOK(err);
+
+    int code = mdf_get_int_value(xnode, "HEADER.code", 200);
+    if (code != 200) ret = false;
+
+    mdf_destroy(&xnode);
+
+    return ret;
+}
+
+bool mhttp_post_dnodex(const char *url, MDF *dnode, bool useJSON)
+{
+    if (!url || !dnode) return false;
+
+    bool ret = true;
+
+    MDF *xnode;
+    mdf_init(&xnode);
+
+    MERR *err = mhttp_post_dnode(url, NULL, dnode, xnode, NULL, NULL, useJSON);
+    if (err != MERR_OK) ret = false;
+    TRACE_NOK(err);
+
+    int code = mdf_get_int_value(xnode, "HEADER.code", 200);
+    if (code != 200) ret = false;
+
+    mdf_destroy(&xnode);
+
+    return ret;
+}
+
+bool mhttp_get_json(const char *url, MDF *body)
 {
     MDF *xnode;
     MSTR astr;
     MERR *err;
 
-    MERR_NOT_NULLB(url, body);
+    if (!url || !body) return false;
 
     mdf_init(&xnode);
     mstr_init(&astr);
@@ -59,20 +109,21 @@ MERR* mhttp_get_json(const char *url, MDF *body)
     } while (0)
 
     err = mhttp_get(url, NULL, xnode, _on_string, &astr);
-    if (err != MERR_OK) RETURN(merr_pass(err));
+    if (err != MERR_OK) RETURN(false);
+    TRACE_NOK(err);
 
     int code = mdf_get_int_value(xnode, "HEADER.code", 200);
-    if (code != 200) RETURN(merr_raise(MERR_ASSERT, "response code %d", code));
+    if (code != 200) RETURN(false);
 
     err = mdf_json_import_string(body, astr.buf);
-    if (err != MERR_OK) RETURN(merr_pass(err));
+    if (err != MERR_OK) RETURN(false);
 
-    RETURN(MERR_OK);
+    RETURN(true);
 
 #undef RETURN
 }
 
-MERR* mhttp_get_jsonf(MDF *body, const char *fmt, ...)
+bool mhttp_get_jsonf(MDF *body, const char *fmt, ...)
 {
     char url[1024];
     va_list ap;
@@ -84,12 +135,12 @@ MERR* mhttp_get_jsonf(MDF *body, const char *fmt, ...)
     return mhttp_get_json(url, body);
 }
 
-MERR* mhttp_download(const char *url, const char *filename)
+bool mhttp_download(const char *url, const char *filename)
 {
     MDF *xnode;
     MERR *err;
 
-    MERR_NOT_NULLB(url, filename);
+    if (!url || !filename) return false;
 
     FILE *fp = fopen(filename, "w");
     if (!fp) return merr_raise(MERR_ASSERT, "open %s failure", filename);
@@ -104,17 +155,18 @@ MERR* mhttp_download(const char *url, const char *filename)
     } while (0)
 
     err = mhttp_get(url, NULL, xnode, _on_download, fp);
-    if (err != MERR_OK) RETURN(merr_pass(err));
+    if (err != MERR_OK) RETURN(false);
+    TRACE_NOK(err);
 
     int code = mdf_get_int_value(xnode, "HEADER.code", 200);
-    if (code != 200) RETURN(merr_raise(MERR_ASSERT, "response code %d", code));
+    if (code != 200) RETURN(false);
 
-    RETURN(MERR_OK);
+    RETURN(true);
 
 #undef RETURN
 }
 
-MERR* mhttp_downloadf(const char *url, const char *fmt, ...)
+bool mhttp_downloadf(const char *url, const char *fmt, ...)
 {
     char key[PATH_MAX];
     va_list ap;
@@ -126,10 +178,11 @@ MERR* mhttp_downloadf(const char *url, const char *fmt, ...)
     return mhttp_download(url, key);
 }
 
-MERR* mhttp_post_file(const char *url, const char *key, const char *filename, MSTR *astr)
+bool mhttp_post_file(const char *url, const char *key, const char *filename, MSTR *astr)
 {
     MERR *err;
-    MERR_NOT_NULLC(url, key, filename);
+
+    if (!url || !key || !filename) return false;
 
     MDF *dnode, *xnode;
     mdf_init(&dnode);
@@ -144,12 +197,34 @@ MERR* mhttp_post_file(const char *url, const char *key, const char *filename, MS
     } while (0)
 
     err = mhttp_post_with_file(url, dnode, xnode, _on_string, astr);
-    if (err != MERR_OK) RETURN(merr_pass(err));
+    if (err != MERR_OK) RETURN(false);
+    TRACE_NOK(err);
 
     int code = mdf_get_int_value(xnode, "HEADER.code", 200);
-    if (code != 200) RETURN(merr_raise(MERR_ASSERT, "response code %d", code));
+    if (code != 200) RETURN(false);
 
-    RETURN(MERR_OK);
+    RETURN(true);
 
 #undef RETURN
+}
+
+bool mhttp_post_with_filex(const char *url, MDF *dnode)
+{
+    if (!url || !dnode) return false;
+
+    bool ret = true;
+
+    MDF *xnode;
+    mdf_init(&xnode);
+
+    MERR *err = mhttp_post_with_file(url, dnode, xnode, NULL, NULL);
+    if (err != MERR_OK) ret = false;
+    TRACE_NOK(err);
+
+    int code = mdf_get_int_value(xnode, "HEADER.code", 200);
+    if (code != 200) ret = false;
+
+    mdf_destroy(&xnode);
+
+    return ret;
 }
