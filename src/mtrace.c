@@ -167,7 +167,11 @@ bool mtc_msg(const char *func, const char *file, long line, MTC_LEVEL level,
     }
     fprintf(m_fp, "[%s]%s", m_levels[level], MCOLOR_RESET);
 
+#if defined(TRACE_SHORT)
+    fprintf(m_fp, "[%s:%li] ", file, line);
+#else
     fprintf(m_fp, "[%s:%li %s] ", file, line, func);
+#endif
 
     va_start(ap, fmt);
     vfprintf(m_fp, fmt, ap);
