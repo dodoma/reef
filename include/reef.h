@@ -74,6 +74,8 @@
 #include "mtrace_macro.h"
 #include "mtrace_multithread.h"
 #include "mtrace_multithread_macro.h"
+#include "mtrace_multimodule.h"
+#include "mtrace_multimodule_macro.h"
 
 #include "mstring.h"
 #include "mbuf.h"
