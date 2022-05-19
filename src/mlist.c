@@ -267,7 +267,7 @@ void mlist_free(void *alist)
 
 void mlist_sort(MLIST *alist, int __F(compare)(const void *, const void*))
 {
-    if (!alist || !compare) return;
+    if (!alist || !compare || alist->sorted || alist->num == 0) return;
 
     qsort(alist->items, alist->num, sizeof(void*), compare);
     alist->sorted = true;
