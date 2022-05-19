@@ -156,6 +156,14 @@ bool mtc_mm_msg(const char *func, const char *file, long line, MTC_LEVEL level,
     struct _entry *e = _entry_search(module);
     if (!e || e->level < level) return false;
 
+    /*
+     * 很多时候，只需要单纯输出 ' ', '\t', '\n' 之类，原样输出
+     */
+    if (*fmt && *(fmt+1) == '\0') {
+        fprintf(e->fp, "%c", *fmt);
+        return true;
+    }
+
     va_list ap;
     struct timeval tv;
     char timestr[25] = {0};

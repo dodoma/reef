@@ -97,6 +97,8 @@ void mtc_set_level(MTC_LEVEL level)
 
 MTC_LEVEL mtc_level_str2int(const char *level)
 {
+    if (!level) return MTC_DEBUG;
+
     switch (*level) {
     case 'f':
     case 'F':
@@ -128,6 +130,14 @@ bool mtc_msg(const char *func, const char *file, long line, MTC_LEVEL level,
              const char *fmt, ...)
 {
     if (level > m_cur_level || !m_fp) return false;
+
+    /*
+     * 很多时候，只需要单纯输出 ' ', '\t', '\n' 之类，原样输出
+     */
+    if (*fmt && *(fmt+1) == '\0') {
+        fprintf(m_fp, "%c", *fmt);
+        return true;
+    }
 
     va_list ap;
     struct timeval tv;
