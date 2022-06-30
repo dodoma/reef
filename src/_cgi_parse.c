@@ -84,7 +84,7 @@ MERR* _parse_env(MCGI *ses)
     while (_env_vars[x]) {
         char *s = getenv(_env_vars[x]);
 
-        mtc_mt_noise("enviorment %s %s", _env_vars[x], s);
+        mtc_noise("enviorment %s %s", _env_vars[x], s);
 
         mdf_set_valuef(node, "CGI.%s=%s", _env_vars[x], s);
 
@@ -113,7 +113,7 @@ MERR* _parse_http_headers(MCGI *ses, char **envp)
         char *s = strdup(*envp);
         char *k, *v;
 
-        mtc_mt_noise("parse %s", s);
+        mtc_noise("parse %s", s);
 
         k = s;
         v = strchr(s, '=');
@@ -147,7 +147,7 @@ MERR* _parse_cookie(MCGI *ses)
 
     if (!cookie) return MERR_OK;
 
-    mtc_mt_noise("parse cookie %s", cookie);
+    mtc_noise("parse cookie %s", cookie);
 
     MLIST *alist;
     err = mstr_array_split(&alist, cookie, ";", MAX_TOKEN);
@@ -172,7 +172,7 @@ MERR* _parse_content_type(MCGI *ses)
 
     if (!contenttype) return MERR_OK;
 
-    mtc_mt_noise("parse contenttype %s", contenttype);
+    mtc_noise("parse contenttype %s", contenttype);
 
     MLIST *alist;
     err = mstr_array_split(&alist, contenttype, ";", MAX_TOKEN);
@@ -198,7 +198,7 @@ MERR* _parse_query(MCGI *ses)
 
     if (!query) return MERR_OK;
 
-    mtc_mt_dbg("parse query %s", query);
+    mtc_dbg("parse query %s", query);
 
     MDF *qnode = mdf_get_or_create_node(node, "QUERY");
     MLIST *alist;
@@ -210,7 +210,7 @@ MERR* _parse_query(MCGI *ses)
         item = mstr_strip_space(item);
         item = mhttp_url_unescape(item, strlen(item), '%');
 
-        mtc_mt_noise("parse %s", item);
+        mtc_noise("parse %s", item);
 
         char key[1024], *val;
         memset(key, 0x0, sizeof(key));
@@ -303,7 +303,7 @@ MERR* _parse_payload_post_form(MCGI *ses)
 
     if (readed != len) RETURN(merr_raise(MERR_ASSERT, "Short readed on CGI POST input %zu %d", readed, len));
 
-    mtc_mt_noise("parse post form %d %s", len, buf);
+    mtc_noise("parse post form %d %s", len, buf);
 
     MDF *qnode = mdf_get_or_create_node(node, "QUERY");
     MLIST *alist;
@@ -315,7 +315,7 @@ MERR* _parse_payload_post_form(MCGI *ses)
         item = mstr_strip_space(item);
         item = mhttp_url_unescape(item, strlen(item), '%');
 
-        mtc_mt_noise("parse %s", item);
+        mtc_noise("parse %s", item);
 
         char key[1024], *val;
         memset(key, 0x0, sizeof(key));
@@ -384,7 +384,7 @@ MERR* _parse_payload_rfc2388(MCGI *ses)
 
     if (total_to_get <= 0 || !boundary) return MERR_OK;
 
-    mtc_mt_noise("parse payload rfc2388 %s", boundary);
+    mtc_noise("parse payload rfc2388 %s", boundary);
 
     r->buf = mos_calloc(1, MCGI_BUFLEN);
     r->remain = 0;
@@ -401,11 +401,11 @@ MERR* _parse_payload_rfc2388(MCGI *ses)
         r->remain += rv;
         r->pos = (char*)r->buf;
 
-        mtc_mt_dbg("readed %d bytes", rv);
+        mtc_dbg("readed %d bytes", rv);
 
         // char zstra[rv*2+1];
         // mstr_bin2str((uint8_t*)r->pos, rv, zstra);
-        // mtc_mt_dbg("%s", zstra);
+        // mtc_dbg("%s", zstra);
 
         int len = 0;
         while (r->remain > 0 && (len = _rfc2388_line(ses, boundary, boundarylen)) > 0) {
@@ -449,7 +449,7 @@ MERR* _parse_payload_json(MCGI *ses)
     if (readed != len) RETURN(merr_raise(MERR_ASSERT, "Short readed on CGI POST input %zu %d", readed, len));
 
     //buf = mhttp_url_unescape(buf, len, '%');
-    mtc_mt_noise("parse payload json %d", len);
+    mtc_noise("parse payload json %d", len);
 
     MDF *onode = mdf_get_or_create_node(node, "QUERY");
     err = mdf_json_import_string(onode, buf);
@@ -487,7 +487,7 @@ MERR* _parse_payload_xml(MCGI *ses)
 
     if (readed != len) RETURN(merr_raise(MERR_ASSERT, "Short readed on CGI POST input %zu %d", readed, len));
 
-    mtc_mt_noise("parse payload xml %d %s", len, buf);
+    mtc_noise("parse payload xml %d %s", len, buf);
 
     MDF *onode = mdf_get_or_create_node(node, "QUERY");
     err = mdf_xml_import_string(onode, buf);

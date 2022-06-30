@@ -5,12 +5,12 @@ static void _makesure_file(struct rfc2388 *r)
     strcpy(r->fname, "/var/tmp/mcgi_upload.XXXXXX");
     int fd = mkstemp(r->fname);
     if (fd < 0) {
-        mtc_mt_warn("unable to create file %s", r->fname);
+        mtc_warn("unable to create file %s", r->fname);
         return;
     }
 
     r->fp = fdopen(fd, "w+");
-    if (!r->fp) mtc_mt_warn("unable to open file %s", r->fname);
+    if (!r->fp) mtc_warn("unable to open file %s", r->fname);
 }
 
 static bool _rfc2388_is_boundary(struct rfc2388 *r, int len, const char *boundary, int bl, bool *end)
@@ -88,7 +88,7 @@ static int _rfc2388_fill(struct rfc2388 *r, int len, const char *boundary, int b
     } while (0)
 
     if (!r->name) {
-        mtc_mt_warn("can't fill to empty variable");
+        mtc_warn("can't fill to empty variable");
         return 0;
     }
 
@@ -182,8 +182,8 @@ int _rfc2388_line(MCGI *ses, const char *boundary, int boundarylen)
     char *p = memchr(r->pos, '\n', r->remain);
     if (p) {
         len = p - r->pos;
-        //mtc_mt_noise("rfc2388 line %.*s", len, r->pos);
-        mtc_mt_noise("rfc2388 line %d bytes", len);
+        //mtc_noise("rfc2388 line %.*s", len, r->pos);
+        mtc_noise("rfc2388 line %d bytes", len);
     } else {
         /* 没有换行 */
         if (!r->headering) {
@@ -239,7 +239,7 @@ int _rfc2388_line(MCGI *ses, const char *boundary, int boundarylen)
         char *code;
         HEADER_VALUE(r->pos, code);
         if (!code || (strcmp(code, "7bit") && strcmp(code, "8bit") && strcmp(code, "binary"))) {
-            mtc_mt_warn("form data encoding %s not supported", code);
+            mtc_warn("form data encoding %s not supported", code);
             mos_free(code);
         }
 

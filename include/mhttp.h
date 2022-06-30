@@ -18,8 +18,8 @@ __BEGIN_DECLS
     do {                                                            \
         if ((ssize_t)(psize) > 0) {                                 \
             char zstra[(psize)*2+1];                                \
-            mstr_bin2hexstr((uint8_t*)(p), (psize), zstra);         \
-            mtc_mt_dbg("%s%zu %s", pre, (size_t)(psize), zstra);    \
+            mstr_bin2str((uint8_t*)(p), (psize), zstra);            \
+            mtc_dbg("%s%zu %s", pre, (size_t)(psize), zstra);       \
         }                                                           \
     } while (0)
 

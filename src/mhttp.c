@@ -251,7 +251,7 @@ MERR* mhttp_get(const char *url, MDF *headernode, MDF *rnode, MHTTP_ONBODY_FUNC 
     err = _connect_to(host, hostlen, port, &fd, ssl);
     if (err) RETURN(merr_pass(err));
 
-    //mtc_mt_dbg("send %s", str.buf);
+    //mtc_dbg("send %s", str.buf);
     err = _send_to(fd, (unsigned char*)str.buf, str.len, ssl);
     if (err) RETURN(merr_pass(err));
 
@@ -260,7 +260,7 @@ MERR* mhttp_get(const char *url, MDF *headernode, MDF *rnode, MHTTP_ONBODY_FUNC 
     int rv = 0, len = 0;
     bool end = false;
     while ((rv = _recv_from(fd, buf + len, MHTTP_BUFLEN - len, ssl)) > 0) {
-        mtc_mt_noise("received %d bytes", rv);
+        mtc_noise("received %d bytes", rv);
         //MSG_DUMP("receive:", buf + len, rv);
 
         buf[len + rv] = '\0';
@@ -274,7 +274,7 @@ MERR* mhttp_get(const char *url, MDF *headernode, MDF *rnode, MHTTP_ONBODY_FUNC 
 
     if (rv <= 0) RETURN(merr_raise(MERR_ASSERT, "receive failure"));
 
-    mtc_mt_warn("never reach here");
+    mtc_warn("never reach here");
     RETURN(MERR_OK);
 
 #undef RETURN
@@ -338,7 +338,7 @@ MERR* mhttp_post(const char *url, const char *content_type, MDF *headernode, con
     err = _connect_to(host, hostlen, port, &fd, ssl);
     if (err) RETURN(merr_pass(err));
 
-    //mtc_mt_dbg("send %s", str.buf);
+    //mtc_dbg("send %s", str.buf);
     err = _send_to(fd, (unsigned char*)str.buf, str.len, ssl);
     if (err) RETURN(merr_pass(err));
 
@@ -347,7 +347,7 @@ MERR* mhttp_post(const char *url, const char *content_type, MDF *headernode, con
     int rv = 0, len = 0;
     bool end = false;
     while ((rv = _recv_from(fd, buf + len, MHTTP_BUFLEN - len, ssl)) > 0) {
-        mtc_mt_noise("received %d bytes", rv);
+        mtc_noise("received %d bytes", rv);
         //MSG_DUMP("receive:", buf + len, rv);
 
         buf[len + rv] = '\0';
@@ -361,7 +361,7 @@ MERR* mhttp_post(const char *url, const char *content_type, MDF *headernode, con
 
     if (rv <= 0) RETURN(merr_raise(MERR_ASSERT, "receive failure %d %s", rv, strerror(errno)));
 
-    mtc_mt_warn("never reach here");
+    mtc_warn("never reach here");
     RETURN(MERR_OK);
 
 #undef RETURN
@@ -440,7 +440,7 @@ static size_t _formdata_kv_length(char *key, char *val, int boundary_length)
 
         struct stat fs;
         if (stat(val, &fs) == -1) {
-            mtc_mt_warn("can't open file %s", val+1);
+            mtc_warn("can't open file %s", val+1);
             return 0;
         }
 
@@ -524,9 +524,14 @@ static size_t _payload_length_mdf(MDF *node, int boundary_length)
     MDF *cnode = mdf_node_child(node);
     while (cnode) {
         char *key = mdf_get_name(cnode, NULL);
-        char *val = mdf_get_value(cnode, NULL, NULL);
+        char *val = NULL;
+
+        if (mdf_get_type(cnode, NULL) == MDF_TYPE_STRING) val = mdf_get_value(cnode, NULL, NULL);
+        else val = mdf_get_value_stringfy(cnode, NULL, NULL);
 
         len += _formdata_kv_length(key, val, boundary_length);
+
+        if (mdf_get_type(cnode, NULL) != MDF_TYPE_STRING) mos_free(val);
 
         cnode = mdf_node_next(cnode);
     }
@@ -558,12 +563,16 @@ static MERR* _send_payload_mdf(int fd, const char *boundary, MDF *node, struct _
 
     MDF *cnode = mdf_node_child(node);
     while (cnode) {
-        /* TODO val = mdf_get_value_stringfy() */
         char *key = mdf_get_name(cnode, NULL);
-        char *val = mdf_get_value(cnode, NULL, NULL);
+        char *val = NULL;
+
+        if (mdf_get_type(cnode, NULL) == MDF_TYPE_STRING) val = mdf_get_value(cnode, NULL, NULL);
+        else val = mdf_get_value_stringfy(cnode, NULL, NULL);
 
         err = _formdata_kv_send(fd, key, val, boundary, ssl);
         if (err) return merr_pass(err);
+
+        if (mdf_get_type(cnode, NULL) != MDF_TYPE_STRING) mos_free(val);
 
         cnode = mdf_node_next(cnode);
     }
@@ -663,7 +672,7 @@ MERR* mhttp_post_with_file(const char *url, MDF *dnode, MDF *rnode,
     int rv = 0, len = 0;
     bool end = false;
     while ((rv = _recv_from(fd, buf + len, MHTTP_BUFLEN - len, ssl)) > 0) {
-        mtc_mt_noise("received %d bytes", rv);
+        mtc_noise("received %d bytes", rv);
         //MSG_DUMP("receive:", buf + len, rv);
 
         buf[len + rv] = '\0';
@@ -677,7 +686,7 @@ MERR* mhttp_post_with_file(const char *url, MDF *dnode, MDF *rnode,
 
     if (rv <= 0) RETURN(merr_raise(MERR_ASSERT, "receive failure"));
 
-    mtc_mt_warn("never reach here");
+    mtc_warn("never reach here");
     RETURN(MERR_OK);
 
 #undef RETURN
@@ -759,7 +768,7 @@ MERR* mhttp_post_with_filef(const char *url, MDF *rnode, MHTTP_ONBODY_FUNC body_
     int rv = 0, len = 0;
     bool end = false;
     while ((rv = _recv_from(fd, buf + len, MHTTP_BUFLEN - len, ssl)) > 0) {
-        mtc_mt_noise("received %d bytes", rv);
+        mtc_noise("received %d bytes", rv);
         //MSG_DUMP("receive:", buf + len, rv);
 
         buf[len + rv] = '\0';
@@ -773,7 +782,7 @@ MERR* mhttp_post_with_filef(const char *url, MDF *rnode, MHTTP_ONBODY_FUNC body_
 
     if (rv <= 0) RETURN(merr_raise(MERR_ASSERT, "receive failure"));
 
-    mtc_mt_warn("never reach here");
+    mtc_warn("never reach here");
     RETURN(MERR_OK);
 
 #undef RETURN

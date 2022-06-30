@@ -16,7 +16,7 @@ struct _tls {
 static void _debug(void *ctx, int level,
                    const char *file, int line, const char *str)
 {
-    mtc_mt_dbg("%s:%04d: %s", file, line, str);
+    mtc_dbg("%s:%04d: %s", file, line, str);
 }
 
 MERR* _tls_new(struct _tls **ssl, const char *hostname, int timeout)

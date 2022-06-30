@@ -1,0 +1,6 @@
+{
+    device: "__mr__datao",
+    device: {
+        loglevel: "debug"
+    }
+}
