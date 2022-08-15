@@ -169,6 +169,21 @@ MERR* mlist_cut(MLIST *alist, int x, void **data)
     return merr_pass(mlist_delete(alist, x));
 }
 
+void* mlist_cutx(MLIST *alist, int x)
+{
+    if (alist == NULL) return NULL;
+
+    if (x < 0 || x >= alist->num) return NULL;
+
+    void *ret = alist->items[x];
+
+    void **start = &(alist->items[x]);
+    memmove(start, start + 1, sizeof(void*) * (alist->num - x - 1));
+    alist->num--;
+
+    return ret;
+}
+
 MERR* mlist_reverse(MLIST *alist)
 {
     for (int i = 0; i < alist->num / 2; i++) {

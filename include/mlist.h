@@ -62,6 +62,7 @@ MERR* mlist_get(MLIST *alist, int x, void **data);
 void* mlist_getx(MLIST *alist, int x);
 MERR* mlist_set(MLIST *alist, int x, void *data);
 MERR* mlist_cut(MLIST *alist, int x, void **data);
+void* mlist_cutx(MLIST *alist, int x);
 
 MERR* mlist_reverse(MLIST *alist);
 int   mlist_length(MLIST *alist);
