@@ -58,6 +58,9 @@ MERR* mlist_delete(MLIST *alist, int x);
 void  mlist_free(void *alist);
 void  mlist_clear(MLIST *alist);
 
+/*
+ * x: 元素位置，0 为第一个，1为第二个，-1为最后一个, -2为倒数第二个 ... ...
+ */
 MERR* mlist_get(MLIST *alist, int x, void **data);
 void* mlist_getx(MLIST *alist, int x);
 MERR* mlist_set(MLIST *alist, int x, void *data);

@@ -88,15 +88,19 @@ MERR* mlist_insert(MLIST *alist, int x, void *data)
 
     MERR_NOT_NULLB(alist, data);
 
-    if (x < 0 || x >= alist->num)
-        return merr_raise(MERR_ASSERT, "%d out of range [0 ~ %d)", x, alist->num);
+    if ((x >= 0 && x >= alist->num) || (x <= 0 && abs(x) > alist->num))
+        return merr_raise(MERR_ASSERT, "%d out of range [-%d, %d)", x, alist->num, alist->num);
+
+    int index = 0;
+    if (x >= 0) index = x;
+    else if (x < 0) index = alist->num + x;
 
     _check_length(alist, alist->num + 1);
 
-    start = &(alist->items[x]);
+    start = &(alist->items[index]);
 
-    memmove(start + 1, start, sizeof(void*) * (alist->num - x));
-    alist->items[x] = data;
+    memmove(start + 1, start, sizeof(void*) * (alist->num - index));
+    alist->items[index] = data;
     alist->num++;
 
     alist->sorted = false;
@@ -110,12 +114,16 @@ MERR* mlist_delete(MLIST *alist, int x)
 
     MERR_NOT_NULLA(alist);
 
-    if (x < 0 || x >= alist->num)
-        return merr_raise(MERR_ASSERT, "%d out of range [0 ~ %d)", x, alist->num);
+    if ((x >= 0 && x >= alist->num) || (x <= 0 && abs(x) > alist->num))
+        return merr_raise(MERR_ASSERT, "%d out of range [-%d, %d)", x, alist->num, alist->num);
 
-    if (alist->free) alist->free(alist->items[x]);
-    start = &(alist->items[x]);
-    memmove(start, start + 1, sizeof(void*) * (alist->num - x - 1));
+    int index = 0;
+    if (x >= 0) index = x;
+    else if (x < 0) index = alist->num + x;
+
+    if (alist->free) alist->free(alist->items[index]);
+    start = &(alist->items[index]);
+    memmove(start, start + 1, sizeof(void*) * (alist->num - index - 1));
 
     alist->num--;
 
@@ -127,19 +135,27 @@ MERR* mlist_get(MLIST *alist, int x, void **data)
 {
     MERR_NOT_NULLB(alist, data);
 
-    if (x < 0 || x >= alist->num)
-        return merr_raise(MERR_ASSERT, "%d out of range [0 ~ %d)", x, alist->num);
+    if ((x >= 0 && x >= alist->num) || (x <= 0 && abs(x) > alist->num))
+        return merr_raise(MERR_ASSERT, "%d out of range [-%d, %d)", x, alist->num, alist->num);
 
-    *data = alist->items[x];
+    int index = 0;
+    if (x >= 0) index = x;
+    else if (x < 0) index = alist->num + x;
+
+    *data = alist->items[index];
 
     return MERR_OK;
 }
 
 void* mlist_getx(MLIST *alist, int x)
 {
-    if (!alist || x < 0 || x >= alist->num) return NULL;
+    if (!alist || (x >= 0 && x >= alist->num) || (x < 0 && abs(x) > alist->num)) return NULL;
 
-    return alist->items[x];
+    int index = 0;
+    if (x >= 0) index = x;
+    else if (x < 0) index = alist->num + x;
+
+    return alist->items[index];
 }
 
 
@@ -147,10 +163,14 @@ MERR* mlist_set(MLIST *alist, int x, void *data)
 {
     MERR_NOT_NULLB(alist, data);
 
-    if (x < 0 || x >= alist->num)
-        return merr_raise(MERR_ASSERT, "%d out of range [0 ~ %d)", x, alist->num);
+    if ((x >= 0 && x >= alist->num) || (x <= 0 && abs(x) > alist->num))
+        return merr_raise(MERR_ASSERT, "%d out of range [-%d, %d)", x, alist->num, alist->num);
 
-    alist->items[x] = data;
+    int index = 0;
+    if (x >= 0) index = x;
+    else if (x < 0) index = alist->num + x;
+
+    alist->items[index] = data;
 
     alist->sorted = false;
 
@@ -161,24 +181,32 @@ MERR* mlist_cut(MLIST *alist, int x, void **data)
 {
     MERR_NOT_NULLB(alist, data);
 
-    if (x < 0 || x >= alist->num)
-        return merr_raise(MERR_ASSERT, "%d out of range [0 ~ %d)", x, alist->num);
+    if ((x >= 0 && x >= alist->num) || (x <= 0 && abs(x) > alist->num))
+        return merr_raise(MERR_ASSERT, "%d out of range [-%d, %d)", x, alist->num, alist->num);
 
-    *data = alist->items[x];
+    int index = 0;
+    if (x >= 0) index = x;
+    else if (x < 0) index = alist->num + x;
 
-    return merr_pass(mlist_delete(alist, x));
+    *data = alist->items[index];
+
+    return merr_pass(mlist_delete(alist, index));
 }
 
 void* mlist_cutx(MLIST *alist, int x)
 {
     if (alist == NULL) return NULL;
 
-    if (x < 0 || x >= alist->num) return NULL;
+    if ((x >= 0 && x >= alist->num) || (x <= 0 && abs(x) > alist->num)) return NULL;
 
-    void *ret = alist->items[x];
+    int index = 0;
+    if (x >= 0) index = x;
+    else if (x < 0) index = alist->num + x;
 
-    void **start = &(alist->items[x]);
-    memmove(start, start + 1, sizeof(void*) * (alist->num - x - 1));
+    void *ret = alist->items[index];
+
+    void **start = &(alist->items[index]);
+    memmove(start, start + 1, sizeof(void*) * (alist->num - index - 1));
     alist->num--;
 
     return ret;
