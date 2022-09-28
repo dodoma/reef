@@ -101,7 +101,9 @@ void _mdf_insert_child_node(MDF *pnode, MDF *newnode, int current_childnum, int 
     newnode->parent = pnode;
     newnode->prev = newnode->next = NULL;
 
-    if (position < 0 || position > current_childnum) position = current_childnum;
+    if (position > current_childnum) position = current_childnum;
+    else if (position < current_childnum * -1) position = 0;
+    else if (position < 0) position = current_childnum + position + 1;
 
     int ahead_count = 0;
     MDF *nextnode = pnode->child;
