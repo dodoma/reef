@@ -20,5 +20,7 @@ MERR* mcs_rend(MCS *tpl, MDF *node, const char *fname);
 void  mcs_destroy(MCS **tpl);
 void  mcs_dump(MCS *tpl);
 
+double mcs_eval_numberic(char *expr);
+
 __END_DECLS
 #endif

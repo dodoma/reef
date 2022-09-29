@@ -588,7 +588,7 @@ MERR* mcs_rend(MCS *tpl, MDF *node, const char *fname)
     return MERR_OK;
 }
 
-void  mcs_destroy(MCS **tpl)
+void mcs_destroy(MCS **tpl)
 {
     if (!tpl || !*tpl) return;
 
@@ -607,4 +607,33 @@ void  mcs_destroy(MCS **tpl)
     mlist_destroy(&sme->iflist);
 
     mos_free(*tpl);
+}
+
+double mcs_eval_numberic(char *expr)
+{
+    if (!expr || !*expr) return 0;
+
+    struct opnode *onode = NULL;
+    char *pos = expr;
+
+    /*
+     * 格式预处理 2 + 5 * 3 == 100 转换成 2+5*3==100
+     */
+    Rune c;
+    MSTR astr;
+    mstr_init(&astr);
+    while (*pos != '\0') {
+        int len = chartorune(&c, pos);
+        if (!isspacerune(c)) mstr_appendn(&astr, pos, len);
+
+        pos += len;
+    }
+
+    onode = _eval_expr(astr.buf, 0, NULL, NULL);
+    double ret = onode->val.f;
+
+    mos_free(onode);
+    mstr_clear(&astr);
+
+    return ret;
 }

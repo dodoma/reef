@@ -27,6 +27,11 @@ void test_basic()
 
     mdf_destroy(&node);
     mcs_destroy(&tpl);
+
+    mtc_dbg("%f", mcs_eval_numberic("10/29"));
+    mtc_dbg("%f", mcs_eval_numberic("301 / 12"));
+    mtc_dbg("%f", mcs_eval_numberic("10 + 10 * 10"));
+    mtc_dbg("%f", mcs_eval_numberic("301.1212 / 12.111"));
 }
 
 void suite_basic()
