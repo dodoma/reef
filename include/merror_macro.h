@@ -47,12 +47,33 @@ __BEGIN_DECLS
         merr_destroy(&err);                     \
     }
 
+#define TRACE_NOK_MM(err, module)               \
+    if (err != MERR_OK) {                       \
+        MSTR _moon_str;                         \
+        mstr_init(&_moon_str);                  \
+        merr_traceback(err, &_moon_str);        \
+        mtc_mm_err((module), "%s", _moon_str.buf);  \
+        mstr_clear(&_moon_str);                 \
+        merr_destroy(&err);                     \
+    }
+
 #define JUMP_NOK_MT(err, label)                 \
     if (err != MERR_OK) {                       \
         MSTR _moon_str;                         \
         mstr_init(&_moon_str);                  \
         merr_traceback(err, &_moon_str);        \
         mtc_mt_err("%s", _moon_str.buf);        \
+        mstr_clear(&_moon_str);                 \
+        merr_destroy(&err);                     \
+        goto label;                             \
+    }
+
+#define JUMP_NOK_MM(err, label, module)         \
+    if (err != MERR_OK) {                       \
+        MSTR _moon_str;                         \
+        mstr_init(&_moon_str);                  \
+        merr_traceback(err, &_moon_str);        \
+        mtc_mm_err((module), "%s", _moon_str.buf);  \
         mstr_clear(&_moon_str);                 \
         merr_destroy(&err);                     \
         goto label;                             \
@@ -69,12 +90,34 @@ __BEGIN_DECLS
         return;                                 \
     }
 
+#define RETURN_NOK_MM(err, module)              \
+    if (err != MERR_OK) {                       \
+        MSTR _moon_str;                         \
+        mstr_init(&_moon_str);                  \
+        merr_traceback(err, &_moon_str);        \
+        mtc_mm_err((module), "%s", _moon_str.buf);  \
+        mstr_clear(&_moon_str);                 \
+        merr_destroy(&err);                     \
+        return;                                 \
+    }
+
 #define RETURN_V_NOK(err, v)                    \
     if (err != MERR_OK) {                       \
         MSTR _moon_str;                         \
         mstr_init(&_moon_str);                  \
         merr_traceback(err, &_moon_str);        \
         mtc_mt_err("%s", _moon_str.buf);        \
+        mstr_clear(&_moon_str);                 \
+        merr_destroy(&err);                     \
+        return (v);                             \
+    }
+
+#define RETURN_V_NOK_MM(err, module, v)         \
+    if (err != MERR_OK) {                       \
+        MSTR _moon_str;                         \
+        mstr_init(&_moon_str);                  \
+        merr_traceback(err, &_moon_str);        \
+        mtc_mm_err((module), "%s", _moon_str.buf);  \
         mstr_clear(&_moon_str);                 \
         merr_destroy(&err);                     \
         return (v);                             \
