@@ -88,6 +88,8 @@ static uint32_t _parse_cclass(MRE *reo, bool negative)
         case TOK_R_NWHITESPACE: _add_ranges_S(reo, rlist); break;
         case TOK_R_WORD: _add_ranges_w(reo, rlist); break;
         case TOK_R_NWORD: _add_ranges_W(reo, rlist); break;
+        case TOK_R_CJK: _add_ranges_cjk(reo, rlist); break;
+        case TOK_R_NCJK: _add_ranges_CJK(reo, rlist); break;
         case TOK_CHAR:
             if (reo->tok.c == '-') {
                 if (prevc == 0) {
@@ -256,6 +258,8 @@ static uint32_t _parse_statement(MRE *reo)
         case TOK_R_NWHITESPACE: _add_ranges_S(reo, rlist); break;
         case TOK_R_WORD: _add_ranges_w(reo, rlist); break;
         case TOK_R_NWORD: _add_ranges_W(reo, rlist); break;
+        case TOK_R_CJK: _add_ranges_cjk(reo, rlist); break;
+        case TOK_R_NCJK: _add_ranges_CJK(reo, rlist); break;
 
         case TOK_CCLASS:  lastcount = _parse_cclass(reo, false); break;
         case TOK_NCCLASS: lastcount = _parse_cclass(reo, true); break;
@@ -707,12 +711,16 @@ bool mre_match(MRE *reo, const char *string, bool igcase)
 {
     if (!reo || !string || *string == 0 || reo->bcode.len <= 0) return false;
 
+    mlist_clear(reo->sublist);
+
     return _execute(reo, NULL, string, igcase);
 }
 
 uint32_t mre_match_all(MRE *reo, const char *string, bool igcase)
 {
     if (!reo || !string || *string == 0 || reo->bcode.len <= 0) return 0;
+
+    mlist_clear(reo->sublist);
 
     uint32_t count = 0;
 

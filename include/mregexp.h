@@ -30,6 +30,8 @@
  * \S      Match non-whitespacep equal to [^\f\n\r\t\v]
  * \w      Match any word charactor, equal to [A-Za-z0-9_]
  * \W      Match any non-word charactor, equal to [^A-Za-z0-9_]
+ * \c      Match any CJK character
+ * \C      Match any non-CJK character
  * \n      Match new line character
  * \r      Match line feed character
  * \f      Match form feed character
