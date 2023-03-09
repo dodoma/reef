@@ -150,3 +150,14 @@ static void _add_ranges_W(MRE *reo, MLIST *rlist)
 	_addrange(reo, rlist, '_'+1, 'a'-1);
 	_addrange(reo, rlist, 'z'+1, 0xFFFF);
 }
+
+static void _add_ranges_cjk(MRE *reo, MLIST *rlist)
+{
+    _addrange(reo, rlist, 0x4E00, 0x9FFF);
+}
+
+static void _add_ranges_CJK(MRE *reo, MLIST *rlist)
+{
+    _addrange(reo, rlist, 0, 0x4E00 - 1);
+    _addrange(reo, rlist, 0x9FFF + 1, 0xFFFF);
+}

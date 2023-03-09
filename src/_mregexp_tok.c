@@ -23,6 +23,8 @@ enum {
     TOK_R_NWHITESPACE,           /* \S */
     TOK_R_WORD,                  /* \w */
     TOK_R_NWORD,                 /* \W */
+    TOK_R_CJK,                   /* \c */
+    TOK_R_NCJK,                  /* \C */
 
     TOK_CLOSE_BRACKET,          /* ] */
     TOK_CLOSE_CURLY,            /* } */
@@ -30,7 +32,7 @@ enum {
     TOK_CHAR
 };
 
-#define ESCAPES "BbDdSsWw^$\\.*+?()[]{}|"
+#define ESCAPES "BbDdSsWwCc^$\\.*+?()[]{}|"
 
 static bool _tok_long(MRE *reo, char a, char b)
 {
@@ -76,6 +78,8 @@ static uint8_t _tok_next(MRE *reo, bool restr)
         case 'S': t->type = TOK_R_NWHITESPACE; return t->type;
         case 'w': t->type = TOK_R_WORD; return t->type;
         case 'W': t->type = TOK_R_NWORD; return t->type;
+        case 'c': t->type = TOK_R_CJK; return t->type;
+        case 'C': t->type = TOK_R_NCJK; return t->type;
         case 'b': t->c = 'b'; t->type = TOK_WORD; return t->type;
         case 'B': t->c = 'B'; t->type = TOK_NWORD; return t->type;
         }
