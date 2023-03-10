@@ -153,11 +153,19 @@ static void _add_ranges_W(MRE *reo, MLIST *rlist)
 
 static void _add_ranges_cjk(MRE *reo, MLIST *rlist)
 {
+    /*
+     * https://stackoverflow.com/questions/1366068/whats-the-complete-range-for-chinese-characters-in-unicode
+     */
+    _addrange(reo, rlist, 0x2E80, 0x2EDF);
+    _addrange(reo, rlist, 0x3000, 0x303F);
     _addrange(reo, rlist, 0x4E00, 0x9FFF);
 }
 
 static void _add_ranges_CJK(MRE *reo, MLIST *rlist)
 {
-    _addrange(reo, rlist, 0, 0x4E00 - 1);
+    _addrange(reo, rlist, 0, 0x2E80 - 1);
+    _addrange(reo, rlist, 0x2EDF + 1, 0x3000 - 1);
+
+    _addrange(reo, rlist, 0x303F + 1, 0x4E00 - 1);
     _addrange(reo, rlist, 0x9FFF + 1, 0xFFFF);
 }
