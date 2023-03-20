@@ -67,7 +67,16 @@ static MERR* _connect_to(const char *host, int hostlen, int port, int *rfd, stru
 
 static MERR* _send_to(int fd, const unsigned char *buf, size_t len, struct _tls *ssl)
 {
-    //MSG_DUMP("send:", buf, len);
+    if (len < 10240) MSG_DUMP("send:", buf, len);
+    else {
+        /* avoid to dump huuuuuge content [file. etc]*/
+        char msgcontent[38] = {0}, msgdebug[77] = {0};
+        memcpy(msgcontent, buf, 16);
+        memset(msgcontent+16, '.', 6);
+        memcpy(msgcontent+22, buf+len-16, 16);
+        mstr_bin2str((uint8_t*)msgcontent, 35, msgdebug);
+        mtc_dbg("%s%zu %s", "send:", len, msgdebug);
+    }
 
     size_t c = 0;
     int rv = 0;
