@@ -130,6 +130,28 @@ MERR* mlist_delete(MLIST *alist, int x)
     return MERR_OK;
 }
 
+void* mlist_apart(MLIST *alist, int x)
+{
+    void **start;
+
+    if (!alist) return NULL;
+
+    if ((x >= 0 && x >= alist->num) || (x <= 0 && abs(x) > alist->num)) return NULL;
+
+    int index = 0;
+    if (x >= 0) index = x;
+    else if (x < 0) index = alist->num + x;
+
+    void *ret = alist->items[index];
+
+    start = &(alist->items[index]);
+    memmove(start, start + 1, sizeof(void*) * (alist->num - index - 1));
+
+    alist->num--;
+
+    return ret;
+}
+
 
 MERR* mlist_get(MLIST *alist, int x, void **data)
 {
