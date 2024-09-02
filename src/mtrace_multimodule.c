@@ -7,7 +7,7 @@
 
 struct _entry {
     char module[256];
-    char filename[PATH_MAX];
+    char filename[PATH_MAX-32];
     char linebuf[2096];
     FILE *fp;
     int level;

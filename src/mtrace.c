@@ -13,7 +13,7 @@
 
 static pthread_mutex_t m_lock = PTHREAD_MUTEX_INITIALIZER;
 
-static char m_filename[PATH_MAX] = {0};
+static char m_filename[PATH_MAX-32] = {0};
 static int  m_cur_level = MTC_DEFAULT_LEVEL;
 static char *m_levels[MTC_MAX] = {"DIE", "MESSAGE", "ERROR",
                                   "WARNING", "INFO", "DEBUG",
