@@ -159,23 +159,28 @@ bool mtc_msg(const char *func, const char *file, long line, MTC_LEVEL level,
 
     fprintf(m_fp, "[%s.%06u]", timestr, (unsigned)tv.tv_usec);
 
-    switch (level) {
-    case MTC_WARNING:
-        fprintf(m_fp, "%s", MCOLOR_YELLOW);
-        break;
-    case MTC_ERROR:
-        fprintf(m_fp, "%s", MCOLOR_RED);
-        break;
-    case MTC_FOO:
-        fprintf(m_fp, "%s", MCOLOR_BLUE);
-        break;
-    case MTC_DIE:
-        fprintf(m_fp, "%s", MCOLOR_PURPLE);
-        break;
-    default:
-        break;
+    if (m_fp == stdout) {
+        switch (level) {
+        case MTC_WARNING:
+            fprintf(m_fp, "%s", MCOLOR_YELLOW);
+            break;
+        case MTC_ERROR:
+            fprintf(m_fp, "%s", MCOLOR_RED);
+            break;
+        case MTC_FOO:
+            fprintf(m_fp, "%s", MCOLOR_BLUE);
+            break;
+        case MTC_DIE:
+            fprintf(m_fp, "%s", MCOLOR_PURPLE);
+            break;
+        default:
+            break;
+        }
     }
-    fprintf(m_fp, "[%s]%s", m_levels[level], MCOLOR_RESET);
+
+    fprintf(m_fp, "[%s]", m_levels[level]);
+
+    if (m_fp == stdout && level <= MTC_WARNING) fprintf(m_fp, MCOLOR_RESET);
 
 #if defined(TRACE_SHORT)
     fprintf(m_fp, "[%s:%li] ", file, line);

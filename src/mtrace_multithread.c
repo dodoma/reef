@@ -187,8 +187,14 @@ void mtc_mt_set_level(MTC_LEVEL level)
 bool mtc_mt_msg(const char *func, const char *file, long line, MTC_LEVEL level,
                 const char *fmt, ...)
 {
+    bool force = false;
     uint32_t tid = _get_tid();
     struct _entry *e = _entry_search(tid);
+
+    if (!e && m_num > 0) {
+        e = m_logs[0];
+        force = true;
+    }
 
     if (!e || e->level < level) return false;
 
@@ -218,27 +224,30 @@ bool mtc_mt_msg(const char *func, const char *file, long line, MTC_LEVEL level,
 
     fprintf(e->fp, "[%s.%06u]", timestr, (unsigned)tv.tv_usec);
 
-    if (e->filename[0] == '-' && e->filename[1] == '\0') {
-        fprintf(e->fp, "[%s]", e->modulename);
+    if (e->fp == stdout) {
+        fprintf(e->fp, "[%s]", force ? "DEFAULT" : e->modulename);
+
+        switch (level) {
+        case MTC_WARNING:
+            fprintf(e->fp, "%s", MCOLOR_YELLOW);
+            break;
+        case MTC_ERROR:
+            fprintf(e->fp, "%s", MCOLOR_RED);
+            break;
+        case MTC_FOO:
+            fprintf(e->fp, "%s", MCOLOR_BLUE);
+            break;
+        case MTC_DIE:
+            fprintf(e->fp, "%s", MCOLOR_PURPLE);
+            break;
+        default:
+            break;
+        }
     }
 
-    switch (level) {
-    case MTC_WARNING:
-        fprintf(e->fp, "%s", MCOLOR_YELLOW);
-        break;
-    case MTC_ERROR:
-        fprintf(e->fp, "%s", MCOLOR_RED);
-        break;
-    case MTC_FOO:
-        fprintf(e->fp, "%s", MCOLOR_BLUE);
-        break;
-    case MTC_DIE:
-        fprintf(e->fp, "%s", MCOLOR_PURPLE);
-        break;
-    default:
-        break;
-    }
-    fprintf(e->fp, "[%s]%s", m_levels[level], MCOLOR_RESET);
+    fprintf(e->fp, "[%s]", m_levels[level]);
+
+    if (e->fp == stdout && level <= MTC_WARNING) fprintf(e->fp, MCOLOR_RESET);
 
 #if defined(TRACE_SHORT)
     fprintf(e->fp, "[%s:%li] ", file, line, func);
