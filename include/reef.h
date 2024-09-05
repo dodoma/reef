@@ -85,6 +85,7 @@
 #include "mdlist.h"
 #include "mtree.h"
 #include "mutree.h"
+#include "mcheck.h"
 
 #include "mhash.h"
 #include "mhash_macro.h"
