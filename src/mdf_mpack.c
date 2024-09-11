@@ -311,6 +311,8 @@ size_t mdf_mpack_serialize(MDF *node, unsigned char *buf, size_t len)
 
     if (!node || !buf || len <= 0) return 0;
 
+    if (mdf_mpack_len(node) > len) return 0; /* TODO pefermance improve */
+
     mylen = step = 0;
     pos = buf;
     nodenum = 0;
