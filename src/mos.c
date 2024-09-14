@@ -8,6 +8,8 @@ static inline uint32_t _get_tid()
     uint64_t id;
     pthread_threadid_np(NULL, &id);
     return id;
+#elif defined(ANDROID)
+    return gettid();
 #else
 #error "unsupport platform"
 #endif

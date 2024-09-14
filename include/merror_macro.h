@@ -15,13 +15,23 @@ __BEGIN_DECLS
 #define MERR_NOT_NULLD(pa, pb, pc, pd)                                  \
     if (!(pa) || !(pb) || !(pc) || (!pd)) return merr_raise(MERR_ASSERT, "paramter null");
 
+#ifdef ANDROID
+#define MERR_LOG printf
+#define MERR_LOG_MM printf
+#define MERR_LOG_MT printf
+#else
+#define MERR_LOG mtc_err
+#define MERR_LOG_MM mtc_mm_err
+#define MERR_LOG_MT mtc_mt_err
+#endif
+
 
 #define TRACE_NOK(err)                          \
     if (err != MERR_OK) {                       \
         MSTR _moon_str;                         \
         mstr_init(&_moon_str);                  \
         merr_traceback(err, &_moon_str);        \
-        mtc_err("%s", _moon_str.buf);           \
+        MERR_LOG("%s", _moon_str.buf);          \
         mstr_clear(&_moon_str);                 \
         merr_destroy(&err);                     \
     }
@@ -31,7 +41,7 @@ __BEGIN_DECLS
         MSTR _moon_str;                         \
         mstr_init(&_moon_str);                  \
         merr_traceback(err, &_moon_str);        \
-        mtc_err("%s", _moon_str.buf);           \
+        MERR_LOG("%s", _moon_str.buf);          \
         mstr_clear(&_moon_str);                 \
         merr_destroy(&err);                     \
         goto label;                             \
@@ -42,7 +52,7 @@ __BEGIN_DECLS
         MSTR _moon_str;                         \
         mstr_init(&_moon_str);                  \
         merr_traceback(err, &_moon_str);        \
-        mtc_mt_err("%s", _moon_str.buf);        \
+        MERR_LOG_MT("%s", _moon_str.buf);          \
         mstr_clear(&_moon_str);                 \
         merr_destroy(&err);                     \
     }
@@ -52,7 +62,7 @@ __BEGIN_DECLS
         MSTR _moon_str;                         \
         mstr_init(&_moon_str);                  \
         merr_traceback(err, &_moon_str);        \
-        mtc_mm_err((module), "%s", _moon_str.buf);  \
+        MERR_LOG_MM("%s", _moon_str.buf);       \
         mstr_clear(&_moon_str);                 \
         merr_destroy(&err);                     \
     }
@@ -62,7 +72,7 @@ __BEGIN_DECLS
         MSTR _moon_str;                         \
         mstr_init(&_moon_str);                  \
         merr_traceback(err, &_moon_str);        \
-        mtc_mt_err("%s", _moon_str.buf);        \
+        MERR_LOG_MT("%s", _moon_str.buf);          \
         mstr_clear(&_moon_str);                 \
         merr_destroy(&err);                     \
         goto label;                             \
@@ -73,7 +83,7 @@ __BEGIN_DECLS
         MSTR _moon_str;                         \
         mstr_init(&_moon_str);                  \
         merr_traceback(err, &_moon_str);        \
-        mtc_mm_err((module), "%s", _moon_str.buf);  \
+        MERR_LOG_MM("%s", _moon_str.buf);          \
         mstr_clear(&_moon_str);                 \
         merr_destroy(&err);                     \
         goto label;                             \
@@ -84,7 +94,7 @@ __BEGIN_DECLS
         MSTR _moon_str;                         \
         mstr_init(&_moon_str);                  \
         merr_traceback(err, &_moon_str);        \
-        mtc_mt_err("%s", _moon_str.buf);        \
+        MERR_LOG_MT("%s", _moon_str.buf);          \
         mstr_clear(&_moon_str);                 \
         merr_destroy(&err);                     \
         return;                                 \
@@ -95,7 +105,7 @@ __BEGIN_DECLS
         MSTR _moon_str;                         \
         mstr_init(&_moon_str);                  \
         merr_traceback(err, &_moon_str);        \
-        mtc_mm_err((module), "%s", _moon_str.buf);  \
+        MERR_LOG_MM("%s", _moon_str.buf);          \
         mstr_clear(&_moon_str);                 \
         merr_destroy(&err);                     \
         return;                                 \
@@ -106,7 +116,7 @@ __BEGIN_DECLS
         MSTR _moon_str;                         \
         mstr_init(&_moon_str);                  \
         merr_traceback(err, &_moon_str);        \
-        mtc_mt_err("%s", _moon_str.buf);        \
+        MERR_LOG_MT("%s", _moon_str.buf);          \
         mstr_clear(&_moon_str);                 \
         merr_destroy(&err);                     \
         return (v);                             \
@@ -117,7 +127,7 @@ __BEGIN_DECLS
         MSTR _moon_str;                         \
         mstr_init(&_moon_str);                  \
         merr_traceback(err, &_moon_str);        \
-        mtc_mm_err((module), "%s", _moon_str.buf);  \
+        MERR_LOG_MM("%s", _moon_str.buf);          \
         mstr_clear(&_moon_str);                 \
         merr_destroy(&err);                     \
         return (v);                             \

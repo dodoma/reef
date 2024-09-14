@@ -55,6 +55,7 @@
 #include "mos_linux.h"
 #include "mos_osx.h"
 #include "mos_esp.h"
+#include "mos_android.h"
 #include "mos.h"
 
 #include "utf.h"
