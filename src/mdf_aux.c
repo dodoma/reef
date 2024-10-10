@@ -30,3 +30,17 @@ void mdf_aux_list2map(MDF *node, const char *path)
 
     mdf_destroy(&tmpnode);
 }
+
+void mdf_makesure_endwithc(MDF *node, const char *key, char c)
+{
+    if (!node) return;
+
+    char *val = mdf_get_value(node, key, NULL);
+    if (val) {
+        size_t slen = strlen(val);
+        if (slen == 0 || val[slen-1] != c) {
+            char tail[2] = {c, 0};
+            mdf_append_string_value(node, key, tail);
+        }
+    }
+}
