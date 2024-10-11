@@ -19,6 +19,11 @@ __BEGIN_DECLS
                      "strcmp( " #fst ", " #snd " ) == 0",   \
                      __func__, __FILE__, __LINE__)
 
+#define MTEST_ASSERT_STR_NEQ(fst, snd)                      \
+    mtest_assert_run(strcmp(fst, snd) != 0,                 \
+                     "strcmp( " #fst ", " #snd " ) != 0",   \
+                     __func__, __FILE__, __LINE__)
+
 #define MTEST_ASSERT_FILE_EQ(src, dst)                                  \
     do {                                                                \
         char __command[PATH_MAX];                                       \

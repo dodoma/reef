@@ -74,6 +74,57 @@ void test_iterate()
     mhash_destroy(&table);
 }
 
+void test_iterate_break()
+{
+    MHASH *table;
+    char s[KEY_LEN + 1], *ps[100];
+    MERR *err;
+
+    for (int i = 0; i < 100; i++) {
+        //mstr_rand_string(s, KEY_LEN);
+        snprintf(s, sizeof(s), "str %d", i);
+        ps[i] = strdup(s);      /* TODO memory leak */
+    }
+
+    err = mhash_init(&table, mhash_str_hash, mhash_str_comp, mhash_str_free);
+    MTEST_ASSERT(err == MERR_OK);
+
+    for (int i = 0; i < 100; i++) {
+        err = mhash_insert(table, ps[i], strdup(ps[i]));
+        MTEST_ASSERT(err == MERR_OK);
+    }
+
+    char *key, *val;
+    key = NULL;
+    /* 删除后退出循环 */
+    MHASH_ITERATE(table, key, val) {
+        if (!strcmp(key, "str 13")) {
+            mhash_remove(table, key);
+            break;
+        }
+    }
+
+    /* 删除后继续循环 */
+    char *pkey = NULL;
+    MHASH_ITERATE(table, key, val) {
+        if (!strcmp(key, "str 29") || !strcmp(key, "str 42")) {
+            mhash_remove(table, key);
+            key = pkey;
+        }
+
+        pkey = key;
+    }
+
+    MHASH_ITERATE(table, key, val) {
+        //printf("key %s val %s\n", key, val);
+        MTEST_ASSERT_STR_NEQ(key, "str 13");
+        MTEST_ASSERT_STR_NEQ(key, "str 29");
+        MTEST_ASSERT_STR_NEQ(key, "str 42");
+    }
+
+    mhash_destroy(&table);
+}
+
 void test_hash()
 {
     unsigned char outa[16], outb[20];
@@ -95,6 +146,7 @@ void suite_basic()
 {
     mtest_add_test(test_basic, "basic");
     mtest_add_test(test_iterate, "hash iterate");
+    mtest_add_test(test_iterate_break, "hash iterate with break node");
     mtest_add_test(test_hash, "other hash function");
 }
 
