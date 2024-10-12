@@ -281,6 +281,15 @@ int mlist_index(MLIST *alist, const void *key,
     return -1;
 }
 
+void  mlist_delete_item(MLIST *alist, const void *item,
+                        int __F(compare)(const void*, const void*))
+{
+    int index = -1;
+    while ((index = mlist_index(alist, &item, compare)) >= 0) {
+        mlist_delete(alist, index);
+    }
+}
+
 void mlist_clear(MLIST *alist)
 {
     if (!alist) return;
@@ -349,4 +358,35 @@ void* mlist_search(MLIST *alist, const void *key,
     }
 
     return bsearch(key, alist->items, alist->num, sizeof(void*), compare);
+}
+
+void* mlist_find(MLIST *alist, const void *item,
+                 int __F(compare)(const void*, const void*))
+{
+    if (!alist || !item || !compare || alist->num <= 0) return NULL;
+
+    void **itemaddr = mlist_search(alist, &item, compare);
+
+    if (itemaddr) return *itemaddr;
+    else return NULL;
+}
+
+int mlist_strcompare(const void *a, const void *b)
+{
+    char *sa, *sb;
+
+    sa = *(char **)a;
+    sb = *(char **)b;
+
+    return strcmp(sa, sb);
+}
+
+int mlist_ptrcompare(const void *a, const void *b)
+{
+    char *sa, *sb;
+
+    sa = *(char **)a;
+    sb = *(char **)b;
+
+    return sa - sb;
 }
