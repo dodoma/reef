@@ -23,9 +23,9 @@ __BEGIN_DECLS
         }                                                           \
     } while (0)
 
-#define MSG_DUMP_MT(pre, p, psize)                                  \
+#define MSG_DUMP_MT(noise, pre, p, psize)                           \
     do {                                                            \
-        if ((ssize_t)(psize) > 0) {                                 \
+        if ((noise) && (ssize_t)(psize) > 0) {                      \
             char zstra[(psize)*2+1];                                \
             mstr_bin2hexstr((uint8_t*)(p), (psize), zstra);         \
             mtc_mt_dbg("%s%zu %s", pre, (size_t)(psize), zstra);    \
