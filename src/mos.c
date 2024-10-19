@@ -79,6 +79,53 @@ uint32_t mos_rand(uint32_t max)
 #endif
 }
 
+bool _mkdir(char *path, mode_t mode)
+{
+    struct stat st;
+
+    if (stat(path, &st) == 0) {
+        if (S_ISDIR(st.st_mode)) return true;
+        else return false;      /* not directory */
+    } else {
+        if (mkdir(path, mode) == 0) return true;
+        else return false;
+    }
+}
+
+bool mos_mkdir(char *path, mode_t mode)
+{
+    if (!path) return false;
+
+    char *newpath = strdup(path), *p;
+
+    for (p = newpath + 1; *p; p++) {
+        if(*p == '/') {
+            *p = '\0';
+            if (!_mkdir(newpath, mode)) {
+                free(newpath);
+                return false;
+            }
+            *p = '/';
+        }
+    }
+
+    free(newpath);
+
+    return _mkdir(path, mode);
+}
+
+bool mos_mkdirf(mode_t mode, char *fmt, ...)
+{
+    char path[PATH_MAX];
+    va_list ap;
+
+    va_start(ap, fmt);
+    vsnprintf(path, sizeof(path), fmt, ap);
+    va_end(ap);
+
+    return mos_mkdir(path, mode);
+}
+
 double mos_timef()
 {
     struct timeval tv;

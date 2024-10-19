@@ -44,6 +44,7 @@
 #include <stdbool.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/mman.h>
 #include <inttypes.h>
 #include <ctype.h>
 #include <limits.h>

@@ -27,9 +27,22 @@ void test_memory()
     //mos_calloc(1, 102400000000);
 }
 
+void test_mkdir()
+{
+    int ret = mos_mkdir("./mos/dir//test", 0755);
+
+    printf("%d\n", ret);
+
+    ret = mos_mkdirf(0755, "%s/mos/dir/test/", "/home/pi/tmp/");
+
+    printf("%d %s\n", ret, strerror(errno));
+
+}
+
 void suite_basic()
 {
     mtest_add_test(test_memory, "memory operation");
+    mtest_add_test(test_mkdir, "mkdir -p");
 }
 
 int main()
