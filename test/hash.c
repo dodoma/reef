@@ -142,12 +142,26 @@ void test_hash()
     MTEST_ASSERT_STR_EQ(sb, "CFB5E25BE6C3BD8074B0B1C6EFEDC131B107F903");
 }
 
+void test_file()
+{
+    char sa[33], sb[41];
+
+    mhash_md5_file_s("./base64.c", sa);
+    mhash_sha1_file_s("./base64.c", sb);
+
+    printf("%s \n %s", sa, sb);
+
+    //MTEST_ASSERT_STR_EQ(sa, "94981B447947C1E6AF5D8BE1E262DD7E");
+    //MTEST_ASSERT_STR_EQ(sb, "CFB5E25BE6C3BD8074B0B1C6EFEDC131B107F903");
+}
+
 void suite_basic()
 {
     mtest_add_test(test_basic, "basic");
     mtest_add_test(test_iterate, "hash iterate");
     mtest_add_test(test_iterate_break, "hash iterate with break node");
     mtest_add_test(test_hash, "other hash function");
+    mtest_add_test(test_file, "file function");
 }
 
 int main()
