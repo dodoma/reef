@@ -331,9 +331,11 @@ ssize_t mhash_md5_file(const char *filename, unsigned char out[16])
     memset(out, 0x0, 16);
 
     struct stat st;
+    int file;
+    uint8_t *buf;
 
 reopen:
-    int file = open(filename, O_RDONLY);
+    file = open(filename, O_RDONLY);
     if (file < 0 && (errno == EAGAIN || errno == EINTR)) goto reopen;
     if (file < 0 || fstat(file, &st) < 0) {
         close(file);
@@ -341,8 +343,7 @@ reopen:
     }
 
 remmap:
-    uint8_t *buf = (uint8_t*)mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE | MAP_POPULATE,
-                                  file, 0);
+    buf = (uint8_t*)mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE | MAP_POPULATE, file, 0);
     if (buf == MAP_FAILED && (errno == EAGAIN || errno == EINTR)) goto remmap;
 
     close(file);
@@ -390,9 +391,11 @@ ssize_t mhash_sha1_file(const char *filename, unsigned char out[20])
     memset(out, 0x0, 20);
 
     struct stat st;
+    int file;
+    uint8_t *buf;
 
 reopen:
-    int file = open(filename, O_RDONLY);
+    file = open(filename, O_RDONLY);
     if (file < 0 && (errno == EAGAIN || errno == EINTR)) goto reopen;
     if (file < 0 || fstat(file, &st) < 0) {
         close(file);
@@ -400,8 +403,7 @@ reopen:
     }
 
 remmap:
-    uint8_t *buf = (uint8_t*)mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE | MAP_POPULATE,
-                                  file, 0);
+    buf = (uint8_t*)mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE | MAP_POPULATE, file, 0);
     if (buf == MAP_FAILED && (errno == EAGAIN || errno == EINTR)) goto remmap;
 
     close(file);
