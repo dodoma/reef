@@ -104,5 +104,8 @@ void* mlist_find(MLIST *alist, const void *item,
 int mlist_strcompare(const void *a, const void *b);
 int mlist_ptrcompare(const void *a, const void *b);
 
+MLIST* mlist_build_from_textfile(const char *filename, size_t linemaxlen);
+bool   mlist_write_textfile(MLIST *alist, const char *filename);
+
 __END_DECLS
 #endif
