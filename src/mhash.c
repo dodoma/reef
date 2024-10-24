@@ -324,6 +324,52 @@ void mhash_md5_buf(unsigned char *in, size_t len, unsigned char out[16])
     MD5Final(out, &contex);
 }
 
+ssize_t mhash_md5_file(const char *filename, unsigned char out[16])
+{
+    if (!filename) return -1;
+
+    memset(out, 0x0, 16);
+
+    struct stat st;
+    int file;
+    uint8_t *buf;
+
+reopen:
+    file = open(filename, O_RDONLY);
+    if (file < 0 && (errno == EAGAIN || errno == EINTR)) goto reopen;
+    if (file < 0 || fstat(file, &st) < 0) {
+        close(file);
+        return -1;
+    }
+
+remmap:
+    buf = (uint8_t*)mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE | MAP_POPULATE, file, 0);
+    if (buf == MAP_FAILED && (errno == EAGAIN || errno == EINTR)) goto remmap;
+
+    close(file);
+
+    if (buf == MAP_FAILED) return -1;
+
+    mhash_md5_buf(buf, st.st_size, out);
+
+    munmap((void*)buf, st.st_size);
+
+    return st.st_size;
+}
+
+ssize_t mhash_md5_file_s(const char *filename, char hexstr[33])
+{
+    unsigned char sum[16] = {0};
+
+    memset(hexstr, 0x0, 33);
+
+    ssize_t ret = mhash_md5_file(filename, sum);
+    mstr_bin2hexstr(sum, 16, hexstr);
+    mstr_tolower(hexstr);
+
+    return ret;
+}
+
 void mhash_sha1_buf(unsigned char *in, size_t len, unsigned char out[20])
 {
     SHA1_CTX contex;
@@ -336,6 +382,52 @@ void mhash_sha1_buf(unsigned char *in, size_t len, unsigned char out[20])
         SHA1Update(&contex, in + ii, 1);
     }
     SHA1Final(out, &contex);
+}
+
+ssize_t mhash_sha1_file(const char *filename, unsigned char out[20])
+{
+    if (!filename) return -1;
+
+    memset(out, 0x0, 20);
+
+    struct stat st;
+    int file;
+    uint8_t *buf;
+
+reopen:
+    file = open(filename, O_RDONLY);
+    if (file < 0 && (errno == EAGAIN || errno == EINTR)) goto reopen;
+    if (file < 0 || fstat(file, &st) < 0) {
+        close(file);
+        return -1;
+    }
+
+remmap:
+    buf = (uint8_t*)mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE | MAP_POPULATE, file, 0);
+    if (buf == MAP_FAILED && (errno == EAGAIN || errno == EINTR)) goto remmap;
+
+    close(file);
+
+    if (buf == MAP_FAILED) return -1;
+
+    mhash_sha1_buf(buf, st.st_size, out);
+
+    munmap((void*)buf, st.st_size);
+
+    return st.st_size;
+}
+
+ssize_t mhash_sha1_file_s(const char *filename, char hexstr[41])
+{
+    unsigned char sum[20] = {0};
+
+    memset(hexstr, 0x0, 41);
+
+    ssize_t ret = mhash_sha1_file(filename, sum);
+    mstr_bin2hexstr(sum, 20, hexstr);
+    mstr_tolower(hexstr);
+
+    return ret;
 }
 
 void mhash_sha256_buf(unsigned char *in, size_t len, unsigned char out[32])

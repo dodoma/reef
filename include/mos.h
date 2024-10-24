@@ -33,6 +33,8 @@ void* mos_realloc(void *ptr, size_t size);
  * return rand integer between [0, max)
  */
 uint32_t mos_rand(uint32_t max);
+bool mos_mkdir(char *path, mode_t mode);
+bool mos_mkdirf(mode_t mode, char *fmt, ...);
 
 double mos_timef();
 

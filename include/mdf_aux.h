@@ -40,5 +40,12 @@ __BEGIN_DECLS
 
 void mdf_aux_list2map(MDF *node, const char *path);
 
+/*
+ * {"path": "/home/ml/tmp"}
+ * ===>
+ * {"path": "/home/ml/tmp/"}
+ */
+void mdf_makesure_endwithc(MDF *node, const char *key, char c);
+
 __END_DECLS
 #endif

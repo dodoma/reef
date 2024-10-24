@@ -55,6 +55,9 @@ MERR* mlist_pop(MLIST *alist, void **data);
 void* mlist_popx(MLIST *alist);
 MERR* mlist_insert(MLIST *alist, int x, void *data);
 MERR* mlist_delete(MLIST *alist, int x);
+/* 查找并删除节点 (item 为一级指针) */
+void  mlist_delete_item(MLIST *alist, const void *item,
+                        int __F(compare)(const void*, const void*));
 void* mlist_apart(MLIST *alist, int x);
 void  mlist_free(void *alist);
 void  mlist_clear(MLIST *alist);
@@ -80,18 +83,29 @@ void* mlist_in(MLIST *alist, const void *key,
                int __F(compare)(const void*, const void*));
 int   mlist_index(MLIST *alist, const void *key,
                   int __F(compare)(const void*, const void*));
-
 void  mlist_destroy(MLIST **alist);
 
 void  mlist_sort(MLIST *alist, int __F(compare)(const void *, const void*));
 
 /*
  * quick search, this will sort the list(change item's position).
- * 返回列表中内存元素的地址，而非内存元素
+ * 返回列表中内存元素的地址，而非内存元素 (key 为二级指针)
  */
 void* mlist_search(MLIST *alist, const void *key,
                    int __F(compare)(const void*, const void*));
 
+/*
+ * quick search, this will sort the list(change item's position).
+ * 返回列表中内存元素 (item 为一级指针)
+ */
+void* mlist_find(MLIST *alist, const void *item,
+                 int __F(compare)(const void*, const void*));
+
+int mlist_strcompare(const void *a, const void *b);
+int mlist_ptrcompare(const void *a, const void *b);
+
+MLIST* mlist_build_from_textfile(const char *filename, size_t linemaxlen);
+bool   mlist_write_textfile(MLIST *alist, const char *filename);
 
 __END_DECLS
 #endif

@@ -31,8 +31,12 @@ int      mhash_int_comp(const void *a, const void *b);
 
 /* 098f6bcd4621d373cade4e832627b4f6 */
 void mhash_md5_buf(unsigned char *in, size_t len, unsigned char out[16]);
+ssize_t mhash_md5_file(const char *filename, unsigned char out[16]);
+ssize_t mhash_md5_file_s(const char *filename, char hexstr[33]);
 /* 7d726587934dc8f29e2e42b88a0756be1c47fa64 */
 void mhash_sha1_buf(unsigned char *in, size_t len, unsigned char out[20]);
+ssize_t mhash_sha1_file(const char *filename, unsigned char out[20]);
+ssize_t mhash_sha1_file_s(const char *filename, char hexstr[41]);
 /* ecab4881ee80ad3d76bb1da68387428ca752eb885e52621a3129dcf4d9bc4fd4 */
 void mhash_sha256_buf(unsigned char *in, size_t len, unsigned char out[32]);
 void mhash_hmac_sha256(unsigned char *data, size_t data_len, unsigned char *key, size_t key_len,

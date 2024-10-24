@@ -281,6 +281,15 @@ int mlist_index(MLIST *alist, const void *key,
     return -1;
 }
 
+void  mlist_delete_item(MLIST *alist, const void *item,
+                        int __F(compare)(const void*, const void*))
+{
+    int index = -1;
+    while ((index = mlist_index(alist, &item, compare)) >= 0) {
+        mlist_delete(alist, index);
+    }
+}
+
 void mlist_clear(MLIST *alist)
 {
     if (!alist) return;
@@ -349,4 +358,76 @@ void* mlist_search(MLIST *alist, const void *key,
     }
 
     return bsearch(key, alist->items, alist->num, sizeof(void*), compare);
+}
+
+void* mlist_find(MLIST *alist, const void *item,
+                 int __F(compare)(const void*, const void*))
+{
+    if (!alist || !item || !compare || alist->num <= 0) return NULL;
+
+    void **itemaddr = mlist_search(alist, &item, compare);
+
+    if (itemaddr) return *itemaddr;
+    else return NULL;
+}
+
+int mlist_strcompare(const void *a, const void *b)
+{
+    char *sa, *sb;
+
+    sa = *(char **)a;
+    sb = *(char **)b;
+
+    return strcmp(sa, sb);
+}
+
+int mlist_ptrcompare(const void *a, const void *b)
+{
+    char *sa, *sb;
+
+    sa = *(char **)a;
+    sb = *(char **)b;
+
+    return sa - sb;
+}
+
+MLIST* mlist_build_from_textfile(const char *filename, size_t linemaxlen)
+{
+    if (!filename) return NULL;
+
+    FILE *fp = fopen(filename, "r");
+    if (fp) {
+        char *line = mos_calloc(1, linemaxlen);
+
+        MLIST *alist;
+        mlist_init(&alist, free);
+
+        while (fgets(line, linemaxlen - 1, fp) != NULL) {
+            line[strcspn(line, "\r\n")] = 0;
+
+            mlist_append(alist, strdup(line));
+        }
+
+        fclose(fp);
+        mos_free(line);
+
+        return alist;
+    } else return NULL;
+}
+
+bool mlist_write_textfile(MLIST *alist, const char *filename)
+{
+    if (!alist || !filename) return false;
+
+    FILE *fp = fopen(filename, "w");
+    if (fp) {
+        char *line;
+        MLIST_ITERATE(alist, line) {
+            fputs(line, fp);
+            fputc('\n', fp);
+        }
+
+        fclose(fp);
+        return true;
+    } else return false;
 }

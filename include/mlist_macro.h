@@ -15,5 +15,11 @@ __BEGIN_DECLS
              (mlist_get(alist, _moon_i, (void**)&(item)) == MERR_OK);   \
          _moon_i++)
 
+#define MLIST_ITERATEB(alist, item)                                     \
+    for (int _moon_j = 0;                                               \
+         _moon_j < mlist_length(alist) &&                               \
+             (mlist_get(alist, _moon_j, (void**)&(item)) == MERR_OK);   \
+         _moon_j++)
+
 __END_DECLS
 #endif

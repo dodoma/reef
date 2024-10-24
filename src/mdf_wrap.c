@@ -112,7 +112,7 @@ MERR* mdf_set_valuef(MDF *node, const char *fmt, ...)
     len = vsnprintf(buf, 1024, fmt, tmpap);
     if (len >= 1024) {
         key = mos_malloc(len);
-        vsprintf(buf, fmt, ap);
+        vsprintf(key, fmt, ap);
     } else key = buf;
     va_end(ap);
 
