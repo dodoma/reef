@@ -46,6 +46,7 @@ typedef enum {
 typedef struct _MERR MERR;
 
 typedef struct _MLIST MLIST;
+typedef struct _MSLIST MSLIST;
 typedef struct _MDLIST MDLIST;
 typedef struct _MTREE MTREE;
 typedef struct _MUTREE MUTREE;
