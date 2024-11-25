@@ -36,6 +36,10 @@ uint32_t mos_rand(uint32_t max);
 bool mos_mkdir(char *path, mode_t mode);
 bool mos_mkdirf(mode_t mode, char *fmt, ...);
 
+/* return 0 on success, and -1 if an error occurs. */
+int mos_rmrf(char *path);
+int mos_rmrff(char *fmt, ...);
+
 double mos_timef();
 
 static inline void mos_utc_time(struct timespec *ts)

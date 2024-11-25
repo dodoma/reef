@@ -47,5 +47,36 @@ void mdf_aux_list2map(MDF *node, const char *path);
  */
 void mdf_makesure_endwithc(MDF *node, const char *key, char c);
 
+
+/*
+ * 数组操作：
+ *
+ * 本欲提供 mdf_create_array_node(xxx)
+ * 但为降低复杂度，建议使用以下方案
+ * ["sda1", "sda2"]
+ * ================
+ *   MDF *snode = mdf_get_or_create_node(qe->nodeout, "usbstick");
+ *   while (tnode) {
+ *       MDF *cnode = mdf_insert_node(snode, NULL, -1);
+ *       mdf_set_value(cnode, NULL, tnode->name);
+ *
+ *       tnode = tnode->next;
+ *   }
+ *   mdf_object_2_array(snode, NULL);
+ *
+ *
+ * [{"name": "sda1"}, {"name": "sda2"}]
+ * ====================================
+ *   MDF *snode = mdf_get_or_create_node(qe->nodeout, "usbstick");
+ *   while (tnode) {
+ *       MDF *cnode = mdf_insert_node(snode, NULL, -1);
+ *       mdf_set_value(cnode, "name", tnode->name);
+ *
+ *       tnode = tnode->next;
+ *   }
+ *   mdf_object_2_array(snode, NULL);
+ *
+ */
+
 __END_DECLS
 #endif

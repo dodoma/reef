@@ -128,6 +128,32 @@ bool mos_mkdirf(mode_t mode, char *fmt, ...)
     return mos_mkdir(path, mode);
 }
 
+static int _unlink_cb(const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf)
+{
+    int rv = remove(fpath);
+
+    if (rv != 0) perror(fpath);
+
+    return rv;
+}
+
+int mos_rmrf(char *path)
+{
+    return nftw(path, _unlink_cb, 128, FTW_DEPTH | FTW_PHYS);
+}
+
+int mos_rmrff(char *fmt, ...)
+{
+    char path[PATH_MAX];
+    va_list ap;
+
+    va_start(ap, fmt);
+    vsnprintf(path, sizeof(path), fmt, ap);
+    va_end(ap);
+
+    return mos_rmrf(path);
+}
+
 double mos_timef()
 {
     struct timeval tv;
