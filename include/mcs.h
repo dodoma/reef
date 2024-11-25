@@ -13,6 +13,7 @@ __BEGIN_DECLS
 
 /*
  * path: include search path, NULL for ./
+ * node: parse time datanode. e.g. <?cs include: $dataname.content ?>
  */
 MERR* mcs_parse_string(const char *str, const char *path, MDF *node, MCS **tpl);
 MERR* mcs_parse_file(const char *fname, const char *path, MDF *node, MCS **tpl);

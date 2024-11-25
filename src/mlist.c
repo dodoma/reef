@@ -281,7 +281,7 @@ int mlist_index(MLIST *alist, const void *key,
     return -1;
 }
 
-void  mlist_delete_item(MLIST *alist, const void *item,
+void mlist_delete_item(MLIST *alist, const void *item,
                         int __F(compare)(const void*, const void*))
 {
     int index = -1;
