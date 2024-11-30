@@ -40,6 +40,8 @@ bool mos_mkdirf(mode_t mode, char *fmt, ...);
 int mos_rmrf(char *path);
 int mos_rmrff(char *fmt, ...);
 
+bool mos_copyfile(const char *src, const char *dest, mode_t mode);
+
 double mos_timef();
 
 static inline void mos_utc_time(struct timespec *ts)
