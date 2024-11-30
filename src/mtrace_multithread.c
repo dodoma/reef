@@ -145,7 +145,9 @@ MERR* mtc_mt_init(const char *fn, const char *modulename, MTC_LEVEL level)
     e->tid = tid;
     e->level = level;
     strncpy(e->filename, fn, sizeof(e->filename));
+    e->filename[sizeof(e->filename)-1] = 0;
     strncpy(e->modulename, modulename, sizeof(e->modulename));
+    e->modulename[sizeof(e->modulename)-1] = 0;
     if (!strcmp(e->filename, "-")) e->fp = stdout;
     else e->fp = fopen(e->filename, "a+");
     if (!e->fp) {
@@ -216,9 +218,9 @@ bool mtc_mt_msg(const char *func, const char *file, long line, MTC_LEVEL level,
     snprintf(timestr, 24, "%04ld", tv.tv_sec % 10000);
     timestr[4] = '\0';
 #else
-    struct tm *tm;
-    tm = localtime(&tv.tv_sec);
-    strftime(timestr, 25, "%Y-%m-%d %H:%M:%S", tm);
+    struct tm tm;
+    localtime_r(&tv.tv_sec, &tm);
+    strftime(timestr, 25, "%Y-%m-%d %H:%M:%S", &tm);
     timestr[24] = '\0';
 #endif
 

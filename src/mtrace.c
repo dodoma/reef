@@ -64,6 +64,7 @@ MERR* mtc_init(const char *fn, MTC_LEVEL level)
     if (level <= MTC_MAX) m_cur_level = level;
 
     strncpy(m_filename, fn, sizeof(m_filename));
+    m_filename[sizeof(m_filename)-1] = 0;
 
     if (m_fp) fclose(m_fp);
 
@@ -149,9 +150,9 @@ bool mtc_msg(const char *func, const char *file, long line, MTC_LEVEL level,
     snprintf(timestr, 24, "%04ld", tv.tv_sec % 10000);
     timestr[4] = '\0';
 #else
-    struct tm *tm;
-    tm = localtime(&tv.tv_sec);
-    strftime(timestr, 25, "%Y-%m-%d %H:%M:%S", tm);
+    struct tm tm;
+    localtime_r(&tv.tv_sec, &tm);
+    strftime(timestr, 25, "%Y-%m-%d %H:%M:%S", &tm);
     timestr[24] = '\0';
 #endif
 
