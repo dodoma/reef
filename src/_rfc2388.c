@@ -239,7 +239,7 @@ int _rfc2388_line(MCGI *ses, const char *boundary, int boundarylen)
         char *code;
         HEADER_VALUE(r->pos, code);
         if (!code || (strcmp(code, "7bit") && strcmp(code, "8bit") && strcmp(code, "binary"))) {
-            mtc_warn("form data encoding %s not supported", code);
+            mtc_warn("form data encoding %s not supported", code ? code : "null");
             mos_free(code);
         }
 

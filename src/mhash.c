@@ -513,3 +513,15 @@ void mhash_md5_final(unsigned char checksum[16], MD5CTX *ctx)
 {
     MD5Final(checksum, ctx);
 }
+
+void mhash_dump(MHASH *table)
+{
+    for (uint32_t row = 0; row < table->rownum; row++) {
+        struct node *item = table->nodes[row];
+        while (item) {
+            printf("%s\t", (char*)item->key);
+            item = item->next;
+        }
+        printf("\n");
+    }
+}
