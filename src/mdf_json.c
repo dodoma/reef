@@ -1002,9 +1002,10 @@ static void _export_json_string(MDF *node, void *rock, MDF_PRINTF mprintf, int l
             char *s = node->val.s;
             while (*s) {
                 if (*s == '"') mprintf(rock, "\\\"");
-                else if (*s == '\r') mprintf(rock, "\\r");
+                else if (*s == '\t') mprintf(rock, "\\t");
                 else if (*s == '\n') mprintf(rock, "\\n");
-                else mprintf(rock, "%c", *s);
+                else if (*s == '\r') mprintf(rock, "\\r");
+                else if (*s >= 0x20) mprintf(rock, "%c", *s); /* skip JSON contrl characters */
                 s++;
             }
             mprintf(rock, "\"");

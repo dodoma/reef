@@ -891,7 +891,8 @@ MERR* mdf_mpack_import_file(MDF *node, const char *fname)
     size_t actlen = mdf_mpack_deserialize(node, buf, fs.st_size);
     if (actlen != fs.st_size) {
         mos_free(buf);
-        return merr_raise(MERR_ASSERT, "mpack import failure %ld != %ld", (long int)actlen, fs.st_size);
+        return merr_raise(MERR_ASSERT, "mpack import %s failure %ld != %ld",
+                          fname, (long int)actlen, fs.st_size);
     }
 
     mos_free(buf);
