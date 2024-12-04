@@ -1,6 +1,19 @@
 #include "reef.h"
 #include "_mdf.h"
 
+/* 控制字符原则上可以存在于 mdf 的 name 和 value, 但常将 mdf 用于保存用户可读内容，为简便起见，统一去掉 */
+#define _MDF_SKIP_CONTRL_CHAR(str)                                      \
+    do {                                                                \
+        char *__mps = (char*)(str);                                     \
+        while (*__mps != 0) {                                           \
+            if (*__mps < 0x20 && *__mps != '\t' && *__mps != '\n' && *__mps != '\r') { \
+                *__mps = 0;                                             \
+                break;                                                  \
+            }                                                           \
+            __mps++;                                                    \
+        }                                                               \
+    } while (0)
+
 static MDF* _walk_by_name(MDF *node, const char *name, size_t len, bool create)
 {
     int childnum;
@@ -32,6 +45,7 @@ static MDF* _walk_by_name(MDF *node, const char *name, size_t len, bool create)
         if (node->type != MDF_TYPE_ARRAY) node->type = MDF_TYPE_OBJECT;
 
         mdf_init(&rnode);
+        _MDF_SKIP_CONTRL_CHAR(sname);
         rnode->name = strdup(sname);
         rnode->namelen = strlen(sname);
 
@@ -450,6 +464,7 @@ MERR* mdf_set_value(MDF *node, const char *path, const char *value)
     }
     anode->type = MDF_TYPE_STRING;
     if (value) {
+        _MDF_SKIP_CONTRL_CHAR(value);
         anode->val.s = strdup(value);
         anode->valuelen = strlen(value);
     } else {

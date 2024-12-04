@@ -154,6 +154,37 @@ int mos_rmrff(char *fmt, ...)
     return mos_rmrf(path);
 }
 
+bool mos_copyfile(const char *src, const char *dest, mode_t mode)
+{
+    if (!src || !dest) return false;
+
+    int input = open(src, O_RDONLY);
+    if (input == -1) return false;
+
+    int output = creat(dest, mode);
+    if (output == -1) return false;
+
+    struct stat st = {0};
+    if (fstat(input, &st) != 0) return false;
+
+    bool ret = true;
+    off_t copied = 0;
+    while (copied < st.st_size) {
+        ssize_t written = sendfile(output, input, &copied, SSIZE_MAX);
+        copied += written;
+
+        if (written == -1) {
+            ret = false;
+            break;
+        }
+    }
+
+    close(input);
+    close(output);
+
+    return ret;
+}
+
 double mos_timef()
 {
     struct timeval tv;

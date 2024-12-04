@@ -45,6 +45,7 @@ static struct _entry* _entry_search(const char *module)
     struct _entry le;
     struct _entry *le_addr = &le;
     strncpy(le.module, module, sizeof(le.module));
+    le.module[sizeof(le.module)-1] = 0;
 
     struct _entry **addr = bsearch(&le_addr, m_logs, m_num, sizeof(void*), _entry_compare);
 
@@ -114,7 +115,9 @@ MERR* mtc_mm_init(const char *fn, const char *module, MTC_LEVEL level)
 
     e->level = level;
     strncpy(e->module, module, sizeof(e->module));
+    e->module[sizeof(e->module)-1] = 0;
     strncpy(e->filename, fn, sizeof(e->filename));
+    e->filename[sizeof(e->filename)-1] = 0;
     if (!strcmp(e->filename, "-")) e->fp = stdout;
     else e->fp = fopen(e->filename, "a+");
     if (!e->fp) {
@@ -174,9 +177,9 @@ bool mtc_mm_msg(const char *func, const char *file, long line, MTC_LEVEL level,
     snprintf(timestr, 24, "%04ld", tv.tv_sec % 10000);
     timestr[4] = '\0';
 #else
-    struct tm *tm;
-    tm = localtime(&tv.tv_sec);
-    strftime(timestr, 25, "%Y-%m-%d %H:%M:%S", tm);
+    struct tm tm;
+    localtime_r(&tv.tv_sec, &tm);
+    strftime(timestr, 25, "%Y-%m-%d %H:%M:%S", &tm);
     timestr[24] = '\0';
 #endif
 

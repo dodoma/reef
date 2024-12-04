@@ -214,10 +214,13 @@ void SHA1Update(
     {
         memcpy(&context->buffer[j], data, (i = 64 - j));
         SHA1Transform(context->state, context->buffer);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-overread"
         for (; i + 63 < len; i += 64)
         {
             SHA1Transform(context->state, &data[i]);
         }
+#pragma GCC diagnostic pop
         j = 0;
     }
     else

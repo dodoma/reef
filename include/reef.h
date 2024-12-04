@@ -45,6 +45,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
+#include <sys/sendfile.h>
 #include <inttypes.h>
 #include <ctype.h>
 #include <limits.h>
@@ -85,6 +86,7 @@
 
 #include "mlist.h"
 #include "mlist_macro.h"
+#include "mslist.h"
 #include "mdlist.h"
 #include "mtree.h"
 #include "mutree.h"
