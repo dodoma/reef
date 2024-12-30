@@ -999,7 +999,7 @@ static void _export_json_string(MDF *node, void *rock, MDF_PRINTF mprintf, int l
     case MDF_TYPE_STRING:
         if (node->val.s) {
             mprintf(rock, "\"");
-            char *s = node->val.s;
+            uint8_t *s = (uint8_t*)node->val.s;
             while (*s) {
                 if (*s == '"') mprintf(rock, "\\\"");
                 else if (*s == '\t') mprintf(rock, "\\t");
