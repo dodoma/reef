@@ -4,7 +4,7 @@
 /* 控制字符原则上可以存在于 mdf 的 name 和 value, 但常将 mdf 用于保存用户可读内容，为简便起见，统一去掉 */
 #define _MDF_SKIP_CONTRL_CHAR(str)                                      \
     do {                                                                \
-        char *__mps = (char*)(str);                                     \
+        uint8_t *__mps = (uint8_t*)(str);                               \
         while (*__mps != 0) {                                           \
             if (*__mps < 0x20 && *__mps != '\t' && *__mps != '\n' && *__mps != '\r') { \
                 *__mps = 0;                                             \
