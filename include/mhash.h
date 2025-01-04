@@ -31,8 +31,13 @@ int      mhash_int_comp(const void *a, const void *b);
 
 /* 098f6bcd4621d373cade4e832627b4f6 */
 void mhash_md5_buf(unsigned char *in, size_t len, unsigned char out[16]);
+/* 小片小片的 MD5Update() */
+ssize_t mhash_file_md5(const char *filename, unsigned char out[16]);
+ssize_t mhash_file_md5_s(const char *filename, char hexstr[33]);
+/* mmap() 一次性 MD5Update() */
 ssize_t mhash_md5_file(const char *filename, unsigned char out[16]);
 ssize_t mhash_md5_file_s(const char *filename, char hexstr[33]);
+
 /* 7d726587934dc8f29e2e42b88a0756be1c47fa64 */
 void mhash_sha1_buf(unsigned char *in, size_t len, unsigned char out[20]);
 ssize_t mhash_sha1_file(const char *filename, unsigned char out[20]);

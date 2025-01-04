@@ -324,6 +324,47 @@ void mhash_md5_buf(unsigned char *in, size_t len, unsigned char out[16])
     MD5Final(out, &contex);
 }
 
+ssize_t mhash_file_md5(const char *filename, unsigned char out[16])
+{
+    size_t contentlen = 0;
+
+    if (!filename) return -1;
+
+    memset(out, 0x0, 16);
+
+    FILE *fp = fopen(filename, "r");
+    if (fp) {
+        md5_ctx context;
+        MD5Init(&context);
+
+        size_t len = 0;
+        unsigned char readbuf[4096];
+        while ((len = fread(readbuf, 1, sizeof(readbuf), fp)) > 0) {
+            MD5Update(&context, readbuf, len);
+            contentlen += len;
+        }
+
+        MD5Final(out, &context);
+
+        fclose(fp);
+    } else return -1;
+
+    return contentlen;
+}
+
+ssize_t mhash_file_md5_s(const char *filename, char hexstr[33])
+{
+    unsigned char sum[16] = {0};
+
+    memset(hexstr, 0x0, 33);
+
+    ssize_t ret = mhash_file_md5(filename, sum);
+    mstr_bin2hexstr(sum, 16, hexstr);
+    mstr_tolower(hexstr);
+
+    return ret;
+}
+
 ssize_t mhash_md5_file(const char *filename, unsigned char out[16])
 {
     if (!filename) return -1;
