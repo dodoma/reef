@@ -1,5 +1,13 @@
 #include "reef.h"
 
+static inline Rune __canon(Rune c)
+{
+	Rune u = toupperrune(c);
+	if (c >= 128 && u < 128)
+		return c;
+	return u;
+}
+
 static void _check_length(MSTR *astr, size_t len)
 {
     if (astr->buf == NULL) {
@@ -436,6 +444,35 @@ bool mstr_isxstring(const char *s)
 
     return true;
 }
+
+bool mstr_endwith(const char *s, const char *tok, bool igcase)
+{
+    if (!s || !tok) return false;
+
+    int x = strlen(s), y = strlen(tok);
+
+    if (x < y) return false;
+
+    const char *ps = s + (x - y);
+
+    Rune c, d;
+    while (*ps && *tok) {
+        ps += chartorune(&c, ps);
+        tok += chartorune(&d, tok);
+
+        if (igcase) {
+            c = __canon(c);
+            d = __canon(d);
+        }
+
+        if (c != d) return false;
+    }
+
+    if (*ps || *tok) return false;
+
+    return true;
+}
+
 
 void mstr_bin2str(uint8_t *hexin, unsigned int inlen, char *charout)
 {

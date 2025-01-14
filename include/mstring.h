@@ -90,7 +90,8 @@ MERR* mstr_array_split(MLIST **alist, const char *sin, const char *sep, int max)
 char* mstr_tolower(char *s);
 char* mstr_toupper(char *s);
 
-bool  mstr_isxstring(const char *s);
+bool mstr_isxstring(const char *s);
+bool mstr_endwith(const char *s, const char *tok, bool igcase);
 
 /*
  * 将一片二进制数组，转换成16进制字符串（一般用于网络包调试）
